@@ -1,6 +1,6 @@
 QT += network xml sql
 
-include(json/qt-json.pri)
+include(qt-json/qt-json.pri)
 include(thirdparty/thirdparty.pri)
 
 symbian:LIBS += -llibcrypto
