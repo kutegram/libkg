@@ -23,6 +23,16 @@ void TelegramStream::readRawBytes(QByteArray &i, qint32 count)
     stream.readRawData(i.data(), count);
 }
 
+void writeRawBytes(TelegramStream &stream, QByteArray i)
+{
+    stream.writeRawBytes(i);
+}
+
+void readRawBytes(TelegramStream &stream, QByteArray &i, qint32 count)
+{
+    stream.readRawBytes(i, count);
+}
+
 QByteArray TelegramStream::toByteArray()
 {
     return array;

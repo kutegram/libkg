@@ -20,13 +20,17 @@ HEADERS += \
     $$PWD/apisecrets.h \
     $$PWD/tlschema.h \
     $$PWD/mtschema.h \
-    $$PWD/telegramstream.h \
-    $$PWD/crypto.h
+    $$PWD/tgstream.h \
+    $$PWD/crypto.h \
+    $$PWD/tgclient.h \
+    $$PWD/tgtransport.h
 
 SOURCES += \
     $$PWD/tlschema.cpp \
     $$PWD/mtschema.cpp \
-    $$PWD/telegramstream.cpp \
-    $$PWD/crypto.cpp
+    $$PWD/tgstream.cpp \
+    $$PWD/crypto.cpp \
+    $$PWD/tgclient.cpp \
+    $$PWD/tgtransport.cpp
 
 INCLUDEPATH += $$PWD

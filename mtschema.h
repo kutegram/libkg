@@ -3,7 +3,7 @@
 
 //Generated code.
 
-#include "telegramstream.h"
+#include "tgstream.h"
 
 namespace MTType {
 enum Types

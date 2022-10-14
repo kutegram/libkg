@@ -9,8 +9,9 @@
 class TelegramStream : public QObject
 {
     Q_OBJECT
-public:
+private:
     QByteArray array;
+public:
     QDataStream stream;
     explicit TelegramStream(QByteArray input = QByteArray());
 
@@ -26,6 +27,7 @@ public slots:
 };
 
 typedef TelegramStream TelegramPacket;
+typedef TelegramStream TgPacket;
 typedef void (*WRITE_METHOD)(TelegramStream&, QVariant, void*);
 typedef void (*READ_METHOD)(TelegramStream&, QVariant&, void*);
 
@@ -55,6 +57,9 @@ void writeInt128(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeInt256(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeVector(TelegramStream& stream, QVariant i, void* callback);
 
+void readRawBytes(TelegramStream& stream, QByteArray &i, qint32 count);
+void writeRawBytes(TelegramStream& stream, QByteArray i);
+
 #include <QVariantMap>
 #include <QVariantList>
 #include <QByteArray>
@@ -66,15 +71,24 @@ typedef QByteArray TelegramInt256;
 
 typedef QVariantMap TObject;
 typedef QVariantList TVector;
+typedef QVariantList TList;
+typedef QVariantList TArray;
 typedef QByteArray TInt128;
 typedef QByteArray TInt256;
 
-#define TOBJECT(name, id) \
+typedef QVariantMap TgObject;
+typedef QVariantList TgVector;
+typedef QVariantList TgList;
+typedef QVariantList TgArray;
+typedef QByteArray TgInt128;
+typedef QByteArray TgInt256;
+
+#define TOBJECT(id, name) \
     TelegramObject name;  \
     name["_"] = id;
 
-#define TGOBJECT(name, id) \
-    TOBJECT(name, id)
+#define TGOBJECT(id, name) \
+    TOBJECT(id, name)
 
 #define ID_PROPERTY(name) \
     name["_"]

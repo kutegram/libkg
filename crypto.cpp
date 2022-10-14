@@ -14,11 +14,25 @@ DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
     exponent(QByteArray::fromHex(exponent.toUtf8())),
     fingerprint(fingerprint)
 {
+    if (!this->publicKey.isEmpty() && this->publicKey[0] == 0) {
+        this->publicKey.remove(0, 1);
+    }
 
+    if (this->fingerprint == 0) {
+        TgPacket packet;
+        writeByteArray(packet, this->publicKey);
+        writeByteArray(packet, this->exponent);
+
+        QByteArray result = hashSHA1(packet.toByteArray()).mid(12, 8);
+        this->fingerprint = qFromLittleEndian<qint64>((const uchar*) result.constData());
+        qDebug() << this->fingerprint;
+    }
 }
 
-qint32 randomInt(qint32 lowerThan) {
-    if (lowerThan < 1) return 0;
+qint32 randomInt(qint32 lowerThan)
+{
+    if (lowerThan < 1)
+        return 0;
     return qAbs(qFromBigEndian<qint32>((uchar*) randomBytes(4).data())) % lowerThan;
 }
 
@@ -124,6 +138,9 @@ QByteArray reverse(QByteArray array)
 
 QByteArray xorArray(QByteArray a, QByteArray b)
 {
+    if (a.length() != b.length())
+        return QByteArray();
+
     QByteArray result(a.length(), 0);
     for (qint32 i = 0; i < a.length(); ++i) {
         result[i] = (a[i] ^ b[i]);
@@ -204,4 +221,37 @@ QByteArray calcEncryptionKey(QByteArray authKey, QByteArray msgKey, QByteArray &
     iv = sha256B.mid(0, 8) + sha256A.mid(8, 16) + sha256B.mid(24, 8);
 
     return sha256A.mid(0, 8) + sha256B.mid(8, 16) + sha256A.mid(24, 8);
+}
+
+qint8 compareAsBigEndian(QByteArray a, QByteArray b)
+{
+    if (a.length() != b.length())
+        return a.length() > b.length() ? 1 : -1;
+
+    for (qint32 i = 0; i < a.length(); ++i) {
+        if ((quint8) a[i] > (quint8) b[i])
+            return 1;
+        if ((quint8) b[i] > (quint8) a[i])
+            return -1;
+    }
+
+    return 0;
+}
+
+QByteArray rsaPad(QByteArray data, DHKey key)
+{
+    QByteArray dataWithPadding = data + randomBytes(192 - data.length());
+    QByteArray dataPadReversed = reverse(dataWithPadding);
+
+    QByteArray keyAesEncrypted;
+    do {
+        QByteArray tempKey = randomBytes(32);
+        QByteArray dataWithHash = dataPadReversed + hashSHA256(tempKey + dataWithPadding);
+        QByteArray aesEncrypted = encryptAES256IGE(dataWithHash, QByteArray(32, 0), tempKey);
+        QByteArray tempKeyXor = xorArray(tempKey, hashSHA256(aesEncrypted));
+        keyAesEncrypted = tempKeyXor + aesEncrypted;
+    } while (compareAsBigEndian(keyAesEncrypted, key.publicKey) != -1);
+
+    QByteArray encryptedData = encryptRSA(keyAesEncrypted, key.publicKey, key.exponent);
+    return encryptedData;
 }
