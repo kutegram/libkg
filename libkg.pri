@@ -23,7 +23,9 @@ HEADERS += \
     $$PWD/tgstream.h \
     $$PWD/crypto.h \
     $$PWD/tgclient.h \
-    $$PWD/tgtransport.h
+    $$PWD/tgtransport.h \
+    $$PWD/systemname.h \
+    $$PWD/qcompressor.h
 
 SOURCES += \
     $$PWD/tlschema.cpp \
@@ -31,6 +33,9 @@ SOURCES += \
     $$PWD/tgstream.cpp \
     $$PWD/crypto.cpp \
     $$PWD/tgclient.cpp \
-    $$PWD/tgtransport.cpp
+    $$PWD/tgtransport.cpp \
+    $$PWD/systemname.cpp \
+    $$PWD/qcompressor.cpp \
+    $$PWD/division.c
 
 INCLUDEPATH += $$PWD

@@ -20,7 +20,7 @@ public:
 signals:
     
 public slots:
-    void start(QString ip, quint16 port);
+    void start();
     void _connected();
     
 };

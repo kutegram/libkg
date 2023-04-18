@@ -792,7 +792,7 @@ void readMTMethodReqPqMulti(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1099002127:
-    readMTResPQ(stream, i, callback);
+        readMTResPQ(stream, i, callback);
     break;
     }
 }
@@ -814,7 +814,7 @@ void readMTMethodReqDHParams(TelegramStream &stream, QVariant &i, void* callback
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -686627650:
-    readMTServerDHParams(stream, i, callback);
+        readMTServerDHParams(stream, i, callback);
     break;
     }
 }
@@ -841,7 +841,7 @@ void readMTMethodSetClientDHParams(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -184262881:
-    readMTSetClientDHParamsAnswer(stream, i, callback);
+        readMTSetClientDHParamsAnswer(stream, i, callback);
     break;
     }
 }
@@ -865,7 +865,7 @@ void readMTMethodRpcDropAnswer(TelegramStream &stream, QVariant &i, void* callba
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1491380032:
-    readMTRpcDropAnswer(stream, i, callback);
+        readMTRpcDropAnswer(stream, i, callback);
     break;
     }
 }
@@ -887,7 +887,7 @@ void readMTMethodGetFutureSalts(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1188971260:
-    readMTFutureSalts(stream, i, callback);
+        readMTFutureSalts(stream, i, callback);
     break;
     }
 }
@@ -909,7 +909,7 @@ void readMTMethodPing(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2059302892:
-    readMTPong(stream, i, callback);
+        readMTPong(stream, i, callback);
     break;
     }
 }
@@ -931,7 +931,7 @@ void readMTMethodPingDelayDisconnect(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -213746804:
-    readMTPong(stream, i, callback);
+        readMTPong(stream, i, callback);
     break;
     }
 }
@@ -954,7 +954,7 @@ void readMTMethodDestroySession(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -414113498:
-    readMTDestroySessionRes(stream, i, callback);
+        readMTDestroySessionRes(stream, i, callback);
     break;
     }
 }
@@ -976,7 +976,7 @@ void readMTMethodHttpWait(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1835453025:
-        break;
+            break;
     }
 }
 
@@ -999,7 +999,7 @@ void readMTMethodDestroyAuthKey(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -784117408:
-    readMTDestroyAuthKeyRes(stream, i, callback);
+        readMTDestroyAuthKeyRes(stream, i, callback);
     break;
     }
 }

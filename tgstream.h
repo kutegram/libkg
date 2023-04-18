@@ -117,7 +117,7 @@ bool peersEqual(TObject peer1, TObject peer2);
 template <WRITE_METHOD W> QByteArray tlSerialize(QVariant obj)
 {
     TelegramPacket packet;
-    if (W) (*W)(packet, obj, 0);
+    (*W)(packet, obj, 0);
     return packet.toByteArray();
 }
 
@@ -125,7 +125,7 @@ template <READ_METHOD R> QVariant tlDeserialize(QByteArray array)
 {
     QVariant obj;
     TelegramPacket packet(array);
-    if (R) (*R)(packet, obj, 0);
+    (*R)(packet, obj, 0);
     return obj;
 }
 

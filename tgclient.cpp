@@ -11,14 +11,15 @@ TgClient::TgClient(QObject *parent)
 {
 }
 
-void TgClient::start(QString ip, quint16 port)
+void TgClient::start()
 {
     qDebug() << "Starting client";
 
     _socket = new QTcpSocket(this);
     _socket->setSocketOption(QTcpSocket::LowDelayOption, 1);
     _socket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
-    _socket->connectToHost(ip, port);
+    //TODO: remove hardcode
+    _socket->connectToHost("149.154.167.40", 443);
 
     connect(_socket, SIGNAL(connected()), this, SLOT(_connected()));
 }

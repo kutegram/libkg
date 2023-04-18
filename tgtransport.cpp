@@ -7,6 +7,13 @@
 #include <QtEndian>
 #include <QList>
 #include <cstdlib>
+#include "tlschema.h"
+#include "apisecrets.h"
+#include "systemname.h"
+#include <QCoreApplication>
+#include <QLocale>
+#include <QStringList>
+#include <qcompressor.h>
 
 TgTransport::TgTransport(TgClient *parent)
     : QObject(parent)
@@ -15,6 +22,13 @@ TgTransport::TgTransport(TgClient *parent)
     , nonce()
     , serverNonce()
     , newNonce()
+    , authKey()
+    , serverSalt(0)
+    , authKeyId(0)
+    , timeOffset(0)
+    , sequence(0)
+    , lastMessageId(0)
+    , sessionId(0)
 {
     connect(_socket, SIGNAL(readyRead()), this, SLOT(_readyRead()));
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
@@ -29,7 +43,7 @@ void TgTransport::sendPlainMessage(QByteArray data)
 {
     TgPacket packet;
     writeInt64(packet, 0);
-    writeInt64(packet, QDateTime::currentDateTimeUtc().toMSecsSinceEpoch());
+    writeInt64(packet, getNewMessageId());
     writeInt32(packet, data.length());
 
     sendIntermediate(packet.toByteArray() + data);
@@ -56,10 +70,10 @@ void TgTransport::_readyRead()
 {
     qDebug() << "Ready to read";
 
-    processMessage();
+    processMessage(readIntermediate());
 }
 
-void TgTransport::readIntermediate(QByteArray &data)
+QByteArray TgTransport::readIntermediate()
 {
     QByteArray buffer = _socket->read(4);
     if (buffer.length() < 4)
@@ -69,47 +83,61 @@ void TgTransport::readIntermediate(QByteArray &data)
     QVariant length;
     readInt32(packet, length);
 
-    data = _socket->read(length.toInt());
+    return _socket->read(length.toInt());
 }
 
-void TgTransport::processMessage()
+void TgTransport::processMessage(QByteArray message)
 {
-    QByteArray message;
-    readIntermediate(message);
-
     TgPacket packet(message);
 
-    QVariant id;
-    readInt64(packet, id);
-
     if (message.length() <= 4) {
-        qDebug() << "Got MTProto error:" << id.toInt();
+        QVariant error;
+        readInt32(packet, error);
+        qDebug() << "Got MTProto error:" << error.toInt();
         return;
     }
 
-    if (id != 0) {
-        qDebug() << "MTProto messages are not supported yet";
-        return;
+    QVariant var;
+    readInt64(packet, var);
+
+    QByteArray data;
+
+    if (var.toLongLong() == 0) {
+        readInt64(packet, var);
+        readInt32(packet, var);
+        readRawBytes(packet, data, var.toInt());
+    } else {
+        //TODO: Important checks
+        //TODO: check auth key id
+        //TODO: check msg_key correctness
+        //TODO: NB: after decryption, msg_key must be equal to SHA-256 of data thus obtained.
+
+        QByteArray messageKey;
+        readRawBytes(packet, messageKey, 16);
+        QByteArray keyIv;
+        QByteArray keyData = calcEncryptionKey(authKey, messageKey, keyIv, false);
+
+        TgPacket plainMessage(decryptAES256IGE(message.mid(24), keyIv, keyData));
+        readUInt64(plainMessage, var); //remoteSalt
+        readUInt64(plainMessage, var); //remoteId
+        readInt64(plainMessage, var); //remoteMessageId
+        readInt32(plainMessage, var); //remoteSequence
+        readInt32(plainMessage, var); //messageLength
+        readRawBytes(plainMessage, data, var.toInt());
     }
-
-    QVariant messageId;
-    readInt64(packet, messageId);
-
-    QVariant dataLength;
-    readInt32(packet, dataLength);
-
-    QByteArray data = message.mid(20, dataLength.toInt());
 
     //qDebug() << "[IN ]" << data.toHex();
 
-    QVariant conId;
-    readInt32(packet, conId);
-
-    handleObject(conId.toInt(), data);
+    handleObject(data);
 }
 
-void TgTransport::handleObject(qint32 conId, QByteArray data)
+void TgTransport::handleObject(QByteArray data)
 {
+    TgPacket packet(data);
+    QVariant var;
+    readInt32(packet, var);
+    qint32 conId = var.toInt();
+
     qDebug() << "Got an object:" << conId;
 
     switch (conId) {
@@ -118,6 +146,9 @@ void TgTransport::handleObject(qint32 conId, QByteArray data)
         break;
     case MTType::ServerDHParamsOk:
         handleServerDHParamsOk(data);
+        break;
+    case MTType::DhGenOk:
+        handleDhGenOk(data);
         break;
     default:
         qDebug() << "WARNING: object" << conId << "is unknown!";
@@ -147,11 +178,7 @@ void TgTransport::handleResPQ(QByteArray data)
     QByteArray pqBytes = obj["pq"].toByteArray();
     quint64 pq = qFromBigEndian<quint64>((const uchar*) pqBytes.constData());
     quint32 p = findDivider(pq);
-    //quint32 q = pq / p;
-    //Symbian compilation workaround
-    lldiv_t output;
-    output = lldiv(pq, p);
-    quint32 q = output.quot;
+    quint32 q = pq / p;
     if (p > q) qSwap(p, q);
 
     QByteArray pBytes(INT32_BYTES, 0);
@@ -160,7 +187,8 @@ void TgTransport::handleResPQ(QByteArray data)
     QByteArray qBytes(INT32_BYTES, 0);
     qToBigEndian(q, (uchar*) qBytes.data());
 
-    QList<DHKey> keychain = QList<DHKey>() << DHKey("00e8bb3305c0b52c6cf2afdf763731"
+    QList<DHKey> keychain = QList<DHKey>()
+                                           << DHKey("00e8bb3305c0b52c6cf2afdf763731"
                                                     "3489e63e05268e5badb601af417786"
                                                     "472e5f93b85438968e20e6729a301c"
                                                     "0afc121bf7151f834436f7fda68084"
@@ -177,7 +205,7 @@ void TgTransport::handleResPQ(QByteArray data)
                                                     "e001d1953255757e4b8e42813347b1"
                                                     "1da6ab500fd0ace7e6dfa3736199cc"
                                                     "af9397ed0745a427dcfa6cd67bcb1a"
-                                                    "cff3", -3414540481677951611LL, "10001")
+                                                    "cff3", -3414540481677951611LL)
                                            << DHKey("00c8c11d635691fac091dd9489aedc"
                                                     "ed2932aa8a0bcefef05fa800892d9b"
                                                     "52ed03200865c9e97211cb2ee6c7ae"
@@ -195,7 +223,8 @@ void TgTransport::handleResPQ(QByteArray data)
                                                     "6cd7bd7e183aa974a712c079dde85b"
                                                     "9dc063b8a5c08e8f859c0ee5dcd824"
                                                     "c7807f20153361a7f63cfd2a433a1b"
-                                                    "e7f5", -5595554452916591101LL, "10001");
+                                                    "e7f5", -5595554452916591101LL);
+
     TgVector serverKeyFingerprints = obj["server_public_key_fingerprints"].toList();
 
     QList<DHKey> matched;
@@ -204,8 +233,12 @@ void TgTransport::handleResPQ(QByteArray data)
         for (qint32 j = 0; j < keychain.length(); ++j) {
             if (serverKeyFingerprints[i].toLongLong() == keychain[j].fingerprint) {
                 matched << keychain[j];
+                qDebug() << "Matched fingerprint: " << keychain[j].fingerprint;
                 break;
             }
+        }
+        if (!matched.isEmpty()) {
+            break;
         }
     }
 
@@ -222,7 +255,6 @@ void TgTransport::handleResPQ(QByteArray data)
     pqInnerData["server_nonce"] = serverNonce;
     pqInnerData["new_nonce"] = newNonce = randomBytes(INT256_BYTES);
     pqInnerData["dc"] = 10002; //TODO: remove hardcoded DC ID
-    //If DC is production - just DC id
     //If DC is testing - DC id + 10000
     //If DC is Media Only - DC id * -1
 
@@ -235,16 +267,15 @@ void TgTransport::handleResPQ(QByteArray data)
         return;
     }
 
-    QByteArray encryptedData = rsaPad(pidData, matched.first());
-
-    qDebug() << encryptedData.size();
+    QByteArray encryptedData = rsaPad(pidData, matched[0]);
+    encryptedData.insert(0, QByteArray(256 - encryptedData.size(), 0));
 
     TGOBJECT(MTType::ReqDHParamsMethod, reqDH);
     reqDH["nonce"] = nonce;
     reqDH["server_nonce"] = serverNonce;
     reqDH["p"] = pBytes;
     reqDH["q"] = qBytes;
-    reqDH["public_key_fingerprint"] = matched.first().fingerprint;
+    reqDH["public_key_fingerprint"] = matched[0].fingerprint;
     reqDH["encrypted_data"] = encryptedData;
 
     sendPlainObject<&writeMTMethodReqDHParams>(reqDH);
@@ -254,6 +285,8 @@ void TgTransport::handleResPQ(QByteArray data)
 
 void TgTransport::handleServerDHParamsOk(QByteArray data)
 {
+    qint32 localTime = QDateTime::currentDateTimeUtc().toTime_t();
+
     TgPacket packet(data);
     QVariant var;
 
@@ -271,6 +304,179 @@ void TgTransport::handleServerDHParamsOk(QByteArray data)
         qDebug() << "SECURITY ERROR: server nonces are different";
         return;
     }
+
+    QByteArray encryptedAnswer = obj["encrypted_answer"].toByteArray();
+    QByteArray tempAesKey = hashSHA1(newNonce + serverNonce) + hashSHA1(serverNonce + newNonce).mid(0, 12);
+    QByteArray tempAesIv = hashSHA1(serverNonce + newNonce).mid(12, 8) + hashSHA1(newNonce + newNonce) + newNonce.mid(0, 4);
+
+    TgPacket answerPacket(decryptAES256IGE(encryptedAnswer, tempAesIv, tempAesKey));
+    QByteArray answerHash;
+    readRawBytes(answerPacket, answerHash, 20);
+    //TODO: verify SHA1
+    readMTServerDHInnerData(answerPacket, var);
+
+    TgObject innerData = var.toMap();
+
+    QByteArray bBytes = randomBytes(256);
+    qint32 gValue = innerData["g"].toInt();
+    QByteArray gBytes(4, 0);
+    qToBigEndian(gValue, (uchar*) gBytes.data());
+    QByteArray dhPrime = innerData["dh_prime"].toByteArray();
+    //TODO: check dh prime (cpu expensive!)
+
+    QByteArray gbBytes = encryptRSA(gBytes, dhPrime, bBytes);
+
+    TGOBJECT(MTType::ClientDHInnerData, clientInnerData);
+    clientInnerData["nonce"] = nonce;
+    clientInnerData["server_nonce"] = serverNonce;
+    clientInnerData["retry_id"] = 0;
+    //TODO: retry ID support
+    clientInnerData["g_b"] = gbBytes;
+
+    TgPacket clientInnerDataPacket;
+    writeMTClientDHInnerData(clientInnerDataPacket, clientInnerData);
+    QByteArray cidBytes = clientInnerDataPacket.toByteArray();
+    QByteArray dataWithHash = hashSHA1(cidBytes) + cidBytes;
+    dataWithHash += randomBytes(16 - dataWithHash.size() % 16);
+
+    QByteArray encryptedData = encryptAES256IGE(dataWithHash, tempAesIv, tempAesKey);
+
+    TGOBJECT(MTType::SetClientDHParamsMethod, setParams);
+    setParams["nonce"] = nonce;
+    setParams["server_nonce"] = serverNonce;
+    setParams["encrypted_data"] = encryptedData;
+
+    sessionId = qFromLittleEndian<quint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+    QByteArray gaBytes = innerData["g_a"].toByteArray();
+    authKey = encryptRSA(gaBytes, dhPrime, bBytes);
+    authKey.insert(0, QByteArray(256 - authKey.size(), 0));
+    serverSalt = qFromLittleEndian<quint64>((const uchar*) xorArray(newNonce.mid(0, 8), serverNonce.mid(0, 8)).constData());
+    authKeyId = qFromLittleEndian<quint64>((const uchar*) hashSHA1(authKey).mid(12, 8).constData());
+    timeOffset = innerData["server_time"].toInt() - localTime;
+    sequence = 0;
+    lastMessageId = 0;
+
+    sendPlainObject<&writeMTMethodSetClientDHParams>(setParams);
+}
+
+void TgTransport::handleDhGenOk(QByteArray data)
+{
+    TgPacket packet(data);
+    QVariant var;
+
+    readMTSetClientDHParamsAnswer(packet, var);
+    TgObject obj = var.toMap();
+
+    if (obj["nonce"].toByteArray() != nonce) {
+        qDebug() << "SECURITY ERROR: nonces are different";
+        return;
+    }
+
+    if (obj["server_nonce"].toByteArray() != serverNonce) {
+        qDebug() << "SECURITY ERROR: server nonces are different";
+        return;
+    }
+
+    QByteArray newNonceHash1 = hashSHA1(newNonce + QByteArray(1, 1) + hashSHA1(authKey).mid(0, 8)).mid(4);
+    if (obj["new_nonce_hash1"].toByteArray() != newNonceHash1) {
+        qDebug() << "SECURITY ERROR: new nonce hashes are different";
+        return;
+    }
+
+    //TODO: important checks
+    qDebug() << "DH completed";
+
+    initConnection();
+}
+
+void TgTransport::initConnection()
+{
+    TGOBJECT(TLType::HelpGetConfigMethod, getConfig);
+    TGOBJECT(TLType::InitConnectionMethod, initConnection);
+
+    char id[6] = {API_ID_BYTES};
+    initConnection["api_id"] = QString::fromAscii(id, 6).toInt();
+    initConnection["device_model"] = systemName() + "-based device";
+    initConnection["system_version"] = systemName();
+    QString appVersion = QCoreApplication::applicationVersion();
+    if (appVersion.isEmpty())
+        appVersion = "1.0.0";
+    initConnection["app_version"] = appVersion;
+    initConnection["system_lang_code"] = QLocale::system().name().split("_")[0];
+    initConnection["lang_pack"] = ""; //TODO: what is lang pack?
+    initConnection["lang_code"] = QLocale::system().name().split("_")[0];
+    initConnection["query"] = getConfig;
+
+    TGOBJECT(TLType::InvokeWithLayerMethod, invokeWithLayer);
+    invokeWithLayer["layer"] = API_LAYER;
+    invokeWithLayer["query"] = initConnection;
+
+    sendMTObject< &writeTLMethodInvokeWithLayer
+                < &readTLMethodInitConnection
+                < &readTLMethodHelpGetConfig ,
+                &writeTLMethodHelpGetConfig > ,
+                &writeTLMethodInitConnection
+                < &readTLMethodHelpGetConfig ,
+                &writeTLMethodHelpGetConfig > > >(invokeWithLayer);
+}
+
+QByteArray TgTransport::gzipPacket(QByteArray data)
+{
+    QByteArray packedData;
+    if (!QCompressor::gzipCompress(data, packedData)) {
+        qDebug() << "[ERROR] Gzip compression error.";
+        return data;
+    }
+
+    TGOBJECT(MTType::GzipPacked, zipped);
+    zipped["packed_data"] = packedData;
+
+    TgPacket packet;
+    writeMTObject(packet, zipped);
+    return packet.toByteArray();
+}
+
+void TgTransport::sendMTMessage(QByteArray data)
+{
+    if (data.size() > 255)
+        data = gzipPacket(data);
+
+    TgPacket packet;
+    writeUInt64(packet, serverSalt);
+    writeUInt64(packet, sessionId);
+    writeInt64(packet, getNewMessageId());
+    writeInt32(packet, generateSequence(true));
+    writeInt32(packet, data.length());
+    writeRawBytes(packet, data);
+    writeRawBytes(packet, randomBytes((0x7FFFFFF0 - data.length()) % 16 + (randomInt(14) + 2) * 16));
+
+    QByteArray packetBytes = packet.toByteArray();
+    QByteArray messageKey = calcMessageKey(authKey, packetBytes);
+    QByteArray keyIv;
+    QByteArray keyData = calcEncryptionKey(authKey, messageKey, keyIv, true);
+    QByteArray cipherText = encryptAES256IGE(packetBytes, keyIv, keyData);
+
+    TgPacket cipherPacket;
+    writeUInt64(cipherPacket, authKeyId);
+    writeRawBytes(cipherPacket, messageKey);
+    writeRawBytes(cipherPacket, cipherText);
+
+    sendIntermediate(cipherPacket.toByteArray());
+}
+
+qint64 TgTransport::getNewMessageId()
+{
+    qint64 time = QDateTime::currentDateTime().toUTC().toTime_t();
+    qint64 newMessageId = ((time + timeOffset) << 32) | (((time + timeOffset) % 1000) << 22);
+    if (lastMessageId >= newMessageId) newMessageId = lastMessageId + 4;
+    lastMessageId = newMessageId;
+    return newMessageId;
+}
+
+qint32 TgTransport::generateSequence(bool isContent)
+{
+    qint32 result = isContent ? sequence++ * 2 + 1 : sequence * 2;
+    return result;
 }
 
 void TgTransport::_bytesSent(qint64 count)

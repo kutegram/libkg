@@ -3,7 +3,7 @@
 
 #include <QByteArray>
 #include <QString>
-#include "telegramstream.h"
+#include "tgstream.h"
 
 struct DHKey
 {

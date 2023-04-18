@@ -2280,7 +2280,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeAfterMsg(Telegra
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -878758099:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2303,7 +2303,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeAfterMsgs(Telegr
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1036301552:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2326,7 +2326,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInitConnection(Telegra
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1043505495:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2361,7 +2361,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeWithLayer(Telegr
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -627372787:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2384,7 +2384,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeWithoutUpdates(T
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1080796745:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2406,7 +2406,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeWithMessagesRang
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 911373810:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }
@@ -2429,7 +2429,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeWithTakeout(Tele
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1398145746:
-    if (R) (*R)(stream, i, callback);
+        if (R) (*R)(stream, i, callback);
     break;
     }
 }

@@ -10,8 +10,8 @@
 #include <openssl/rsa.h>
 
 DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
-    publicKey(QByteArray::fromHex(publicKey.toUtf8())),
-    exponent(QByteArray::fromHex(exponent.toUtf8())),
+    publicKey(QByteArray::fromHex(publicKey.toAscii())),
+    exponent(QByteArray::fromHex(exponent.toAscii())),
     fingerprint(fingerprint)
 {
     if (!this->publicKey.isEmpty() && this->publicKey[0] == 0) {
@@ -252,6 +252,5 @@ QByteArray rsaPad(QByteArray data, DHKey key)
         keyAesEncrypted = tempKeyXor + aesEncrypted;
     } while (compareAsBigEndian(keyAesEncrypted, key.publicKey) != -1);
 
-    QByteArray encryptedData = encryptRSA(keyAesEncrypted, key.publicKey, key.exponent);
-    return encryptedData;
+    return encryptRSA(keyAesEncrypted, key.publicKey, key.exponent);
 }

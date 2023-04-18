@@ -1,4 +1,4 @@
-#include "telegramstream.h"
+#include "tgstream.h"
 
 TelegramStream::TelegramStream(QByteArray input) :
     QObject(0), array(input), stream(&array, QIODevice::ReadWrite)

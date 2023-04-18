@@ -19354,7 +19354,7 @@ void readTLMethodAuthSendCode(TelegramStream &stream, QVariant &i, void* callbac
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1502141361:
-    readTLAuthSentCode(stream, i, callback);
+        readTLAuthSentCode(stream, i, callback);
     break;
     }
 }
@@ -19379,7 +19379,7 @@ void readTLMethodAuthSignUp(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2131827673:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19404,7 +19404,7 @@ void readTLMethodAuthSignIn(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1923962543:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19433,7 +19433,7 @@ void readTLMethodAuthLogOut(TelegramStream &stream, QVariant &i, void* callback)
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1047706137:
-    readTLAuthLoggedOut(stream, i, callback);
+        readTLAuthLoggedOut(stream, i, callback);
     break;
     }
 }
@@ -19454,7 +19454,7 @@ void readTLMethodAuthResetAuthorizations(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1616179942:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19475,7 +19475,7 @@ void readTLMethodAuthExportAuthorization(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -440401971:
-    readTLAuthExportedAuthorization(stream, i, callback);
+        readTLAuthExportedAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19497,7 +19497,7 @@ void readTLMethodAuthImportAuthorization(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1518699091:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19520,7 +19520,7 @@ void readTLMethodAuthBindTempAuthKey(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -841733627:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19545,7 +19545,7 @@ void readTLMethodAuthImportBotAuthorization(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1738800940:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19570,7 +19570,7 @@ void readTLMethodAuthCheckPassword(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -779399914:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19592,7 +19592,7 @@ void readTLMethodAuthRequestPasswordRecovery(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -661144474:
-    readTLAuthPasswordRecovery(stream, i, callback);
+        readTLAuthPasswordRecovery(stream, i, callback);
     break;
     }
 }
@@ -19613,7 +19613,7 @@ void readTLMethodAuthRecoverPassword(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 923364464:
-    readTLAuthAuthorization(stream, i, callback);
+        readTLAuthAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19639,7 +19639,7 @@ void readTLMethodAuthResendCode(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1056025023:
-    readTLAuthSentCode(stream, i, callback);
+        readTLAuthSentCode(stream, i, callback);
     break;
     }
 }
@@ -19662,7 +19662,7 @@ void readTLMethodAuthCancelCode(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 520357240:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19685,7 +19685,7 @@ void readTLMethodAuthDropTempAuthKeys(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1907842680:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19707,7 +19707,7 @@ void readTLMethodAuthExportLoginToken(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1210022402:
-    readTLAuthLoginToken(stream, i, callback);
+        readTLAuthLoginToken(stream, i, callback);
     break;
     }
 }
@@ -19731,7 +19731,7 @@ void readTLMethodAuthImportLoginToken(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1783866140:
-    readTLAuthLoginToken(stream, i, callback);
+        readTLAuthLoginToken(stream, i, callback);
     break;
     }
 }
@@ -19753,7 +19753,7 @@ void readTLMethodAuthAcceptLoginToken(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -392909491:
-    readTLAuthorization(stream, i, callback);
+        readTLAuthorization(stream, i, callback);
     break;
     }
 }
@@ -19775,7 +19775,7 @@ void readTLMethodAuthCheckRecoveryPassword(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 221691769:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19797,7 +19797,7 @@ void readTLMethodAccountRegisterDevice(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -326762118:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19826,7 +19826,7 @@ void readTLMethodAccountUnregisterDevice(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1779249670:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19850,7 +19850,7 @@ void readTLMethodAccountUpdateNotifySettings(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2067899501:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19873,7 +19873,7 @@ void readTLMethodAccountGetNotifySettings(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 313765169:
-    readTLPeerNotifySettings(stream, i, callback);
+        readTLPeerNotifySettings(stream, i, callback);
     break;
     }
 }
@@ -19895,7 +19895,7 @@ void readTLMethodAccountResetNotifySettings(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -612493497:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19916,7 +19916,7 @@ void readTLMethodAccountUpdateProfile(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2018596725:
-    readTLUser(stream, i, callback);
+        readTLUser(stream, i, callback);
     break;
     }
 }
@@ -19945,7 +19945,7 @@ void readTLMethodAccountUpdateStatus(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1713919532:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -19967,7 +19967,7 @@ void readTLMethodAccountGetWallPapers(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 127302966:
-    readTLAccountWallPapers(stream, i, callback);
+        readTLAccountWallPapers(stream, i, callback);
     break;
     }
 }
@@ -19989,7 +19989,7 @@ void readTLMethodAccountReportPeer(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -977650298:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20013,7 +20013,7 @@ void readTLMethodAccountCheckUsername(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 655677548:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20035,7 +20035,7 @@ void readTLMethodAccountUpdateUsername(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1040964988:
-    readTLUser(stream, i, callback);
+        readTLUser(stream, i, callback);
     break;
     }
 }
@@ -20057,7 +20057,7 @@ void readTLMethodAccountGetPrivacy(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -623130288:
-    readTLAccountPrivacyRules(stream, i, callback);
+        readTLAccountPrivacyRules(stream, i, callback);
     break;
     }
 }
@@ -20079,7 +20079,7 @@ void readTLMethodAccountSetPrivacy(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -906486552:
-    readTLAccountPrivacyRules(stream, i, callback);
+        readTLAccountPrivacyRules(stream, i, callback);
     break;
     }
 }
@@ -20102,7 +20102,7 @@ void readTLMethodAccountDeleteAccount(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1564422284:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20128,7 +20128,7 @@ void readTLMethodAccountGetAccountTTL(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 150761757:
-    readTLAccountDaysTTL(stream, i, callback);
+        readTLAccountDaysTTL(stream, i, callback);
     break;
     }
 }
@@ -20149,7 +20149,7 @@ void readTLMethodAccountSetAccountTTL(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 608323678:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20171,7 +20171,7 @@ void readTLMethodAccountSendChangePhoneCode(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2108208411:
-    readTLAuthSentCode(stream, i, callback);
+        readTLAuthSentCode(stream, i, callback);
     break;
     }
 }
@@ -20194,7 +20194,7 @@ void readTLMethodAccountChangePhone(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1891839707:
-    readTLUser(stream, i, callback);
+        readTLUser(stream, i, callback);
     break;
     }
 }
@@ -20218,7 +20218,7 @@ void readTLMethodAccountUpdateDeviceLocked(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 954152242:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20240,7 +20240,7 @@ void readTLMethodAccountGetAuthorizations(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -484392616:
-    readTLAccountAuthorizations(stream, i, callback);
+        readTLAccountAuthorizations(stream, i, callback);
     break;
     }
 }
@@ -20261,7 +20261,7 @@ void readTLMethodAccountResetAuthorization(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -545786948:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20283,7 +20283,7 @@ void readTLMethodAccountGetPassword(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1418342645:
-    readTLAccountPassword(stream, i, callback);
+        readTLAccountPassword(stream, i, callback);
     break;
     }
 }
@@ -20304,7 +20304,7 @@ void readTLMethodAccountGetPasswordSettings(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1663767815:
-    readTLAccountPasswordSettings(stream, i, callback);
+        readTLAccountPasswordSettings(stream, i, callback);
     break;
     }
 }
@@ -20326,7 +20326,7 @@ void readTLMethodAccountUpdatePasswordSettings(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1516564433:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20349,7 +20349,7 @@ void readTLMethodAccountSendConfirmPhoneCode(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 457157256:
-    readTLAuthSentCode(stream, i, callback);
+        readTLAuthSentCode(stream, i, callback);
     break;
     }
 }
@@ -20372,7 +20372,7 @@ void readTLMethodAccountConfirmPhone(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1596029123:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20395,7 +20395,7 @@ void readTLMethodAccountGetTmpPassword(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1151208273:
-    readTLAccountTmpPassword(stream, i, callback);
+        readTLAccountTmpPassword(stream, i, callback);
     break;
     }
 }
@@ -20418,7 +20418,7 @@ void readTLMethodAccountGetWebAuthorizations(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 405695855:
-    readTLAccountWebAuthorizations(stream, i, callback);
+        readTLAccountWebAuthorizations(stream, i, callback);
     break;
     }
 }
@@ -20439,7 +20439,7 @@ void readTLMethodAccountResetWebAuthorization(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 755087855:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20461,7 +20461,7 @@ void readTLMethodAccountResetWebAuthorizations(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1747789204:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20482,7 +20482,7 @@ void readTLMethodAccountGetAllSecureValues(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1299661699:
-    readVector(stream, i, (void*) &readTLSecureValue);
+        readVector(stream, i, (void*) &readTLSecureValue);
     break;
     }
 }
@@ -20503,7 +20503,7 @@ void readTLMethodAccountGetSecureValue(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1936088002:
-    readVector(stream, i, (void*) &readTLSecureValue);
+        readVector(stream, i, (void*) &readTLSecureValue);
     break;
     }
 }
@@ -20525,7 +20525,7 @@ void readTLMethodAccountSaveSecureValue(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1986010339:
-    readTLSecureValue(stream, i, callback);
+        readTLSecureValue(stream, i, callback);
     break;
     }
 }
@@ -20548,7 +20548,7 @@ void readTLMethodAccountDeleteSecureValue(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1199522741:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20570,7 +20570,7 @@ void readTLMethodAccountGetAuthorizationForm(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1456907910:
-    readTLAccountAuthorizationForm(stream, i, callback);
+        readTLAccountAuthorizationForm(stream, i, callback);
     break;
     }
 }
@@ -20594,7 +20594,7 @@ void readTLMethodAccountAcceptAuthorization(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -202552205:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20620,7 +20620,7 @@ void readTLMethodAccountSendVerifyPhoneCode(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1516022023:
-    readTLAuthSentCode(stream, i, callback);
+        readTLAuthSentCode(stream, i, callback);
     break;
     }
 }
@@ -20643,7 +20643,7 @@ void readTLMethodAccountVerifyPhone(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1305716726:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20667,7 +20667,7 @@ void readTLMethodAccountSendVerifyEmailCode(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1730136133:
-    readTLAccountSentEmailCode(stream, i, callback);
+        readTLAccountSentEmailCode(stream, i, callback);
     break;
     }
 }
@@ -20690,7 +20690,7 @@ void readTLMethodAccountVerifyEmail(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 53322959:
-    readTLAccountEmailVerified(stream, i, callback);
+        readTLAccountEmailVerified(stream, i, callback);
     break;
     }
 }
@@ -20713,7 +20713,7 @@ void readTLMethodAccountInitTakeoutSession(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1896617296:
-    readTLAccountTakeout(stream, i, callback);
+        readTLAccountTakeout(stream, i, callback);
     break;
     }
 }
@@ -20744,7 +20744,7 @@ void readTLMethodAccountFinishTakeoutSession(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 489050862:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20768,7 +20768,7 @@ void readTLMethodAccountConfirmPasswordEmail(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1881204448:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20790,7 +20790,7 @@ void readTLMethodAccountResendPasswordEmail(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2055154197:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20811,7 +20811,7 @@ void readTLMethodAccountCancelPasswordEmail(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1043606090:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20832,7 +20832,7 @@ void readTLMethodAccountGetContactSignUpNotification(TelegramStream &stream, QVa
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1626880216:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20853,7 +20853,7 @@ void readTLMethodAccountSetContactSignUpNotification(TelegramStream &stream, QVa
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -806076575:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20875,7 +20875,7 @@ void readTLMethodAccountGetNotifyExceptions(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1398240377:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -20901,7 +20901,7 @@ void readTLMethodAccountGetWallPaper(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -57811990:
-    readTLWallPaper(stream, i, callback);
+        readTLWallPaper(stream, i, callback);
     break;
     }
 }
@@ -20923,7 +20923,7 @@ void readTLMethodAccountUploadWallPaper(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -578472351:
-    readTLWallPaper(stream, i, callback);
+        readTLWallPaper(stream, i, callback);
     break;
     }
 }
@@ -20947,7 +20947,7 @@ void readTLMethodAccountSaveWallPaper(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1817860919:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20971,7 +20971,7 @@ void readTLMethodAccountInstallWallPaper(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -18000023:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -20994,7 +20994,7 @@ void readTLMethodAccountResetWallPapers(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1153722364:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21015,7 +21015,7 @@ void readTLMethodAccountGetAutoDownloadSettings(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1457130303:
-    readTLAccountAutoDownloadSettings(stream, i, callback);
+        readTLAccountAutoDownloadSettings(stream, i, callback);
     break;
     }
 }
@@ -21036,7 +21036,7 @@ void readTLMethodAccountSaveAutoDownloadSettings(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1995661875:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21062,7 +21062,7 @@ void readTLMethodAccountUploadTheme(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 473805619:
-    readTLDocument(stream, i, callback);
+        readTLDocument(stream, i, callback);
     break;
     }
 }
@@ -21090,7 +21090,7 @@ void readTLMethodAccountCreateTheme(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1697530880:
-    readTLTheme(stream, i, callback);
+        readTLTheme(stream, i, callback);
     break;
     }
 }
@@ -21119,7 +21119,7 @@ void readTLMethodAccountUpdateTheme(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 737414348:
-    readTLTheme(stream, i, callback);
+        readTLTheme(stream, i, callback);
     break;
     }
 }
@@ -21152,7 +21152,7 @@ void readTLMethodAccountSaveTheme(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -229175188:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21175,7 +21175,7 @@ void readTLMethodAccountInstallTheme(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -953697477:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21205,7 +21205,7 @@ void readTLMethodAccountGetTheme(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1919060949:
-    readTLTheme(stream, i, callback);
+        readTLTheme(stream, i, callback);
     break;
     }
 }
@@ -21229,7 +21229,7 @@ void readTLMethodAccountGetThemes(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1913054296:
-    readTLAccountThemes(stream, i, callback);
+        readTLAccountThemes(stream, i, callback);
     break;
     }
 }
@@ -21252,7 +21252,7 @@ void readTLMethodAccountSetContentSettings(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1250643605:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21276,7 +21276,7 @@ void readTLMethodAccountGetContentSettings(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1952756306:
-    readTLAccountContentSettings(stream, i, callback);
+        readTLAccountContentSettings(stream, i, callback);
     break;
     }
 }
@@ -21297,7 +21297,7 @@ void readTLMethodAccountGetMultiWallPapers(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1705865692:
-    readVector(stream, i, (void*) &readTLWallPaper);
+        readVector(stream, i, (void*) &readTLWallPaper);
     break;
     }
 }
@@ -21319,7 +21319,7 @@ void readTLMethodAccountGetGlobalPrivacySettings(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -349483786:
-    readTLGlobalPrivacySettings(stream, i, callback);
+        readTLGlobalPrivacySettings(stream, i, callback);
     break;
     }
 }
@@ -21340,7 +21340,7 @@ void readTLMethodAccountSetGlobalPrivacySettings(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 517647042:
-    readTLGlobalPrivacySettings(stream, i, callback);
+        readTLGlobalPrivacySettings(stream, i, callback);
     break;
     }
 }
@@ -21362,7 +21362,7 @@ void readTLMethodAccountReportProfilePhoto(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -91437323:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21387,7 +21387,7 @@ void readTLMethodAccountResetPassword(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1828139493:
-    readTLAccountResetPasswordResult(stream, i, callback);
+        readTLAccountResetPasswordResult(stream, i, callback);
     break;
     }
 }
@@ -21408,7 +21408,7 @@ void readTLMethodAccountDeclinePasswordReset(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1284770294:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21429,7 +21429,7 @@ void readTLMethodAccountGetChatThemes(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -700916087:
-    readTLAccountThemes(stream, i, callback);
+        readTLAccountThemes(stream, i, callback);
     break;
     }
 }
@@ -21451,7 +21451,7 @@ void readTLMethodAccountSetAuthorizationTTL(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1081501024:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21473,7 +21473,7 @@ void readTLMethodAccountChangeAuthorizationSettings(TelegramStream &stream, QVar
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1089766498:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21501,7 +21501,7 @@ void readTLMethodAccountGetSavedRingtones(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -510647672:
-    readTLAccountSavedRingtones(stream, i, callback);
+        readTLAccountSavedRingtones(stream, i, callback);
     break;
     }
 }
@@ -21523,7 +21523,7 @@ void readTLMethodAccountSaveRingtone(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1038768899:
-    readTLAccountSavedRingtone(stream, i, callback);
+        readTLAccountSavedRingtone(stream, i, callback);
     break;
     }
 }
@@ -21546,7 +21546,7 @@ void readTLMethodAccountUploadRingtone(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2095414366:
-    readTLDocument(stream, i, callback);
+        readTLDocument(stream, i, callback);
     break;
     }
 }
@@ -21570,7 +21570,7 @@ void readTLMethodAccountUpdateEmojiStatus(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -70001045:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21592,7 +21592,7 @@ void readTLMethodAccountGetDefaultEmojiStatuses(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -696962170:
-    readTLAccountEmojiStatuses(stream, i, callback);
+        readTLAccountEmojiStatuses(stream, i, callback);
     break;
     }
 }
@@ -21614,7 +21614,7 @@ void readTLMethodAccountGetRecentEmojiStatuses(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 257392901:
-    readTLAccountEmojiStatuses(stream, i, callback);
+        readTLAccountEmojiStatuses(stream, i, callback);
     break;
     }
 }
@@ -21636,7 +21636,7 @@ void readTLMethodAccountClearRecentEmojiStatuses(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 404757166:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21657,7 +21657,7 @@ void readTLMethodUsersGetUsers(TelegramStream &stream, QVariant &i, void* callba
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 227648840:
-    readVector(stream, i, (void*) &readTLUser);
+        readVector(stream, i, (void*) &readTLUser);
     break;
     }
 }
@@ -21679,7 +21679,7 @@ void readTLMethodUsersGetFullUser(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1240508136:
-    readTLUsersUserFull(stream, i, callback);
+        readTLUsersUserFull(stream, i, callback);
     break;
     }
 }
@@ -21701,7 +21701,7 @@ void readTLMethodUsersSetSecureValueErrors(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1865902923:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21724,7 +21724,7 @@ void readTLMethodContactsGetContactIDs(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2061264541:
-    readVector(stream, i, (void*) &readInt32);
+        readVector(stream, i, (void*) &readInt32);
     break;
     }
 }
@@ -21746,7 +21746,7 @@ void readTLMethodContactsGetStatuses(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -995929106:
-    readVector(stream, i, (void*) &readTLContactStatus);
+        readVector(stream, i, (void*) &readTLContactStatus);
     break;
     }
 }
@@ -21767,7 +21767,7 @@ void readTLMethodContactsGetContacts(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1574346258:
-    readTLContactsContacts(stream, i, callback);
+        readTLContactsContacts(stream, i, callback);
     break;
     }
 }
@@ -21789,7 +21789,7 @@ void readTLMethodContactsImportContacts(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 746589157:
-    readTLContactsImportedContacts(stream, i, callback);
+        readTLContactsImportedContacts(stream, i, callback);
     break;
     }
 }
@@ -21811,7 +21811,7 @@ void readTLMethodContactsDeleteContacts(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 157945344:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -21833,7 +21833,7 @@ void readTLMethodContactsDeleteByPhones(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 269745566:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21855,7 +21855,7 @@ void readTLMethodContactsBlock(TelegramStream &stream, QVariant &i, void* callba
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1758204945:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21877,7 +21877,7 @@ void readTLMethodContactsUnblock(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1096393392:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -21899,7 +21899,7 @@ void readTLMethodContactsGetBlocked(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -176409329:
-    readTLContactsBlocked(stream, i, callback);
+        readTLContactsBlocked(stream, i, callback);
     break;
     }
 }
@@ -21922,7 +21922,7 @@ void readTLMethodContactsSearch(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 301470424:
-    readTLContactsFound(stream, i, callback);
+        readTLContactsFound(stream, i, callback);
     break;
     }
 }
@@ -21945,7 +21945,7 @@ void readTLMethodContactsResolveUsername(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -113456221:
-    readTLContactsResolvedPeer(stream, i, callback);
+        readTLContactsResolvedPeer(stream, i, callback);
     break;
     }
 }
@@ -21967,7 +21967,7 @@ void readTLMethodContactsGetTopPeers(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1758168906:
-    readTLContactsTopPeers(stream, i, callback);
+        readTLContactsTopPeers(stream, i, callback);
     break;
     }
 }
@@ -22001,7 +22001,7 @@ void readTLMethodContactsResetTopPeerRating(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 451113900:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22024,7 +22024,7 @@ void readTLMethodContactsResetSaved(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2020263951:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22045,7 +22045,7 @@ void readTLMethodContactsGetSaved(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2098076769:
-    readVector(stream, i, (void*) &readTLSavedContact);
+        readVector(stream, i, (void*) &readTLSavedContact);
     break;
     }
 }
@@ -22066,7 +22066,7 @@ void readTLMethodContactsToggleTopPeers(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2062238246:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22088,7 +22088,7 @@ void readTLMethodContactsAddContact(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -386636848:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22116,7 +22116,7 @@ void readTLMethodContactsAcceptContact(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -130964977:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22138,7 +22138,7 @@ void readTLMethodContactsGetLocated(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -750207932:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22165,7 +22165,7 @@ void readTLMethodContactsBlockFromReplies(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 698914348:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22192,7 +22192,7 @@ void readTLMethodContactsResolvePhone(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1963375804:
-    readTLContactsResolvedPeer(stream, i, callback);
+        readTLContactsResolvedPeer(stream, i, callback);
     break;
     }
 }
@@ -22214,7 +22214,7 @@ void readTLMethodMessagesGetMessages(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1673946374:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -22236,7 +22236,7 @@ void readTLMethodMessagesGetDialogs(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1594569905:
-    readTLMessagesDialogs(stream, i, callback);
+        readTLMessagesDialogs(stream, i, callback);
     break;
     }
 }
@@ -22267,7 +22267,7 @@ void readTLMethodMessagesGetHistory(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1143203525:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -22296,7 +22296,7 @@ void readTLMethodMessagesSearch(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1593989278:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -22334,7 +22334,7 @@ void readTLMethodMessagesReadHistory(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 238054714:
-    readTLMessagesAffectedMessages(stream, i, callback);
+        readTLMessagesAffectedMessages(stream, i, callback);
     break;
     }
 }
@@ -22357,7 +22357,7 @@ void readTLMethodMessagesDeleteHistory(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1332768214:
-    readTLMessagesAffectedHistory(stream, i, callback);
+        readTLMessagesAffectedHistory(stream, i, callback);
     break;
     }
 }
@@ -22388,7 +22388,7 @@ void readTLMethodMessagesDeleteMessages(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -443640366:
-    readTLMessagesAffectedMessages(stream, i, callback);
+        readTLMessagesAffectedMessages(stream, i, callback);
     break;
     }
 }
@@ -22413,7 +22413,7 @@ void readTLMethodMessagesReceivedMessages(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 94983360:
-    readVector(stream, i, (void*) &readTLReceivedNotifyMessage);
+        readVector(stream, i, (void*) &readTLReceivedNotifyMessage);
     break;
     }
 }
@@ -22435,7 +22435,7 @@ void readTLMethodMessagesSetTyping(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1486110434:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22462,7 +22462,7 @@ void readTLMethodMessagesSendMessage(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 228423076:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22504,7 +22504,7 @@ void readTLMethodMessagesSendMedia(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -497026848:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22546,7 +22546,7 @@ void readTLMethodMessagesForwardMessages(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -869258997:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22583,7 +22583,7 @@ void readTLMethodMessagesReportSpam(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -820669733:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22605,7 +22605,7 @@ void readTLMethodMessagesGetPeerSettings(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -270948702:
-    readTLMessagesPeerSettings(stream, i, callback);
+        readTLMessagesPeerSettings(stream, i, callback);
     break;
     }
 }
@@ -22627,7 +22627,7 @@ void readTLMethodMessagesReport(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1991005362:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22652,7 +22652,7 @@ void readTLMethodMessagesGetChats(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1240027791:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -22674,7 +22674,7 @@ void readTLMethodMessagesGetFullChat(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1364194508:
-    readTLMessagesChatFull(stream, i, callback);
+        readTLMessagesChatFull(stream, i, callback);
     break;
     }
 }
@@ -22696,7 +22696,7 @@ void readTLMethodMessagesEditChatTitle(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1937260541:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22719,7 +22719,7 @@ void readTLMethodMessagesEditChatPhoto(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 903730804:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22742,7 +22742,7 @@ void readTLMethodMessagesAddChatUser(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -230206493:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22766,7 +22766,7 @@ void readTLMethodMessagesDeleteChatUser(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1575461717:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22792,7 +22792,7 @@ void readTLMethodMessagesCreateChat(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 164303470:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -22815,7 +22815,7 @@ void readTLMethodMessagesGetDhConfig(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 651135312:
-    readTLMessagesDhConfig(stream, i, callback);
+        readTLMessagesDhConfig(stream, i, callback);
     break;
     }
 }
@@ -22838,7 +22838,7 @@ void readTLMethodMessagesRequestEncryption(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -162681021:
-    readTLEncryptedChat(stream, i, callback);
+        readTLEncryptedChat(stream, i, callback);
     break;
     }
 }
@@ -22862,7 +22862,7 @@ void readTLMethodMessagesAcceptEncryption(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1035731989:
-    readTLEncryptedChat(stream, i, callback);
+        readTLEncryptedChat(stream, i, callback);
     break;
     }
 }
@@ -22886,7 +22886,7 @@ void readTLMethodMessagesDiscardEncryption(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -208425312:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22911,7 +22911,7 @@ void readTLMethodMessagesSetEncryptedTyping(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2031374829:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22934,7 +22934,7 @@ void readTLMethodMessagesReadEncryptedHistory(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2135648522:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -22957,7 +22957,7 @@ void readTLMethodMessagesSendEncrypted(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1157265941:
-    readTLMessagesSentEncryptedMessage(stream, i, callback);
+        readTLMessagesSentEncryptedMessage(stream, i, callback);
     break;
     }
 }
@@ -22984,7 +22984,7 @@ void readTLMethodMessagesSendEncryptedFile(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1431914525:
-    readTLMessagesSentEncryptedMessage(stream, i, callback);
+        readTLMessagesSentEncryptedMessage(stream, i, callback);
     break;
     }
 }
@@ -23012,7 +23012,7 @@ void readTLMethodMessagesSendEncryptedService(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 852769188:
-    readTLMessagesSentEncryptedMessage(stream, i, callback);
+        readTLMessagesSentEncryptedMessage(stream, i, callback);
     break;
     }
 }
@@ -23036,7 +23036,7 @@ void readTLMethodMessagesReceivedQueue(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1436924774:
-    readVector(stream, i, (void*) &readInt64);
+        readVector(stream, i, (void*) &readInt64);
     break;
     }
 }
@@ -23058,7 +23058,7 @@ void readTLMethodMessagesReportEncryptedSpam(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1259113487:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23080,7 +23080,7 @@ void readTLMethodMessagesReadMessageContents(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 916930423:
-    readTLMessagesAffectedMessages(stream, i, callback);
+        readTLMessagesAffectedMessages(stream, i, callback);
     break;
     }
 }
@@ -23102,7 +23102,7 @@ void readTLMethodMessagesGetStickers(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -710552671:
-    readTLMessagesStickers(stream, i, callback);
+        readTLMessagesStickers(stream, i, callback);
     break;
     }
 }
@@ -23125,7 +23125,7 @@ void readTLMethodMessagesGetAllStickers(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1197432408:
-    readTLMessagesAllStickers(stream, i, callback);
+        readTLMessagesAllStickers(stream, i, callback);
     break;
     }
 }
@@ -23147,7 +23147,7 @@ void readTLMethodMessagesGetWebPagePreview(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1956073268:
-    readTLMessageMedia(stream, i, callback);
+        readTLMessageMedia(stream, i, callback);
     break;
     }
 }
@@ -23173,7 +23173,7 @@ void readTLMethodMessagesExportChatInvite(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1607670315:
-    readTLExportedChatInvite(stream, i, callback);
+        readTLExportedChatInvite(stream, i, callback);
     break;
     }
 }
@@ -23205,7 +23205,7 @@ void readTLMethodMessagesCheckChatInvite(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1051570619:
-    readTLChatInvite(stream, i, callback);
+        readTLChatInvite(stream, i, callback);
     break;
     }
 }
@@ -23227,7 +23227,7 @@ void readTLMethodMessagesImportChatInvite(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1817183516:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23249,7 +23249,7 @@ void readTLMethodMessagesGetStickerSet(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -928977804:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -23272,7 +23272,7 @@ void readTLMethodMessagesInstallStickerSet(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -946871200:
-    readTLMessagesStickerSetInstallResult(stream, i, callback);
+        readTLMessagesStickerSetInstallResult(stream, i, callback);
     break;
     }
 }
@@ -23295,7 +23295,7 @@ void readTLMethodMessagesUninstallStickerSet(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -110209570:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23317,7 +23317,7 @@ void readTLMethodMessagesStartBot(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -421563528:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23342,7 +23342,7 @@ void readTLMethodMessagesGetMessagesViews(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1468322785:
-    readTLMessagesMessageViews(stream, i, callback);
+        readTLMessagesMessageViews(stream, i, callback);
     break;
     }
 }
@@ -23366,7 +23366,7 @@ void readTLMethodMessagesEditChatAdmin(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1470377534:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23390,7 +23390,7 @@ void readTLMethodMessagesMigrateChat(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1568189671:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23412,7 +23412,7 @@ void readTLMethodMessagesSearchGlobal(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1271290010:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -23445,7 +23445,7 @@ void readTLMethodMessagesReorderStickerSets(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2016638777:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23471,7 +23471,7 @@ void readTLMethodMessagesGetDocumentByHash(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1309538785:
-    readTLDocument(stream, i, callback);
+        readTLDocument(stream, i, callback);
     break;
     }
 }
@@ -23495,7 +23495,7 @@ void readTLMethodMessagesGetSavedGifs(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1559270965:
-    readTLMessagesSavedGifs(stream, i, callback);
+        readTLMessagesSavedGifs(stream, i, callback);
     break;
     }
 }
@@ -23517,7 +23517,7 @@ void readTLMethodMessagesSaveGif(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 846868683:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23540,7 +23540,7 @@ void readTLMethodMessagesGetInlineBotResults(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1364105629:
-    readTLMessagesBotResults(stream, i, callback);
+        readTLMessagesBotResults(stream, i, callback);
     break;
     }
 }
@@ -23569,7 +23569,7 @@ void readTLMethodMessagesSetInlineBotResults(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -346119674:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23601,7 +23601,7 @@ void readTLMethodMessagesSendInlineBotResult(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2057376407:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23638,7 +23638,7 @@ void readTLMethodMessagesGetMessageEditData(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -39416522:
-    readTLMessagesMessageEditData(stream, i, callback);
+        readTLMessagesMessageEditData(stream, i, callback);
     break;
     }
 }
@@ -23661,7 +23661,7 @@ void readTLMethodMessagesEditMessage(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1224152952:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23697,7 +23697,7 @@ void readTLMethodMessagesEditInlineBotMessage(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2091549254:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23730,7 +23730,7 @@ void readTLMethodMessagesGetBotCallbackAnswer(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1824339449:
-    readTLMessagesBotCallbackAnswer(stream, i, callback);
+        readTLMessagesBotCallbackAnswer(stream, i, callback);
     break;
     }
 }
@@ -23760,7 +23760,7 @@ void readTLMethodMessagesSetBotCallbackAnswer(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -712043766:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23790,7 +23790,7 @@ void readTLMethodMessagesGetPeerDialogs(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -462373635:
-    readTLMessagesPeerDialogs(stream, i, callback);
+        readTLMessagesPeerDialogs(stream, i, callback);
     break;
     }
 }
@@ -23812,7 +23812,7 @@ void readTLMethodMessagesSaveDraft(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1137057461:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23842,7 +23842,7 @@ void readTLMethodMessagesGetAllDrafts(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1782549861:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -23863,7 +23863,7 @@ void readTLMethodMessagesGetFeaturedStickers(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1685588756:
-    readTLMessagesFeaturedStickers(stream, i, callback);
+        readTLMessagesFeaturedStickers(stream, i, callback);
     break;
     }
 }
@@ -23885,7 +23885,7 @@ void readTLMethodMessagesReadFeaturedStickers(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1527873830:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23907,7 +23907,7 @@ void readTLMethodMessagesGetRecentStickers(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1649852357:
-    readTLMessagesRecentStickers(stream, i, callback);
+        readTLMessagesRecentStickers(stream, i, callback);
     break;
     }
 }
@@ -23932,7 +23932,7 @@ void readTLMethodMessagesSaveRecentSticker(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 958863608:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23958,7 +23958,7 @@ void readTLMethodMessagesClearRecentStickers(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1986437075:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -23982,7 +23982,7 @@ void readTLMethodMessagesGetArchivedStickers(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1475442322:
-    readTLMessagesArchivedStickers(stream, i, callback);
+        readTLMessagesArchivedStickers(stream, i, callback);
     break;
     }
 }
@@ -24009,7 +24009,7 @@ void readTLMethodMessagesGetMaskStickers(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1678738104:
-    readTLMessagesAllStickers(stream, i, callback);
+        readTLMessagesAllStickers(stream, i, callback);
     break;
     }
 }
@@ -24031,7 +24031,7 @@ void readTLMethodMessagesGetAttachedStickers(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -866424884:
-    readVector(stream, i, (void*) &readTLStickerSetCovered);
+        readVector(stream, i, (void*) &readTLStickerSetCovered);
     break;
     }
 }
@@ -24053,7 +24053,7 @@ void readTLMethodMessagesSetGameScore(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1896289088:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24082,7 +24082,7 @@ void readTLMethodMessagesSetInlineGameScore(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 363700068:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24110,7 +24110,7 @@ void readTLMethodMessagesGetGameHighScores(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -400399203:
-    readTLMessagesHighScores(stream, i, callback);
+        readTLMessagesHighScores(stream, i, callback);
     break;
     }
 }
@@ -24134,7 +24134,7 @@ void readTLMethodMessagesGetInlineGameHighScores(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 258170395:
-    readTLMessagesHighScores(stream, i, callback);
+        readTLMessagesHighScores(stream, i, callback);
     break;
     }
 }
@@ -24157,7 +24157,7 @@ void readTLMethodMessagesGetCommonChats(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -468934396:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -24181,7 +24181,7 @@ void readTLMethodMessagesGetAllChats(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2023787330:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -24203,7 +24203,7 @@ void readTLMethodMessagesGetWebPage(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 852135825:
-    readTLWebPage(stream, i, callback);
+        readTLWebPage(stream, i, callback);
     break;
     }
 }
@@ -24226,7 +24226,7 @@ void readTLMethodMessagesToggleDialogPin(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1489903017:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24251,7 +24251,7 @@ void readTLMethodMessagesReorderPinnedDialogs(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 991616823:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24277,7 +24277,7 @@ void readTLMethodMessagesGetPinnedDialogs(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -692498958:
-    readTLMessagesPeerDialogs(stream, i, callback);
+        readTLMessagesPeerDialogs(stream, i, callback);
     break;
     }
 }
@@ -24299,7 +24299,7 @@ void readTLMethodMessagesSetBotShippingResults(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -436833542:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24327,7 +24327,7 @@ void readTLMethodMessagesSetBotPrecheckoutResults(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 163765653:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24354,7 +24354,7 @@ void readTLMethodMessagesUploadMedia(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1369162417:
-    readTLMessageMedia(stream, i, callback);
+        readTLMessageMedia(stream, i, callback);
     break;
     }
 }
@@ -24377,7 +24377,7 @@ void readTLMethodMessagesSendScreenshotNotification(TelegramStream &stream, QVar
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -914493408:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24401,7 +24401,7 @@ void readTLMethodMessagesGetFavedStickers(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 82946729:
-    readTLMessagesFavedStickers(stream, i, callback);
+        readTLMessagesFavedStickers(stream, i, callback);
     break;
     }
 }
@@ -24423,7 +24423,7 @@ void readTLMethodMessagesFaveSticker(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1174420133:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24446,7 +24446,7 @@ void readTLMethodMessagesGetUnreadMentions(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1180140658:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -24473,7 +24473,7 @@ void readTLMethodMessagesReadMentions(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 251759059:
-    readTLMessagesAffectedHistory(stream, i, callback);
+        readTLMessagesAffectedHistory(stream, i, callback);
     break;
     }
 }
@@ -24495,7 +24495,7 @@ void readTLMethodMessagesGetRecentLocations(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1881817312:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -24519,7 +24519,7 @@ void readTLMethodMessagesSendMultiMedia(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -134016113:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24555,7 +24555,7 @@ void readTLMethodMessagesUploadEncryptedFile(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1347929239:
-    readTLEncryptedFile(stream, i, callback);
+        readTLEncryptedFile(stream, i, callback);
     break;
     }
 }
@@ -24578,7 +24578,7 @@ void readTLMethodMessagesSearchStickerSets(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 896555914:
-    readTLMessagesFoundStickerSets(stream, i, callback);
+        readTLMessagesFoundStickerSets(stream, i, callback);
     break;
     }
 }
@@ -24604,7 +24604,7 @@ void readTLMethodMessagesGetSplitRanges(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 486505992:
-    readVector(stream, i, (void*) &readTLMessageRange);
+        readVector(stream, i, (void*) &readTLMessageRange);
     break;
     }
 }
@@ -24625,7 +24625,7 @@ void readTLMethodMessagesMarkDialogUnread(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1031349873:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24650,7 +24650,7 @@ void readTLMethodMessagesGetDialogUnreadMarks(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 585256482:
-    readVector(stream, i, (void*) &readTLDialogPeer);
+        readVector(stream, i, (void*) &readTLDialogPeer);
     break;
     }
 }
@@ -24671,7 +24671,7 @@ void readTLMethodMessagesClearAllDrafts(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2119757468:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24692,7 +24692,7 @@ void readTLMethodMessagesUpdatePinnedMessage(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -760547348:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24720,7 +24720,7 @@ void readTLMethodMessagesSendVote(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 283795844:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24744,7 +24744,7 @@ void readTLMethodMessagesGetPollResults(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1941660731:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24767,7 +24767,7 @@ void readTLMethodMessagesGetOnlines(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1848369232:
-    readTLChatOnlines(stream, i, callback);
+        readTLChatOnlines(stream, i, callback);
     break;
     }
 }
@@ -24789,7 +24789,7 @@ void readTLMethodMessagesEditChatAbout(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -554301545:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -24812,7 +24812,7 @@ void readTLMethodMessagesEditChatDefaultBannedRights(TelegramStream &stream, QVa
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1517917375:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -24835,7 +24835,7 @@ void readTLMethodMessagesGetEmojiKeywords(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 899735650:
-    readTLEmojiKeywordsDifference(stream, i, callback);
+        readTLEmojiKeywordsDifference(stream, i, callback);
     break;
     }
 }
@@ -24857,7 +24857,7 @@ void readTLMethodMessagesGetEmojiKeywordsDifference(TelegramStream &stream, QVar
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 352892591:
-    readTLEmojiKeywordsDifference(stream, i, callback);
+        readTLEmojiKeywordsDifference(stream, i, callback);
     break;
     }
 }
@@ -24880,7 +24880,7 @@ void readTLMethodMessagesGetEmojiKeywordsLanguages(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1318675378:
-    readVector(stream, i, (void*) &readTLEmojiLanguage);
+        readVector(stream, i, (void*) &readTLEmojiLanguage);
     break;
     }
 }
@@ -24902,7 +24902,7 @@ void readTLMethodMessagesGetEmojiURL(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -709817306:
-    readTLEmojiURL(stream, i, callback);
+        readTLEmojiURL(stream, i, callback);
     break;
     }
 }
@@ -24924,7 +24924,7 @@ void readTLMethodMessagesGetSearchCounters(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1932455680:
-    readVector(stream, i, (void*) &readTLMessagesSearchCounter);
+        readVector(stream, i, (void*) &readTLMessagesSearchCounter);
     break;
     }
 }
@@ -24947,7 +24947,7 @@ void readTLMethodMessagesRequestUrlAuth(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 428848198:
-    readTLUrlAuthResult(stream, i, callback);
+        readTLUrlAuthResult(stream, i, callback);
     break;
     }
 }
@@ -24978,7 +24978,7 @@ void readTLMethodMessagesAcceptUrlAuth(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1322487515:
-    readTLUrlAuthResult(stream, i, callback);
+        readTLUrlAuthResult(stream, i, callback);
     break;
     }
 }
@@ -25010,7 +25010,7 @@ void readTLMethodMessagesHidePeerSettingsBar(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1336717624:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25032,7 +25032,7 @@ void readTLMethodMessagesGetScheduledHistory(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -183077365:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -25055,7 +25055,7 @@ void readTLMethodMessagesGetScheduledMessages(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1111817116:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -25078,7 +25078,7 @@ void readTLMethodMessagesSendScheduledMessages(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1120369398:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25101,7 +25101,7 @@ void readTLMethodMessagesDeleteScheduledMessages(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1504586518:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25124,7 +25124,7 @@ void readTLMethodMessagesGetPollVotes(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1200736242:
-    readTLMessagesVotesList(stream, i, callback);
+        readTLMessagesVotesList(stream, i, callback);
     break;
     }
 }
@@ -25154,7 +25154,7 @@ void readTLMethodMessagesToggleStickerSets(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1257951254:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25181,7 +25181,7 @@ void readTLMethodMessagesGetDialogFilters(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -241247891:
-    readVector(stream, i, (void*) &readTLDialogFilter);
+        readVector(stream, i, (void*) &readTLDialogFilter);
     break;
     }
 }
@@ -25202,7 +25202,7 @@ void readTLMethodMessagesGetSuggestedDialogFilters(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1566780372:
-    readVector(stream, i, (void*) &readTLDialogFilterSuggested);
+        readVector(stream, i, (void*) &readTLDialogFilterSuggested);
     break;
     }
 }
@@ -25223,7 +25223,7 @@ void readTLMethodMessagesUpdateDialogFilter(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 450142282:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25249,7 +25249,7 @@ void readTLMethodMessagesUpdateDialogFiltersOrder(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -983318044:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25271,7 +25271,7 @@ void readTLMethodMessagesGetOldFeaturedStickers(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2127598753:
-    readTLMessagesFeaturedStickers(stream, i, callback);
+        readTLMessagesFeaturedStickers(stream, i, callback);
     break;
     }
 }
@@ -25295,7 +25295,7 @@ void readTLMethodMessagesGetReplies(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 584962828:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -25325,7 +25325,7 @@ void readTLMethodMessagesGetDiscussionMessage(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1147761405:
-    readTLMessagesDiscussionMessage(stream, i, callback);
+        readTLMessagesDiscussionMessage(stream, i, callback);
     break;
     }
 }
@@ -25348,7 +25348,7 @@ void readTLMethodMessagesReadDiscussion(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -147740172:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25372,7 +25372,7 @@ void readTLMethodMessagesUnpinAllMessages(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -265962357:
-    readTLMessagesAffectedHistory(stream, i, callback);
+        readTLMessagesAffectedHistory(stream, i, callback);
     break;
     }
 }
@@ -25394,7 +25394,7 @@ void readTLMethodMessagesDeleteChat(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1540419152:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25416,7 +25416,7 @@ void readTLMethodMessagesDeletePhoneCallHistory(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -104078327:
-    readTLMessagesAffectedFoundMessages(stream, i, callback);
+        readTLMessagesAffectedFoundMessages(stream, i, callback);
     break;
     }
 }
@@ -25440,7 +25440,7 @@ void readTLMethodMessagesCheckHistoryImport(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1140726259:
-    readTLMessagesHistoryImportParsed(stream, i, callback);
+        readTLMessagesHistoryImportParsed(stream, i, callback);
     break;
     }
 }
@@ -25462,7 +25462,7 @@ void readTLMethodMessagesInitHistoryImport(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 873008187:
-    readTLMessagesHistoryImport(stream, i, callback);
+        readTLMessagesHistoryImport(stream, i, callback);
     break;
     }
 }
@@ -25486,7 +25486,7 @@ void readTLMethodMessagesUploadImportedMedia(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 713433234:
-    readTLMessageMedia(stream, i, callback);
+        readTLMessageMedia(stream, i, callback);
     break;
     }
 }
@@ -25511,7 +25511,7 @@ void readTLMethodMessagesStartHistoryImport(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1271008444:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25534,7 +25534,7 @@ void readTLMethodMessagesGetExportedChatInvites(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1565154314:
-    readTLMessagesExportedChatInvites(stream, i, callback);
+        readTLMessagesExportedChatInvites(stream, i, callback);
     break;
     }
 }
@@ -25565,7 +25565,7 @@ void readTLMethodMessagesGetExportedChatInvite(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1937010524:
-    readTLMessagesExportedChatInvite(stream, i, callback);
+        readTLMessagesExportedChatInvite(stream, i, callback);
     break;
     }
 }
@@ -25588,7 +25588,7 @@ void readTLMethodMessagesEditExportedChatInvite(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1110823051:
-    readTLMessagesExportedChatInvite(stream, i, callback);
+        readTLMessagesExportedChatInvite(stream, i, callback);
     break;
     }
 }
@@ -25622,7 +25622,7 @@ void readTLMethodMessagesDeleteRevokedExportedChatInvites(TelegramStream &stream
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1452833749:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25645,7 +25645,7 @@ void readTLMethodMessagesDeleteExportedChatInvite(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -731601877:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25668,7 +25668,7 @@ void readTLMethodMessagesGetAdminsWithInvites(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 958457583:
-    readTLMessagesChatAdminsWithInvites(stream, i, callback);
+        readTLMessagesChatAdminsWithInvites(stream, i, callback);
     break;
     }
 }
@@ -25690,7 +25690,7 @@ void readTLMethodMessagesGetChatInviteImporters(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -553329330:
-    readTLMessagesChatInviteImporters(stream, i, callback);
+        readTLMessagesChatInviteImporters(stream, i, callback);
     break;
     }
 }
@@ -25722,7 +25722,7 @@ void readTLMethodMessagesSetHistoryTTL(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1207017500:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25745,7 +25745,7 @@ void readTLMethodMessagesCheckHistoryImportPeer(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1573261059:
-    readTLMessagesCheckedHistoryImportPeer(stream, i, callback);
+        readTLMessagesCheckedHistoryImportPeer(stream, i, callback);
     break;
     }
 }
@@ -25767,7 +25767,7 @@ void readTLMethodMessagesSetChatTheme(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -432283329:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25790,7 +25790,7 @@ void readTLMethodMessagesGetMessageReadParticipants(TelegramStream &stream, QVar
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 745510839:
-    readVector(stream, i, (void*) &readInt64);
+        readVector(stream, i, (void*) &readInt64);
     break;
     }
 }
@@ -25813,7 +25813,7 @@ void readTLMethodMessagesGetSearchResultsCalendar(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1240514025:
-    readTLMessagesSearchResultsCalendar(stream, i, callback);
+        readTLMessagesSearchResultsCalendar(stream, i, callback);
     break;
     }
 }
@@ -25838,7 +25838,7 @@ void readTLMethodMessagesGetSearchResultsPositions(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1855292323:
-    readTLMessagesSearchResultsPositions(stream, i, callback);
+        readTLMessagesSearchResultsPositions(stream, i, callback);
     break;
     }
 }
@@ -25863,7 +25863,7 @@ void readTLMethodMessagesHideChatJoinRequest(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2145904661:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25889,7 +25889,7 @@ void readTLMethodMessagesHideAllChatJoinRequests(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -528091926:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25916,7 +25916,7 @@ void readTLMethodMessagesToggleNoForwards(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1323389022:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25939,7 +25939,7 @@ void readTLMethodMessagesSaveDefaultSendAs(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -855777386:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -25962,7 +25962,7 @@ void readTLMethodMessagesSendReaction(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -754091820:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -25991,7 +25991,7 @@ void readTLMethodMessagesGetMessagesReactions(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1950707482:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -26014,7 +26014,7 @@ void readTLMethodMessagesGetMessageReactionsList(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1176190792:
-    readTLMessagesMessageReactionsList(stream, i, callback);
+        readTLMessagesMessageReactionsList(stream, i, callback);
     break;
     }
 }
@@ -26044,7 +26044,7 @@ void readTLMethodMessagesSetChatAvailableReactions(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -21928079:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -26067,7 +26067,7 @@ void readTLMethodMessagesGetAvailableReactions(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 417243308:
-    readTLMessagesAvailableReactions(stream, i, callback);
+        readTLMessagesAvailableReactions(stream, i, callback);
     break;
     }
 }
@@ -26089,7 +26089,7 @@ void readTLMethodMessagesSetDefaultReaction(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1330094102:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26111,7 +26111,7 @@ void readTLMethodMessagesTranslateText(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 617508334:
-    readTLMessagesTranslatedText(stream, i, callback);
+        readTLMessagesTranslatedText(stream, i, callback);
     break;
     }
 }
@@ -26143,7 +26143,7 @@ void readTLMethodMessagesGetUnreadReactions(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -396644838:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -26170,7 +26170,7 @@ void readTLMethodMessagesReadReactions(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2099097129:
-    readTLMessagesAffectedHistory(stream, i, callback);
+        readTLMessagesAffectedHistory(stream, i, callback);
     break;
     }
 }
@@ -26192,7 +26192,7 @@ void readTLMethodMessagesSearchSentMedia(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 276705696:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -26216,7 +26216,7 @@ void readTLMethodMessagesGetAttachMenuBots(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 385663691:
-    readTLAttachMenuBots(stream, i, callback);
+        readTLAttachMenuBots(stream, i, callback);
     break;
     }
 }
@@ -26238,7 +26238,7 @@ void readTLMethodMessagesGetAttachMenuBot(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1998676370:
-    readTLAttachMenuBotsBot(stream, i, callback);
+        readTLAttachMenuBotsBot(stream, i, callback);
     break;
     }
 }
@@ -26260,7 +26260,7 @@ void readTLMethodMessagesToggleBotInAttachMenu(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 451818415:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26283,7 +26283,7 @@ void readTLMethodMessagesRequestWebView(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -58219204:
-    readTLWebViewResult(stream, i, callback);
+        readTLWebViewResult(stream, i, callback);
     break;
     }
 }
@@ -26321,7 +26321,7 @@ void readTLMethodMessagesProlongWebView(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -362824498:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26352,7 +26352,7 @@ void readTLMethodMessagesRequestSimpleWebView(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 698084494:
-    readTLSimpleWebViewResult(stream, i, callback);
+        readTLSimpleWebViewResult(stream, i, callback);
     break;
     }
 }
@@ -26380,7 +26380,7 @@ void readTLMethodMessagesSendWebViewResultMessage(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 172168437:
-    readTLWebViewMessageSent(stream, i, callback);
+        readTLWebViewMessageSent(stream, i, callback);
     break;
     }
 }
@@ -26403,7 +26403,7 @@ void readTLMethodMessagesSendWebViewData(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -603831608:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -26428,7 +26428,7 @@ void readTLMethodMessagesTranscribeAudio(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 647928393:
-    readTLMessagesTranscribedAudio(stream, i, callback);
+        readTLMessagesTranscribedAudio(stream, i, callback);
     break;
     }
 }
@@ -26451,7 +26451,7 @@ void readTLMethodMessagesRateTranscribedAudio(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2132608815:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26476,7 +26476,7 @@ void readTLMethodMessagesGetCustomEmojiDocuments(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -643100844:
-    readVector(stream, i, (void*) &readTLDocument);
+        readVector(stream, i, (void*) &readTLDocument);
     break;
     }
 }
@@ -26498,7 +26498,7 @@ void readTLMethodMessagesGetEmojiStickers(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -67329649:
-    readTLMessagesAllStickers(stream, i, callback);
+        readTLMessagesAllStickers(stream, i, callback);
     break;
     }
 }
@@ -26520,7 +26520,7 @@ void readTLMethodMessagesGetFeaturedEmojiStickers(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 248473398:
-    readTLMessagesFeaturedStickers(stream, i, callback);
+        readTLMessagesFeaturedStickers(stream, i, callback);
     break;
     }
 }
@@ -26542,7 +26542,7 @@ void readTLMethodMessagesReportReaction(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1063567478:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26566,7 +26566,7 @@ void readTLMethodMessagesGetTopReactions(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1149164102:
-    readTLMessagesReactions(stream, i, callback);
+        readTLMessagesReactions(stream, i, callback);
     break;
     }
 }
@@ -26589,7 +26589,7 @@ void readTLMethodMessagesGetRecentReactions(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 960896434:
-    readTLMessagesReactions(stream, i, callback);
+        readTLMessagesReactions(stream, i, callback);
     break;
     }
 }
@@ -26612,7 +26612,7 @@ void readTLMethodMessagesClearRecentReactions(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1644236876:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26633,7 +26633,7 @@ void readTLMethodUpdatesGetState(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -304838614:
-    readTLUpdatesState(stream, i, callback);
+        readTLUpdatesState(stream, i, callback);
     break;
     }
 }
@@ -26654,7 +26654,7 @@ void readTLMethodUpdatesGetDifference(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 630429265:
-    readTLUpdatesDifference(stream, i, callback);
+        readTLUpdatesDifference(stream, i, callback);
     break;
     }
 }
@@ -26682,7 +26682,7 @@ void readTLMethodUpdatesGetChannelDifference(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 51854712:
-    readTLUpdatesChannelDifference(stream, i, callback);
+        readTLUpdatesChannelDifference(stream, i, callback);
     break;
     }
 }
@@ -26710,7 +26710,7 @@ void readTLMethodPhotosUpdateProfilePhoto(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1926525996:
-    readTLPhotosPhoto(stream, i, callback);
+        readTLPhotosPhoto(stream, i, callback);
     break;
     }
 }
@@ -26732,7 +26732,7 @@ void readTLMethodPhotosUploadProfilePhoto(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1980559511:
-    readTLPhotosPhoto(stream, i, callback);
+        readTLPhotosPhoto(stream, i, callback);
     break;
     }
 }
@@ -26761,7 +26761,7 @@ void readTLMethodPhotosDeletePhotos(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2016444625:
-    readVector(stream, i, (void*) &readInt64);
+        readVector(stream, i, (void*) &readInt64);
     break;
     }
 }
@@ -26783,7 +26783,7 @@ void readTLMethodPhotosGetUserPhotos(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1848823128:
-    readTLPhotosPhotos(stream, i, callback);
+        readTLPhotosPhotos(stream, i, callback);
     break;
     }
 }
@@ -26808,7 +26808,7 @@ void readTLMethodUploadSaveFilePart(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1291540959:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26832,7 +26832,7 @@ void readTLMethodUploadGetFile(TelegramStream &stream, QVariant &i, void* callba
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1101843010:
-    readTLUploadFile(stream, i, callback);
+        readTLUploadFile(stream, i, callback);
     break;
     }
 }
@@ -26860,7 +26860,7 @@ void readTLMethodUploadSaveBigFilePart(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -562337987:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -26885,7 +26885,7 @@ void readTLMethodUploadGetWebFile(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 619086221:
-    readTLUploadWebFile(stream, i, callback);
+        readTLUploadWebFile(stream, i, callback);
     break;
     }
 }
@@ -26909,7 +26909,7 @@ void readTLMethodUploadGetCdnFile(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 962554330:
-    readTLUploadCdnFile(stream, i, callback);
+        readTLUploadCdnFile(stream, i, callback);
     break;
     }
 }
@@ -26933,7 +26933,7 @@ void readTLMethodUploadReuploadCdnFile(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1691921240:
-    readVector(stream, i, (void*) &readTLFileHash);
+        readVector(stream, i, (void*) &readTLFileHash);
     break;
     }
 }
@@ -26956,7 +26956,7 @@ void readTLMethodUploadGetCdnFileHashes(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1847836879:
-    readVector(stream, i, (void*) &readTLFileHash);
+        readVector(stream, i, (void*) &readTLFileHash);
     break;
     }
 }
@@ -26979,7 +26979,7 @@ void readTLMethodUploadGetFileHashes(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1856595926:
-    readVector(stream, i, (void*) &readTLFileHash);
+        readVector(stream, i, (void*) &readTLFileHash);
     break;
     }
 }
@@ -27002,7 +27002,7 @@ void readTLMethodHelpGetConfig(TelegramStream &stream, QVariant &i, void* callba
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -990308245:
-    readTLConfig(stream, i, callback);
+        readTLConfig(stream, i, callback);
     break;
     }
 }
@@ -27023,7 +27023,7 @@ void readTLMethodHelpGetNearestDc(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 531836966:
-    readTLNearestDc(stream, i, callback);
+        readTLNearestDc(stream, i, callback);
     break;
     }
 }
@@ -27044,7 +27044,7 @@ void readTLMethodHelpGetAppUpdate(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1378703997:
-    readTLHelpAppUpdate(stream, i, callback);
+        readTLHelpAppUpdate(stream, i, callback);
     break;
     }
 }
@@ -27066,7 +27066,7 @@ void readTLMethodHelpGetInviteText(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1295590211:
-    readTLHelpInviteText(stream, i, callback);
+        readTLHelpInviteText(stream, i, callback);
     break;
     }
 }
@@ -27087,7 +27087,7 @@ void readTLMethodHelpGetSupport(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1663104819:
-    readTLHelpSupport(stream, i, callback);
+        readTLHelpSupport(stream, i, callback);
     break;
     }
 }
@@ -27108,7 +27108,7 @@ void readTLMethodHelpGetAppChangelog(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1877938321:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27130,7 +27130,7 @@ void readTLMethodHelpSetBotUpdatesStatus(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -333262899:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27153,7 +27153,7 @@ void readTLMethodHelpGetCdnConfig(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1375900482:
-    readTLCdnConfig(stream, i, callback);
+        readTLCdnConfig(stream, i, callback);
     break;
     }
 }
@@ -27174,7 +27174,7 @@ void readTLMethodHelpGetRecentMeUrls(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1036054804:
-    readTLHelpRecentMeUrls(stream, i, callback);
+        readTLHelpRecentMeUrls(stream, i, callback);
     break;
     }
 }
@@ -27196,7 +27196,7 @@ void readTLMethodHelpGetTermsOfServiceUpdate(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 749019089:
-    readTLHelpTermsOfServiceUpdate(stream, i, callback);
+        readTLHelpTermsOfServiceUpdate(stream, i, callback);
     break;
     }
 }
@@ -27217,7 +27217,7 @@ void readTLMethodHelpAcceptTermsOfService(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -294455398:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27239,7 +27239,7 @@ void readTLMethodHelpGetDeepLinkInfo(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1072547679:
-    readTLHelpDeepLinkInfo(stream, i, callback);
+        readTLHelpDeepLinkInfo(stream, i, callback);
     break;
     }
 }
@@ -27261,7 +27261,7 @@ void readTLMethodHelpGetAppConfig(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1735311088:
-    readTLJSONValue(stream, i, callback);
+        readTLJSONValue(stream, i, callback);
     break;
     }
 }
@@ -27282,7 +27282,7 @@ void readTLMethodHelpSaveAppLog(TelegramStream &stream, QVariant &i, void* callb
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1862465352:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27304,7 +27304,7 @@ void readTLMethodHelpGetPassportConfig(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -966677240:
-    readTLHelpPassportConfig(stream, i, callback);
+        readTLHelpPassportConfig(stream, i, callback);
     break;
     }
 }
@@ -27326,7 +27326,7 @@ void readTLMethodHelpGetSupportName(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -748624084:
-    readTLHelpSupportName(stream, i, callback);
+        readTLHelpSupportName(stream, i, callback);
     break;
     }
 }
@@ -27347,7 +27347,7 @@ void readTLMethodHelpGetUserInfo(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 59377875:
-    readTLHelpUserInfo(stream, i, callback);
+        readTLHelpUserInfo(stream, i, callback);
     break;
     }
 }
@@ -27369,7 +27369,7 @@ void readTLMethodHelpEditUserInfo(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1723407216:
-    readTLHelpUserInfo(stream, i, callback);
+        readTLHelpUserInfo(stream, i, callback);
     break;
     }
 }
@@ -27393,7 +27393,7 @@ void readTLMethodHelpGetPromoData(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1063816159:
-    readTLHelpPromoData(stream, i, callback);
+        readTLHelpPromoData(stream, i, callback);
     break;
     }
 }
@@ -27414,7 +27414,7 @@ void readTLMethodHelpHidePromoData(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 505748629:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27436,7 +27436,7 @@ void readTLMethodHelpDismissSuggestion(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -183649631:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27459,7 +27459,7 @@ void readTLMethodHelpGetCountriesList(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1935116200:
-    readTLHelpCountriesList(stream, i, callback);
+        readTLHelpCountriesList(stream, i, callback);
     break;
     }
 }
@@ -27482,7 +27482,7 @@ void readTLMethodHelpGetPremiumPromo(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1206152236:
-    readTLHelpPremiumPromo(stream, i, callback);
+        readTLHelpPremiumPromo(stream, i, callback);
     break;
     }
 }
@@ -27503,7 +27503,7 @@ void readTLMethodChannelsReadHistory(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -871347913:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27526,7 +27526,7 @@ void readTLMethodChannelsDeleteMessages(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2067661490:
-    readTLMessagesAffectedMessages(stream, i, callback);
+        readTLMessagesAffectedMessages(stream, i, callback);
     break;
     }
 }
@@ -27549,7 +27549,7 @@ void readTLMethodChannelsReportSpam(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -196443371:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27573,7 +27573,7 @@ void readTLMethodChannelsGetMessages(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1383294429:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -27596,7 +27596,7 @@ void readTLMethodChannelsGetParticipants(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2010044880:
-    readTLChannelsChannelParticipants(stream, i, callback);
+        readTLChannelsChannelParticipants(stream, i, callback);
     break;
     }
 }
@@ -27622,7 +27622,7 @@ void readTLMethodChannelsGetParticipant(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1599378234:
-    readTLChannelsChannelParticipant(stream, i, callback);
+        readTLChannelsChannelParticipant(stream, i, callback);
     break;
     }
 }
@@ -27645,7 +27645,7 @@ void readTLMethodChannelsGetChannels(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 176122811:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -27667,7 +27667,7 @@ void readTLMethodChannelsGetFullChannel(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 141781513:
-    readTLMessagesChatFull(stream, i, callback);
+        readTLMessagesChatFull(stream, i, callback);
     break;
     }
 }
@@ -27689,7 +27689,7 @@ void readTLMethodChannelsCreateChannel(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1029681423:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27721,7 +27721,7 @@ void readTLMethodChannelsEditAdmin(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -751007486:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27746,7 +27746,7 @@ void readTLMethodChannelsEditTitle(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1450044624:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27769,7 +27769,7 @@ void readTLMethodChannelsEditPhoto(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -248621111:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27792,7 +27792,7 @@ void readTLMethodChannelsCheckUsername(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 283557164:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27815,7 +27815,7 @@ void readTLMethodChannelsUpdateUsername(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 890549214:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -27838,7 +27838,7 @@ void readTLMethodChannelsJoinChannel(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 615851205:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27860,7 +27860,7 @@ void readTLMethodChannelsLeaveChannel(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -130635115:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27882,7 +27882,7 @@ void readTLMethodChannelsInviteToChannel(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 429865580:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27905,7 +27905,7 @@ void readTLMethodChannelsDeleteChannel(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1072619549:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27927,7 +27927,7 @@ void readTLMethodChannelsExportMessageLink(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -432034325:
-    readTLExportedMessageLink(stream, i, callback);
+        readTLExportedMessageLink(stream, i, callback);
     break;
     }
 }
@@ -27954,7 +27954,7 @@ void readTLMethodChannelsToggleSignatures(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 527021574:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -27977,7 +27977,7 @@ void readTLMethodChannelsGetAdminedPublicChannels(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -122669393:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -28002,7 +28002,7 @@ void readTLMethodChannelsEditBanned(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1763259007:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28026,7 +28026,7 @@ void readTLMethodChannelsGetAdminLog(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 870184064:
-    readTLChannelsAdminLogResults(stream, i, callback);
+        readTLChannelsAdminLogResults(stream, i, callback);
     break;
     }
 }
@@ -28058,7 +28058,7 @@ void readTLMethodChannelsSetStickers(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -359881479:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28081,7 +28081,7 @@ void readTLMethodChannelsReadMessageContents(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -357180360:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28104,7 +28104,7 @@ void readTLMethodChannelsDeleteHistory(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1683319225:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28130,7 +28130,7 @@ void readTLMethodChannelsTogglePreHistoryHidden(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -356796084:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28153,7 +28153,7 @@ void readTLMethodChannelsGetLeftChannels(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2092831552:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -28175,7 +28175,7 @@ void readTLMethodChannelsGetGroupsForDiscussion(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -170208392:
-    readTLMessagesChats(stream, i, callback);
+        readTLMessagesChats(stream, i, callback);
     break;
     }
 }
@@ -28196,7 +28196,7 @@ void readTLMethodChannelsSetDiscussionGroup(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1079520178:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28219,7 +28219,7 @@ void readTLMethodChannelsEditCreator(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1892102881:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28243,7 +28243,7 @@ void readTLMethodChannelsEditLocation(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1491484525:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28267,7 +28267,7 @@ void readTLMethodChannelsToggleSlowMode(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -304832784:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28290,7 +28290,7 @@ void readTLMethodChannelsGetInactiveChannels(TelegramStream &stream, QVariant &i
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 300429806:
-    readTLMessagesInactiveChats(stream, i, callback);
+        readTLMessagesInactiveChats(stream, i, callback);
     break;
     }
 }
@@ -28311,7 +28311,7 @@ void readTLMethodChannelsConvertToGigagroup(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 187239529:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28333,7 +28333,7 @@ void readTLMethodChannelsViewSponsoredMessage(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1095836780:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28356,7 +28356,7 @@ void readTLMethodChannelsGetSponsoredMessages(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -333377601:
-    readTLMessagesSponsoredMessages(stream, i, callback);
+        readTLMessagesSponsoredMessages(stream, i, callback);
     break;
     }
 }
@@ -28378,7 +28378,7 @@ void readTLMethodChannelsGetSendAs(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 231174382:
-    readTLChannelsSendAsPeers(stream, i, callback);
+        readTLChannelsSendAsPeers(stream, i, callback);
     break;
     }
 }
@@ -28400,7 +28400,7 @@ void readTLMethodChannelsDeleteParticipantHistory(TelegramStream &stream, QVaria
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 913655003:
-    readTLMessagesAffectedHistory(stream, i, callback);
+        readTLMessagesAffectedHistory(stream, i, callback);
     break;
     }
 }
@@ -28423,7 +28423,7 @@ void readTLMethodChannelsToggleJoinToSend(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -456419968:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28446,7 +28446,7 @@ void readTLMethodChannelsToggleJoinRequest(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1277789622:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28469,7 +28469,7 @@ void readTLMethodBotsSendCustomRequest(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1440257555:
-    readTLDataJSON(stream, i, callback);
+        readTLDataJSON(stream, i, callback);
     break;
     }
 }
@@ -28492,7 +28492,7 @@ void readTLMethodBotsAnswerWebhookJSONQuery(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -434028723:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28515,7 +28515,7 @@ void readTLMethodBotsSetBotCommands(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 85399130:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28539,7 +28539,7 @@ void readTLMethodBotsResetBotCommands(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1032708345:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28562,7 +28562,7 @@ void readTLMethodBotsGetBotCommands(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -481554986:
-    readVector(stream, i, (void*) &readTLBotCommand);
+        readVector(stream, i, (void*) &readTLBotCommand);
     break;
     }
 }
@@ -28585,7 +28585,7 @@ void readTLMethodBotsSetBotMenuButton(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1157944655:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28608,7 +28608,7 @@ void readTLMethodBotsGetBotMenuButton(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1671369944:
-    readTLBotMenuButton(stream, i, callback);
+        readTLBotMenuButton(stream, i, callback);
     break;
     }
 }
@@ -28630,7 +28630,7 @@ void readTLMethodBotsSetBotBroadcastDefaultAdminRights(TelegramStream &stream, Q
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2021942497:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28652,7 +28652,7 @@ void readTLMethodBotsSetBotGroupDefaultAdminRights(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1839281686:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28674,7 +28674,7 @@ void readTLMethodPaymentsGetPaymentForm(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 924093883:
-    readTLPaymentsPaymentForm(stream, i, callback);
+        readTLPaymentsPaymentForm(stream, i, callback);
     break;
     }
 }
@@ -28700,7 +28700,7 @@ void readTLMethodPaymentsGetPaymentReceipt(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 611897804:
-    readTLPaymentsPaymentReceipt(stream, i, callback);
+        readTLPaymentsPaymentReceipt(stream, i, callback);
     break;
     }
 }
@@ -28723,7 +28723,7 @@ void readTLMethodPaymentsValidateRequestedInfo(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1228345045:
-    readTLPaymentsValidatedRequestedInfo(stream, i, callback);
+        readTLPaymentsValidatedRequestedInfo(stream, i, callback);
     break;
     }
 }
@@ -28749,7 +28749,7 @@ void readTLMethodPaymentsSendPaymentForm(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 755192367:
-    readTLPaymentsPaymentResult(stream, i, callback);
+        readTLPaymentsPaymentResult(stream, i, callback);
     break;
     }
 }
@@ -28781,7 +28781,7 @@ void readTLMethodPaymentsGetSavedInfo(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 578650699:
-    readTLPaymentsSavedInfo(stream, i, callback);
+        readTLPaymentsSavedInfo(stream, i, callback);
     break;
     }
 }
@@ -28802,7 +28802,7 @@ void readTLMethodPaymentsClearSavedInfo(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -667062079:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28827,7 +28827,7 @@ void readTLMethodPaymentsGetBankCardData(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 779736953:
-    readTLPaymentsBankCardData(stream, i, callback);
+        readTLPaymentsBankCardData(stream, i, callback);
     break;
     }
 }
@@ -28849,7 +28849,7 @@ void readTLMethodPaymentsExportInvoice(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 261206117:
-    readTLPaymentsExportedInvoice(stream, i, callback);
+        readTLPaymentsExportedInvoice(stream, i, callback);
     break;
     }
 }
@@ -28871,7 +28871,7 @@ void readTLMethodPaymentsAssignAppStoreTransaction(TelegramStream &stream, QVari
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2131921795:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28894,7 +28894,7 @@ void readTLMethodPaymentsAssignPlayMarketTransaction(TelegramStream &stream, QVa
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -537046829:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -28917,7 +28917,7 @@ void readTLMethodPaymentsCanPurchasePremium(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1614700874:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -28939,7 +28939,7 @@ void readTLMethodStickersCreateStickerSet(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1876841625:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -28973,7 +28973,7 @@ void readTLMethodStickersRemoveStickerFromSet(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -143257775:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -28995,7 +28995,7 @@ void readTLMethodStickersChangeStickerPosition(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -4795190:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -29018,7 +29018,7 @@ void readTLMethodStickersAddStickerToSet(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -2041315650:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -29041,7 +29041,7 @@ void readTLMethodStickersSetStickerSetThumb(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1707717072:
-    readTLMessagesStickerSet(stream, i, callback);
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
@@ -29064,7 +29064,7 @@ void readTLMethodStickersCheckShortName(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 676017721:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29086,7 +29086,7 @@ void readTLMethodStickersSuggestShortName(TelegramStream &stream, QVariant &i, v
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1303364867:
-    readTLStickersSuggestedShortName(stream, i, callback);
+        readTLStickersSuggestedShortName(stream, i, callback);
     break;
     }
 }
@@ -29108,7 +29108,7 @@ void readTLMethodPhoneGetCallConfig(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1430593449:
-    readTLDataJSON(stream, i, callback);
+        readTLDataJSON(stream, i, callback);
     break;
     }
 }
@@ -29129,7 +29129,7 @@ void readTLMethodPhoneRequestCall(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1124046573:
-    readTLPhonePhoneCall(stream, i, callback);
+        readTLPhonePhoneCall(stream, i, callback);
     break;
     }
 }
@@ -29157,7 +29157,7 @@ void readTLMethodPhoneAcceptCall(TelegramStream &stream, QVariant &i, void* call
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1003664544:
-    readTLPhonePhoneCall(stream, i, callback);
+        readTLPhonePhoneCall(stream, i, callback);
     break;
     }
 }
@@ -29181,7 +29181,7 @@ void readTLMethodPhoneConfirmCall(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 788404002:
-    readTLPhonePhoneCall(stream, i, callback);
+        readTLPhonePhoneCall(stream, i, callback);
     break;
     }
 }
@@ -29206,7 +29206,7 @@ void readTLMethodPhoneReceivedCall(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 399855457:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29228,7 +29228,7 @@ void readTLMethodPhoneDiscardCall(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1295269440:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29256,7 +29256,7 @@ void readTLMethodPhoneSetCallRating(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1508562471:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29283,7 +29283,7 @@ void readTLMethodPhoneSaveCallDebug(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 662363518:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29306,7 +29306,7 @@ void readTLMethodPhoneSendSignalingData(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -8744061:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29329,7 +29329,7 @@ void readTLMethodPhoneCreateGroupCall(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1221445336:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29359,7 +29359,7 @@ void readTLMethodPhoneJoinGroupCall(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1322057861:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29389,7 +29389,7 @@ void readTLMethodPhoneLeaveGroupCall(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1342404601:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29412,7 +29412,7 @@ void readTLMethodPhoneInviteToGroupCall(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2067345760:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29435,7 +29435,7 @@ void readTLMethodPhoneDiscardGroupCall(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 2054648117:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29457,7 +29457,7 @@ void readTLMethodPhoneToggleGroupCallSettings(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1958458429:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29484,7 +29484,7 @@ void readTLMethodPhoneGetGroupCall(TelegramStream &stream, QVariant &i, void* ca
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 68699611:
-    readTLPhoneGroupCall(stream, i, callback);
+        readTLPhoneGroupCall(stream, i, callback);
     break;
     }
 }
@@ -29507,7 +29507,7 @@ void readTLMethodPhoneGetGroupParticipants(TelegramStream &stream, QVariant &i, 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -984033109:
-    readTLPhoneGroupParticipants(stream, i, callback);
+        readTLPhoneGroupParticipants(stream, i, callback);
     break;
     }
 }
@@ -29533,7 +29533,7 @@ void readTLMethodPhoneCheckGroupCall(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1248003721:
-    readVector(stream, i, (void*) &readInt32);
+        readVector(stream, i, (void*) &readInt32);
     break;
     }
 }
@@ -29556,7 +29556,7 @@ void readTLMethodPhoneToggleGroupCallRecord(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -248985848:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29586,7 +29586,7 @@ void readTLMethodPhoneEditGroupCallParticipant(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1524155713:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29623,7 +29623,7 @@ void readTLMethodPhoneEditGroupCallTitle(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 480685066:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29646,7 +29646,7 @@ void readTLMethodPhoneGetGroupCallJoinAs(TelegramStream &stream, QVariant &i, vo
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -277077702:
-    readTLPhoneJoinAsPeers(stream, i, callback);
+        readTLPhoneJoinAsPeers(stream, i, callback);
     break;
     }
 }
@@ -29668,7 +29668,7 @@ void readTLMethodPhoneExportGroupCallInvite(TelegramStream &stream, QVariant &i,
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -425040769:
-    readTLPhoneExportedGroupCallInvite(stream, i, callback);
+        readTLPhoneExportedGroupCallInvite(stream, i, callback);
     break;
     }
 }
@@ -29693,7 +29693,7 @@ void readTLMethodPhoneToggleGroupCallStartSubscription(TelegramStream &stream, Q
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 563885286:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29716,7 +29716,7 @@ void readTLMethodPhoneStartScheduledGroupCall(TelegramStream &stream, QVariant &
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1451287362:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29738,7 +29738,7 @@ void readTLMethodPhoneSaveDefaultGroupCallJoinAs(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1465786252:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29761,7 +29761,7 @@ void readTLMethodPhoneJoinGroupCallPresentation(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -873829436:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29784,7 +29784,7 @@ void readTLMethodPhoneLeaveGroupCallPresentation(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 475058500:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -29806,7 +29806,7 @@ void readTLMethodPhoneGetGroupCallStreamChannels(TelegramStream &stream, QVarian
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 447879488:
-    readTLPhoneGroupCallStreamChannels(stream, i, callback);
+        readTLPhoneGroupCallStreamChannels(stream, i, callback);
     break;
     }
 }
@@ -29828,7 +29828,7 @@ void readTLMethodPhoneGetGroupCallStreamRtmpUrl(TelegramStream &stream, QVariant
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -558650433:
-    readTLPhoneGroupCallStreamRtmpUrl(stream, i, callback);
+        readTLPhoneGroupCallStreamRtmpUrl(stream, i, callback);
     break;
     }
 }
@@ -29851,7 +29851,7 @@ void readTLMethodPhoneSaveCallLog(TelegramStream &stream, QVariant &i, void* cal
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1092913030:
-    readBool(stream, i, callback);
+        readBool(stream, i, callback);
     break;
     }
 }
@@ -29874,7 +29874,7 @@ void readTLMethodLangpackGetLangPack(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -219008246:
-    readTLLangPackDifference(stream, i, callback);
+        readTLLangPackDifference(stream, i, callback);
     break;
     }
 }
@@ -29897,7 +29897,7 @@ void readTLMethodLangpackGetStrings(TelegramStream &stream, QVariant &i, void* c
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -269862909:
-    readVector(stream, i, (void*) &readTLLangPackString);
+        readVector(stream, i, (void*) &readTLLangPackString);
     break;
     }
 }
@@ -29921,7 +29921,7 @@ void readTLMethodLangpackGetDifference(TelegramStream &stream, QVariant &i, void
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -845657435:
-    readTLLangPackDifference(stream, i, callback);
+        readTLLangPackDifference(stream, i, callback);
     break;
     }
 }
@@ -29945,7 +29945,7 @@ void readTLMethodLangpackGetLanguages(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1120311183:
-    readVector(stream, i, (void*) &readTLLangPackLanguage);
+        readVector(stream, i, (void*) &readTLLangPackLanguage);
     break;
     }
 }
@@ -29967,7 +29967,7 @@ void readTLMethodLangpackGetLanguage(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1784243458:
-    readTLLangPackLanguage(stream, i, callback);
+        readTLLangPackLanguage(stream, i, callback);
     break;
     }
 }
@@ -29990,7 +29990,7 @@ void readTLMethodFoldersEditPeerFolders(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1749536939:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -30012,7 +30012,7 @@ void readTLMethodFoldersDeleteFolder(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 472471681:
-    readTLUpdates(stream, i, callback);
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
@@ -30034,7 +30034,7 @@ void readTLMethodStatsGetBroadcastStats(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1421720550:
-    readTLStatsBroadcastStats(stream, i, callback);
+        readTLStatsBroadcastStats(stream, i, callback);
     break;
     }
 }
@@ -30059,7 +30059,7 @@ void readTLMethodStatsLoadAsyncGraph(TelegramStream &stream, QVariant &i, void* 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1646092192:
-    readTLStatsGraph(stream, i, callback);
+        readTLStatsGraph(stream, i, callback);
     break;
     }
 }
@@ -30085,7 +30085,7 @@ void readTLMethodStatsGetMegagroupStats(TelegramStream &stream, QVariant &i, voi
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -589330937:
-    readTLStatsMegagroupStats(stream, i, callback);
+        readTLStatsMegagroupStats(stream, i, callback);
     break;
     }
 }
@@ -30110,7 +30110,7 @@ void readTLMethodStatsGetMessagePublicForwards(TelegramStream &stream, QVariant 
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case 1445996571:
-    readTLMessagesMessages(stream, i, callback);
+        readTLMessagesMessages(stream, i, callback);
     break;
     }
 }
@@ -30137,7 +30137,7 @@ void readTLMethodStatsGetMessageStats(TelegramStream &stream, QVariant &i, void*
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
     case -1226791947:
-    readTLStatsMessageStats(stream, i, callback);
+        readTLStatsMessageStats(stream, i, callback);
     break;
     }
 }
