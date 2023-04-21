@@ -19,6 +19,7 @@ TgTransport::TgTransport(TgClient *parent)
     : QObject(parent)
     , _client(parent)
     , _socket(parent->socket())
+    , _timer()
     , nonce()
     , serverNonce()
     , newNonce()
@@ -29,6 +30,7 @@ TgTransport::TgTransport(TgClient *parent)
     , sequence(0)
     , lastMessageId(0)
     , sessionId(0)
+    , pingId(0)
 {
     connect(_socket, SIGNAL(readyRead()), this, SLOT(_readyRead()));
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
@@ -37,6 +39,16 @@ TgTransport::TgTransport(TgClient *parent)
     writeInt32(packet, 0xeeeeeeee);
 
     _socket->write(packet.toByteArray());
+    _timer.start(60000, this);
+}
+
+void TgTransport::timerEvent(QTimerEvent *event)
+{
+    TGOBJECT(MTType::PingDelayDisconnectMethod, ping);
+    ping["ping_id"] = pingId++;
+    ping["disconnect_delay"] = 75;
+
+    sendMTObject<&writeMTMethodPingDelayDisconnect>(ping);
 }
 
 void TgTransport::sendPlainMessage(QByteArray data)
@@ -98,13 +110,16 @@ void TgTransport::processMessage(QByteArray message)
     }
 
     QVariant var;
-    readInt64(packet, var);
+    readInt64(packet, var); //auth_key_id
+
+    qint64 messageId;
 
     QByteArray data;
 
     if (var.toLongLong() == 0) {
-        readInt64(packet, var);
-        readInt32(packet, var);
+        readInt64(packet, var); //message_id
+        messageId = var.toLongLong();
+        readInt32(packet, var); //message_length
         readRawBytes(packet, data, var.toInt());
     } else {
         //TODO: Important checks
@@ -121,6 +136,7 @@ void TgTransport::processMessage(QByteArray message)
         readUInt64(plainMessage, var); //remoteSalt
         readUInt64(plainMessage, var); //remoteId
         readInt64(plainMessage, var); //remoteMessageId
+        messageId = var.toLongLong();
         readInt32(plainMessage, var); //remoteSequence
         readInt32(plainMessage, var); //messageLength
         readRawBytes(plainMessage, data, var.toInt());
@@ -128,10 +144,10 @@ void TgTransport::processMessage(QByteArray message)
 
     //qDebug() << "[IN ]" << data.toHex();
 
-    handleObject(data);
+    handleObject(data, messageId);
 }
 
-void TgTransport::handleObject(QByteArray data)
+void TgTransport::handleObject(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
     QVariant var;
@@ -142,21 +158,58 @@ void TgTransport::handleObject(QByteArray data)
 
     switch (conId) {
     case MTType::ResPQ:
-        handleResPQ(data);
+        handleResPQ(data, messageId);
         break;
     case MTType::ServerDHParamsOk:
-        handleServerDHParamsOk(data);
+        handleServerDHParamsOk(data, messageId);
         break;
     case MTType::DhGenOk:
-        handleDhGenOk(data);
+        handleDhGenOk(data, messageId);
+        break;
+    case MTType::MsgContainer:
+        handleMsgContainer(data, messageId);
+        break;
+    case MTType::MsgCopy:
+        handleMsgCopy(data, messageId);
+        break;
+    case MTType::RpcResult:
+        handleRpcResult(data, messageId);
+        break;
+    case MTType::GzipPacked:
+        handleGzipPacked(data, messageId);
+        break;
+    case MTType::RpcError:
+        handleRpcError(data, messageId);
+        break;
+    case MTType::BadMsgNotification:
+        handleBadMsgNotification(data, messageId);
+        break;
+    case MTType::BadServerSalt:
+        handleBadServerSalt(data, messageId);
+        break;
+    case MTType::NewSessionCreated:
+    case MTType::MsgsAck:
+    case MTType::Pong:
+    case MTType::RpcAnswerUnknown:
+    case MTType::RpcAnswerDroppedRunning:
+    case MTType::RpcAnswerDropped:
+    case MTType::FutureSalt:
+    case MTType::FutureSalts:
+        qDebug() << "INFO: Ignoring " << conId;
+        break;
+    case MTType::PingMethod:
+        handlePingMethod(data, messageId);
         break;
     default:
-        qDebug() << "WARNING: object" << conId << "is unknown!";
+        qDebug() << "WARN: object" << conId << "is unknown!";
         break;
     }
+
+    //TODO: handle Config
+    //TODO: redirect to client
 }
 
-void TgTransport::handleResPQ(QByteArray data)
+void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
     QVariant var;
@@ -283,7 +336,7 @@ void TgTransport::handleResPQ(QByteArray data)
     qDebug() << "DH exchange: step 4";
 }
 
-void TgTransport::handleServerDHParamsOk(QByteArray data)
+void TgTransport::handleServerDHParamsOk(QByteArray data, qint64 messageId)
 {
     qint32 localTime = QDateTime::currentDateTimeUtc().toTime_t();
 
@@ -346,12 +399,12 @@ void TgTransport::handleServerDHParamsOk(QByteArray data)
     setParams["server_nonce"] = serverNonce;
     setParams["encrypted_data"] = encryptedData;
 
-    sessionId = qFromLittleEndian<quint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+    sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
     QByteArray gaBytes = innerData["g_a"].toByteArray();
     authKey = encryptRSA(gaBytes, dhPrime, bBytes);
     authKey.insert(0, QByteArray(256 - authKey.size(), 0));
-    serverSalt = qFromLittleEndian<quint64>((const uchar*) xorArray(newNonce.mid(0, 8), serverNonce.mid(0, 8)).constData());
-    authKeyId = qFromLittleEndian<quint64>((const uchar*) hashSHA1(authKey).mid(12, 8).constData());
+    serverSalt = qFromLittleEndian<qint64>((const uchar*) xorArray(newNonce.mid(0, 8), serverNonce.mid(0, 8)).constData());
+    authKeyId = qFromLittleEndian<qint64>((const uchar*) hashSHA1(authKey).mid(12, 8).constData());
     timeOffset = innerData["server_time"].toInt() - localTime;
     sequence = 0;
     lastMessageId = 0;
@@ -359,7 +412,7 @@ void TgTransport::handleServerDHParamsOk(QByteArray data)
     sendPlainObject<&writeMTMethodSetClientDHParams>(setParams);
 }
 
-void TgTransport::handleDhGenOk(QByteArray data)
+void TgTransport::handleDhGenOk(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
     QVariant var;
@@ -418,6 +471,8 @@ void TgTransport::initConnection()
                 &writeTLMethodInitConnection
                 < &readTLMethodHelpGetConfig ,
                 &writeTLMethodHelpGetConfig > > >(invokeWithLayer);
+
+    //TODO: timer send pingdelayconnection
 }
 
 QByteArray TgTransport::gzipPacket(QByteArray data)
@@ -438,12 +493,15 @@ QByteArray TgTransport::gzipPacket(QByteArray data)
 
 void TgTransport::sendMTMessage(QByteArray data)
 {
+    if (authKey.isEmpty())
+        return;
+
     if (data.size() > 255)
         data = gzipPacket(data);
 
     TgPacket packet;
-    writeUInt64(packet, serverSalt);
-    writeUInt64(packet, sessionId);
+    writeInt64(packet, serverSalt);
+    writeInt64(packet, sessionId);
     writeInt64(packet, getNewMessageId());
     writeInt32(packet, generateSequence(true));
     writeInt32(packet, data.length());
@@ -457,7 +515,7 @@ void TgTransport::sendMTMessage(QByteArray data)
     QByteArray cipherText = encryptAES256IGE(packetBytes, keyIv, keyData);
 
     TgPacket cipherPacket;
-    writeUInt64(cipherPacket, authKeyId);
+    writeInt64(cipherPacket, authKeyId);
     writeRawBytes(cipherPacket, messageKey);
     writeRawBytes(cipherPacket, cipherText);
 
@@ -466,6 +524,7 @@ void TgTransport::sendMTMessage(QByteArray data)
 
 qint64 TgTransport::getNewMessageId()
 {
+    //TODO: lock
     qint64 time = QDateTime::currentDateTime().toUTC().toTime_t();
     qint64 newMessageId = ((time + timeOffset) << 32) | (((time + timeOffset) % 1000) << 22);
     if (lastMessageId >= newMessageId) newMessageId = lastMessageId + 4;
@@ -475,6 +534,7 @@ qint64 TgTransport::getNewMessageId()
 
 qint32 TgTransport::generateSequence(bool isContent)
 {
+    //TODO: lock
     qint32 result = isContent ? sequence++ * 2 + 1 : sequence * 2;
     return result;
 }
@@ -482,4 +542,109 @@ qint32 TgTransport::generateSequence(bool isContent)
 void TgTransport::_bytesSent(qint64 count)
 {
     qDebug() << "Sent" << count << "bytes";
+}
+
+void TgTransport::handleMsgContainer(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt32(packet, var); //conId
+    readInt32(packet, var); //size
+    qint32 size = var.toInt();
+    for (qint32 i = 0; i < size; ++i) {
+        readInt64(packet, var); //msgId
+        qint64 newMessageId = var.toLongLong();
+        readInt32(packet, var); //seqNo
+        readInt32(packet, var); //size
+        QByteArray array;
+        readRawBytes(packet, array, var.toInt());
+        handleObject(array, newMessageId);
+    }
+}
+
+void TgTransport::handleRpcResult(QByteArray data, qint64 messageId)
+{
+    handleObject(data.mid(12), messageId); //conId + req_msg_id
+}
+
+void TgTransport::handleGzipPacked(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt32(packet, var); //conId
+    readByteArray(packet, var); //gzippedData
+
+    if (!QCompressor::gzipDecompress(var.toByteArray(), data)) {
+        qDebug() << "[ERROR] Gzip decompression error.";
+        return;
+    }
+
+    handleObject(data, messageId);
+}
+
+void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+
+    QVariant errorCode;
+    readInt32(packet, errorCode); //conId
+    readInt32(packet, errorCode);
+
+    QVariant errorMessage;
+    readString(packet, errorMessage);
+
+    qDebug() << "[ERROR]" << errorCode.toInt() << ":" << errorMessage.toString();
+}
+
+void TgTransport::handlePingMethod(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    QVariant pingId;
+    readInt32(packet, pingId); //conId
+    readInt64(packet, pingId);
+
+    TGOBJECT(MTType::Pong, pong);
+    pong["msg_id"] = messageId;
+    pong["ping_id"] = pingId.toLongLong();
+
+    sendMTObject<&writeMTPong>(pong);
+}
+
+void TgTransport::handleMsgCopy(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt32(packet, var); //conId
+    readInt64(packet, var); //msgId
+    qint64 newMessageId = var.toLongLong();
+    readInt32(packet, var); //seqNo
+    readInt32(packet, var); //size
+    QByteArray array;
+    readRawBytes(packet, array, var.toInt());
+    handleObject(array, newMessageId);
+}
+
+void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
+{
+    //TODO: bad msg
+    qDebug() << "TODO: handle bad msg notification";
+}
+
+void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt64(packet, var); //badMsgId
+    readInt32(packet, var); //badMsgSeqNo
+    readInt32(packet, var); //errorCode
+    readInt64(packet, var); //newServerSalt
+    serverSalt = var.toLongLong();
+
+    qDebug() << "INFO: bad server salt handled";
+
+    //TODO: resend bad_msg_id
 }

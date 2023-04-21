@@ -14,7 +14,7 @@ DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
     exponent(QByteArray::fromHex(exponent.toAscii())),
     fingerprint(fingerprint)
 {
-    if (!this->publicKey.isEmpty() && this->publicKey[0] == 0) {
+    if (!this->publicKey.isEmpty() && this->publicKey.at(0) == 0) {
         this->publicKey.remove(0, 1);
     }
 

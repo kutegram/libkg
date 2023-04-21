@@ -86,7 +86,7 @@ void readMTSetClientDHParamsAnswer(TelegramStream &stream, QVariant &i, void* ca
 void writeMTSetClientDHParamsAnswer(TelegramStream &stream, QVariant i, void* callback = 0);
 void readMTBindAuthKeyInner(TelegramStream &stream, QVariant &i, void* callback = 0);
 void writeMTBindAuthKeyInner(TelegramStream &stream, QVariant i, void* callback = 0);
-template <READ_METHOD R, WRITE_METHOD W> void readMTRpcResult(TelegramStream &stream, QVariant &i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void readMTRpcResult(TelegramStream &stream, QVariant &i, void* callback)
 {
     TelegramObject obj;
     QVariant conId;
@@ -95,20 +95,20 @@ template <READ_METHOD R, WRITE_METHOD W> void readMTRpcResult(TelegramStream &st
     case -212046591:
         obj["_"] = conId.toInt();
         readInt64(stream, obj["req_msg_id"], callback);
-        if (R) (*R)(stream, obj["result"], callback);
+        (*R)(stream, obj["result"], callback);
     break;
     }
     i = obj;
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void writeMTRpcResult(TelegramStream &stream, QVariant i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void writeMTRpcResult(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
     case -212046591:
         writeInt32(stream, obj["_"], callback);
         writeInt64(stream, obj["req_msg_id"], callback);
-        if (W) (*W)(stream, obj["result"], callback);
+        (*W)(stream, obj["result"], callback);
     break;
     }
 }
@@ -127,7 +127,7 @@ void readMTDestroySessionRes(TelegramStream &stream, QVariant &i, void* callback
 void writeMTDestroySessionRes(TelegramStream &stream, QVariant i, void* callback = 0);
 void readMTNewSession(TelegramStream &stream, QVariant &i, void* callback = 0);
 void writeMTNewSession(TelegramStream &stream, QVariant i, void* callback = 0);
-template <READ_METHOD R, WRITE_METHOD W> void readMTMessageContainer(TelegramStream &stream, QVariant &i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void readMTMessageContainer(TelegramStream &stream, QVariant &i, void* callback)
 {
     TelegramObject obj;
     QVariant conId;
@@ -141,7 +141,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readMTMessageContainer(TelegramStr
     i = obj;
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void writeMTMessageContainer(TelegramStream &stream, QVariant i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void writeMTMessageContainer(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
@@ -152,7 +152,7 @@ template <READ_METHOD R, WRITE_METHOD W> void writeMTMessageContainer(TelegramSt
     }
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void readMTMessage(TelegramStream &stream, QVariant &i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void readMTMessage(TelegramStream &stream, QVariant &i, void* callback)
 {
     TelegramObject obj;
     QVariant conId;
@@ -162,13 +162,13 @@ template <READ_METHOD R, WRITE_METHOD W> void readMTMessage(TelegramStream &stre
         readInt64(stream, obj["msg_id"], callback);
         readInt32(stream, obj["seqno"], callback);
         readInt32(stream, obj["bytes"], callback);
-        if (R) (*R)(stream, obj["body"], callback);
+        (*R)(stream, obj["body"], callback);
     break;
     }
     i = obj;
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void writeMTMessage(TelegramStream &stream, QVariant i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void writeMTMessage(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
@@ -176,12 +176,12 @@ template <READ_METHOD R, WRITE_METHOD W> void writeMTMessage(TelegramStream &str
             writeInt64(stream, obj["msg_id"], callback);
         writeInt32(stream, obj["seqno"], callback);
         writeInt32(stream, obj["bytes"], callback);
-        if (W) (*W)(stream, obj["body"], callback);
+        (*W)(stream, obj["body"], callback);
     break;
     }
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void readMTMessageCopy(TelegramStream &stream, QVariant &i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void readMTMessageCopy(TelegramStream &stream, QVariant &i, void* callback)
 {
     TelegramObject obj;
     QVariant conId;
@@ -195,7 +195,7 @@ template <READ_METHOD R, WRITE_METHOD W> void readMTMessageCopy(TelegramStream &
     i = obj;
 }
 
-template <READ_METHOD R, WRITE_METHOD W> void writeMTMessageCopy(TelegramStream &stream, QVariant i, void* callback = 0)
+template <READ_METHOD R, WRITE_METHOD W> void writeMTMessageCopy(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
