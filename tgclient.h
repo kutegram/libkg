@@ -10,18 +10,15 @@ class TgClient : public QObject
 {
     Q_OBJECT
 private:
-    QTcpSocket *_socket;
     TgTransport *_transport;
 
 public:
     explicit TgClient(QObject *parent = 0);
-    QTcpSocket* socket();
     
 signals:
     
 public slots:
     void start();
-    void _connected();
     
 };
 

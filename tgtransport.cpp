@@ -18,7 +18,7 @@
 TgTransport::TgTransport(TgClient *parent)
     : QObject(parent)
     , _client(parent)
-    , _socket(parent->socket())
+    , _socket(0)
     , _timer()
     , nonce()
     , serverNonce()
@@ -32,14 +32,41 @@ TgTransport::TgTransport(TgClient *parent)
     , sessionId(0)
     , pingId(0)
 {
+
+}
+
+void TgClient::start() {
+    qDebug() << "Starting transport";
+
+    _socket = new QTcpSocket(this);
+    _socket->setSocketOption(QTcpSocket::LowDelayOption, 1);
+    _socket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
+
+    connect(_socket, SIGNAL(connected()), this, SLOT(_connected()));
+    connect(_socket, SIGNAL(disconnected()), this, SLOT(_disconnected()));
     connect(_socket, SIGNAL(readyRead()), this, SLOT(_readyRead()));
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
+
+    //TODO: remove hardcode
+    _socket->connectToHost("149.154.167.40", 443);
+}
+
+void TgClient::_connected()
+{
+    qDebug() << "Socket connected";
 
     TgPacket packet;
     writeInt32(packet, 0xeeeeeeee);
 
     _socket->write(packet.toByteArray());
     _timer.start(60000, this);
+
+    authorize();
+}
+
+void TgClient::_disconnected()
+{
+    qDebug() << "Socket disconnected";
 }
 
 void TgTransport::timerEvent(QTimerEvent *event)

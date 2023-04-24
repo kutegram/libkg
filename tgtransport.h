@@ -39,6 +39,7 @@ public:
 signals:
     
 public slots:
+    void start();
     void sendPlainMessage(QByteArray data);
     void sendMTMessage(QByteArray data);
     void authorize();
@@ -47,10 +48,13 @@ public slots:
     void processMessage(QByteArray message);
     void initConnection();
     QByteArray gzipPacket(QByteArray data);
-    void _readyRead();
-    void _bytesSent(qint64 count);
     qint64 getNewMessageId();
     qint32 generateSequence(bool isContent);
+
+    void _connected();
+    void _disconnected();
+    void _readyRead();
+    void _bytesSent(qint64 count);
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleResPQ(QByteArray data, qint64 messageId);
