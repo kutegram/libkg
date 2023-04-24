@@ -1,7 +1,6 @@
 QT += network xml sql
 
 include(qt-json/qt-json.pri)
-include(thirdparty/thirdparty.pri)
 
 symbian:LIBS += -llibcrypto
 
@@ -35,7 +34,6 @@ SOURCES += \
     $$PWD/tgclient.cpp \
     $$PWD/tgtransport.cpp \
     $$PWD/systemname.cpp \
-    $$PWD/qcompressor.cpp \
-    $$PWD/division.c
+    $$PWD/qcompressor.cpp
 
 INCLUDEPATH += $$PWD

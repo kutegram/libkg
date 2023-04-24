@@ -1,13 +1,32 @@
 #include "crypto.h"
 
 #include <QDateTime>
-#include "thirdparty/picosha2.h"
-#include "thirdparty/aes.hpp"
 #include <QCryptographicHash>
 #include "mtschema.h"
 #include <QtCore>
 #include <openssl/bn.h>
+#include <openssl/sha.h>
+#include <openssl/aes.h>
 #include <openssl/rsa.h>
+#include <openssl/rand.h>
+
+#ifdef Q_OS_SYMBIAN
+
+extern unsigned int __aeabi_uidivmod(unsigned numerator, unsigned denominator);
+
+int __aeabi_idiv(int numerator, int denominator)
+{
+    int neg_result = (numerator ^ denominator) & 0x80000000;
+    int result = __aeabi_uidivmod ((numerator < 0) ? -numerator : numerator, (denominator < 0) ? -denominator : denominator);
+    return neg_result ? -result : result;
+}
+
+unsigned __aeabi_uidiv(unsigned numerator, unsigned denominator)
+{
+    return __aeabi_uidivmod (numerator, denominator);
+}
+
+#endif
 
 DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
     publicKey(QByteArray::fromHex(publicKey.toAscii())),
@@ -38,13 +57,9 @@ qint32 randomInt(qint32 lowerThan)
 
 QByteArray randomBytes(qint32 size)
 {
-    //TODO: use OpenSSL's secure random
     QByteArray array;
-
-    qsrand(QDateTime::currentDateTime().toUTC().toTime_t());
-    array.reserve(size);
-    while (array.length() < size) array.append((quint8) (qrand() % 256));
     array.resize(size);
+    RAND_bytes((unsigned char*) array.data(), size);
 
     return array;
 }
@@ -138,32 +153,40 @@ QByteArray reverse(QByteArray array)
 
 QByteArray xorArray(QByteArray a, QByteArray b)
 {
-    if (a.length() != b.length())
-        return QByteArray();
+    QByteArray result(a.size() > b.size() ? a : b);
+    qint32 minLength = a.size() > b.size() ? b.size() : a.size();
 
-    QByteArray result(a.length(), 0);
-    for (qint32 i = 0; i < a.length(); ++i) {
+    for (qint32 i = 0; i < minLength; ++i) {
         result[i] = (a[i] ^ b[i]);
     }
+
     return result;
 }
 
 QByteArray decryptAES256IGE(QByteArray data, QByteArray iv, QByteArray key)
 {
-    QByteArray result(data);
-    AES_ctx ctx;
-    AES_init_ctx_iv32(&ctx, (const uint8_t*) key.constData(), (const uint8_t*) iv.constData());
-    AES_IGE_decrypt_buffer(&ctx, (uint8_t*) result.data(), result.size());
-    return result;
+    AES_KEY key_enc;
+    AES_set_decrypt_key((const unsigned char*) key.constData(), 256, &key_enc);
+
+    QByteArray outData;
+    outData.resize(data.size());
+
+    AES_ige_encrypt((const unsigned char*) data.constData(), (unsigned char*) outData.data(), data.size(), &key_enc, (unsigned char*) iv.data(), AES_DECRYPT);
+
+    return outData;
 }
 
 QByteArray encryptAES256IGE(QByteArray data, QByteArray iv, QByteArray key)
 {
-    QByteArray result(data);
-    AES_ctx ctx;
-    AES_init_ctx_iv32(&ctx, (const uint8_t*) key.constData(), (const uint8_t*) iv.constData());
-    AES_IGE_encrypt_buffer(&ctx, (uint8_t*) result.data(), result.size());
-    return result;
+    AES_KEY key_enc;
+    AES_set_encrypt_key((const unsigned char*) key.constData(), 256, &key_enc);
+
+    QByteArray outData;
+    outData.resize(data.size());
+
+    AES_ige_encrypt((const unsigned char*) data.constData(), (unsigned char*) outData.data(), data.size(), &key_enc, (unsigned char*) iv.data(), AES_ENCRYPT);
+
+    return outData;
 }
 
 QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
@@ -180,10 +203,11 @@ QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
     BN_bin2bn((const unsigned char*) exp.constData(), exp.length(), e);
     int result = BN_mod_exp(r, x, e, n, ctx);
 
-    QByteArray resultArray(BN_num_bytes(r), 0);
+    QByteArray resultArray;
     if (result) {
+        resultArray.resize(BN_num_bytes(r));
         BN_bn2bin(r, (unsigned char*) resultArray.data());
-    } else resultArray.clear();
+    }
 
     BN_free(x);
     BN_free(n);
@@ -196,14 +220,28 @@ QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
 
 QByteArray hashSHA256(QByteArray dataToHash)
 {
-    QByteArray dataHash(32, 0);
-    picosha2::hash256(dataToHash.begin(), dataToHash.end(), dataHash.begin(), dataHash.end());
-    return dataHash;
+    QByteArray hash;
+    hash.resize(SHA256_DIGEST_LENGTH);
+
+    SHA256_CTX ctx;
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, dataToHash.constData(), dataToHash.size());
+    SHA256_Final((unsigned char*) hash.data(), &ctx);
+
+    return hash;
 }
 
 QByteArray hashSHA1(QByteArray dataToHash)
 {
-    return QCryptographicHash::hash(dataToHash, QCryptographicHash::Sha1);
+    QByteArray hash;
+    hash.resize(SHA_DIGEST_LENGTH);
+
+    SHA_CTX ctx;
+    SHA1_Init(&ctx);
+    SHA1_Update(&ctx, dataToHash.constData(), dataToHash.size());
+    SHA1_Final((unsigned char*)hash.data(), &ctx);
+
+    return hash;
 }
 
 QByteArray calcMessageKey(QByteArray authKey, QByteArray data)
