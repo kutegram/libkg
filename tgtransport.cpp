@@ -35,7 +35,7 @@ TgTransport::TgTransport(TgClient *parent)
 
 }
 
-void TgClient::start() {
+void TgTransport::start() {
     qDebug() << "Starting transport";
 
     _socket = new QTcpSocket(this);
@@ -51,7 +51,7 @@ void TgClient::start() {
     _socket->connectToHost("149.154.167.40", 443);
 }
 
-void TgClient::_connected()
+void TgTransport::_connected()
 {
     qDebug() << "Socket connected";
 
@@ -64,7 +64,7 @@ void TgClient::_connected()
     authorize();
 }
 
-void TgClient::_disconnected()
+void TgTransport::_disconnected()
 {
     qDebug() << "Socket disconnected";
 }

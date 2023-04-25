@@ -59,7 +59,7 @@ QString systemName()
     case QSysInfo::WV_CE_6:
         return "Windows CE 6";
     default:
-#ifdef defined(Q_OS_WINCE)
+#if defined(Q_OS_WINCE)
         return "Windows CE";
 #else
         return "Windows";
