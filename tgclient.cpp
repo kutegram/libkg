@@ -50,6 +50,10 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::HelpCountriesListNotModified:
         emit helpGetCountriesListResponse(tlDeserialize<&readTLHelpCountriesList>(data).toMap(), messageId);
         break;
+    case TLType::AuthSentCode:
+    case TLType::AuthSentCodeSuccess:
+        emit authSendCodeResponse(tlDeserialize<&readTLAuthSentCode>(data).toMap(), messageId);
+        break;
     default:
         qDebug() << "INFO: Unhandled object " << conId;
         break;

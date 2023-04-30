@@ -1,16 +1,18 @@
 #include "tgclient.h"
 
-#include <QStringList>
+#include "apisecrets.h"
 #include "tlschema.h"
 
-qint64 TgClient::helpGetCountriesList(qint32 hash, QString langCode)
+qint64 TgClient::authSendCode(QString phoneNumber)
 {
-    TGOBJECT(TLType::HelpGetCountriesListMethod, method);
+    TGOBJECT(TLType::AuthSendCodeMethod, method);
 
-    if (langCode.isEmpty())
-        langCode = QLocale::system().name().split("_")[0];
-    method["lang_code"] = langCode;
-    method["hash"] = hash;
+    TGOBJECT(TLType::CodeSettings, codeSettings);
+    method["settings"] = codeSettings;
 
-    return sendObject<&writeTLMethodHelpGetCountriesList>(method);
+    method["phone_number"] = phoneNumber;
+    method["api_id"] = KUTEGRAM_API_ID;
+    method["api_hash"] = KUTEGRAM_API_HASH;
+
+    return sendObject<&writeTLMethodAuthSendCode>(method);
 }

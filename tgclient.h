@@ -24,6 +24,7 @@ public slots:
     void handleInitialized();
 
     qint64 helpGetCountriesList(qint32 hash = 0, QString langCode = "");
+    qint64 authSendCode(QString phoneNumber);
 
 signals:
     void connected();
@@ -31,6 +32,7 @@ signals:
     void initialized();
 
     void helpGetCountriesListResponse(QVariantMap object, qint64 messageId);
+    void authSendCodeResponse(QVariantMap object, qint64 messageId);
 
 };
 

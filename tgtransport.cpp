@@ -508,8 +508,7 @@ void TgTransport::initConnection()
     TGOBJECT(TLType::HelpGetConfigMethod, getConfig);
     TGOBJECT(TLType::InitConnectionMethod, initConnection);
 
-    char id[6] = {API_ID_BYTES};
-    initConnection["api_id"] = QString::fromAscii(id, 6).toInt();
+    initConnection["api_id"] = KUTEGRAM_API_ID;
     initConnection["device_model"] = systemName() + "-based device";
     initConnection["system_version"] = systemName();
     QString appVersion = QCoreApplication::applicationVersion();
