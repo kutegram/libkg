@@ -20,9 +20,6 @@ public:
     void writeRawBytes(QByteArray i);
     QByteArray toByteArray();
     void setByteOrder(QDataStream::ByteOrder order);
-signals:
-
-public slots:
 
 };
 

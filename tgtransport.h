@@ -32,16 +32,18 @@ private:
 
 public:
     explicit TgTransport(TgClient *parent = 0);
-    template <WRITE_METHOD W> void sendPlainObject(QVariant i);
-    template <WRITE_METHOD W> void sendMTObject(QVariant i);
-    void timerEvent(QTimerEvent *event);
+
+    template <WRITE_METHOD W> qint64 sendPlainObject(QVariant i);
+    template <WRITE_METHOD W> qint64 sendMTObject(QVariant i);
 
 signals:
     
 public slots:
+    void timerEvent(QTimerEvent *event);
+
     void start();
-    void sendPlainMessage(QByteArray data);
-    void sendMTMessage(QByteArray data);
+    qint64 sendPlainMessage(QByteArray data);
+    qint64 sendMTMessage(QByteArray data);
     void authorize();
     void sendIntermediate(QByteArray data);
     QByteArray readIntermediate();
@@ -68,20 +70,19 @@ public slots:
     void handleMsgCopy(QByteArray data, qint64 messageId);
     void handleBadMsgNotification(QByteArray data, qint64 messageId);
     void handleBadServerSalt(QByteArray data, qint64 messageId);
+    void handleConfig(QByteArray data, qint64 messageId);
 };
 
-template <WRITE_METHOD W> void TgTransport::sendPlainObject(QVariant i)
+template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)
 {
-    QByteArray serialized = tlSerialize<W>(i);
-    //qDebug() << "[OUT]" << serialized.toHex();
-    sendPlainMessage(serialized);
+    //qDebug() << "[OUT]" << tlSerialize<W>(i).toHex();
+    return sendPlainMessage(tlSerialize<W>(i));
 }
 
-template <WRITE_METHOD W> void TgTransport::sendMTObject(QVariant i)
+template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i)
 {
-    QByteArray serialized = tlSerialize<W>(i);
-    //qDebug() << "[OUT]" << serialized.toHex();
-    sendMTMessage(serialized);
+    //qDebug() << "[OUT]" << tlSerialize<W>(i).toHex();
+    return sendMTMessage(tlSerialize<W>(i));
 }
 
 #endif // TGTRANSPORT_H

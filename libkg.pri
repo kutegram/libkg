@@ -34,6 +34,7 @@ SOURCES += \
     $$PWD/tgclient.cpp \
     $$PWD/tgtransport.cpp \
     $$PWD/systemname.cpp \
-    $$PWD/qcompressor.cpp
+    $$PWD/qcompressor.cpp \
+    $$PWD/tgc_auth.cpp
 
 INCLUDEPATH += $$PWD

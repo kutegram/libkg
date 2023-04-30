@@ -62,11 +62,15 @@ void TgTransport::_connected()
     _timer.start(60000, this);
 
     authorize();
+
+    _client->handleConnected();
 }
 
 void TgTransport::_disconnected()
 {
     qDebug() << "Socket disconnected";
+
+    _client->handleDisconnected();
 }
 
 void TgTransport::timerEvent(QTimerEvent *event)
@@ -78,18 +82,23 @@ void TgTransport::timerEvent(QTimerEvent *event)
     sendMTObject<&writeMTMethodPingDelayDisconnect>(ping);
 }
 
-void TgTransport::sendPlainMessage(QByteArray data)
+qint64 TgTransport::sendPlainMessage(QByteArray data)
 {
     TgPacket packet;
     writeInt64(packet, 0);
-    writeInt64(packet, getNewMessageId());
+    qint64 messageId = getNewMessageId();
+    writeInt64(packet, messageId);
     writeInt32(packet, data.length());
 
     sendIntermediate(packet.toByteArray() + data);
+    return messageId;
 }
 
 void TgTransport::sendIntermediate(QByteArray data)
 {
+    if (!_socket)
+        return;
+
     TgPacket packet;
     writeInt32(packet, data.length());
 
@@ -114,15 +123,39 @@ void TgTransport::_readyRead()
 
 QByteArray TgTransport::readIntermediate()
 {
+    if (!_socket)
+        return QByteArray();
+
     QByteArray buffer = _socket->read(4);
-    if (buffer.length() < 4)
+    if (buffer.length() < 4) {
         buffer.append(QByteArray(4 - buffer.length(), 0));
+        return buffer;
+    }
 
     TgPacket packet(buffer);
-    QVariant length;
-    readInt32(packet, length);
+    QVariant var;
+    readInt32(packet, var);
 
-    return _socket->read(length.toInt());
+    qint32 length = var.toInt(), readed = 0, result = 0;
+
+    buffer.reserve(length);
+    buffer.resize(length);
+
+    while (length > 0) {
+        result = _socket->read(buffer.data() + readed, length);
+        if (result == -1) {
+            return QByteArray();
+        }
+
+        length -= result;
+        readed += result;
+
+        if (length > 0) {
+            _socket->waitForReadyRead();
+        }
+    }
+
+    return buffer;
 }
 
 void TgTransport::processMessage(QByteArray message)
@@ -214,6 +247,13 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     case MTType::BadServerSalt:
         handleBadServerSalt(data, messageId);
         break;
+    case MTType::PingMethod:
+        handlePingMethod(data, messageId);
+        break;
+    case TLType::Config:
+        handleConfig(data, messageId);
+        _client->handleObject(data, messageId);
+        break;
     case MTType::NewSessionCreated:
     case MTType::MsgsAck:
     case MTType::Pong:
@@ -224,16 +264,10 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     case MTType::FutureSalts:
         qDebug() << "INFO: Ignoring " << conId;
         break;
-    case MTType::PingMethod:
-        handlePingMethod(data, messageId);
-        break;
     default:
-        qDebug() << "WARN: object" << conId << "is unknown!";
+        _client->handleObject(data, messageId);
         break;
     }
-
-    //TODO: handle Config
-    //TODO: redirect to client
 }
 
 void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
@@ -518,10 +552,12 @@ QByteArray TgTransport::gzipPacket(QByteArray data)
     return packet.toByteArray();
 }
 
-void TgTransport::sendMTMessage(QByteArray data)
+qint64 TgTransport::sendMTMessage(QByteArray data)
 {
     if (authKey.isEmpty())
-        return;
+        return sendPlainMessage(data);
+
+    //TODO: send msgsAck
 
     if (data.size() > 255)
         data = gzipPacket(data);
@@ -529,7 +565,8 @@ void TgTransport::sendMTMessage(QByteArray data)
     TgPacket packet;
     writeInt64(packet, serverSalt);
     writeInt64(packet, sessionId);
-    writeInt64(packet, getNewMessageId());
+    qint64 messageId = getNewMessageId();
+    writeInt64(packet, messageId);
     writeInt32(packet, generateSequence(true));
     writeInt32(packet, data.length());
     writeRawBytes(packet, data);
@@ -547,6 +584,7 @@ void TgTransport::sendMTMessage(QByteArray data)
     writeRawBytes(cipherPacket, cipherText);
 
     sendIntermediate(cipherPacket.toByteArray());
+    return messageId;
 }
 
 qint64 TgTransport::getNewMessageId()
@@ -674,4 +712,12 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
     qDebug() << "INFO: bad server salt handled";
 
     //TODO: resend bad_msg_id
+}
+
+void TgTransport::handleConfig(QByteArray data, qint64 messageId)
+{
+    //TODO: config
+    qDebug() << "TODO: handle config";
+
+    _client->handleInitialized();
 }

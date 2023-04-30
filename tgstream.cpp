@@ -235,6 +235,7 @@ void readVector(TelegramStream &stream, QVariant &i, void *callback)
     readInt32(stream, var, callback);
     qint32 length = var.toInt();
     QVariantList list;
+    list.reserve(length);
     if (callback) for (qint32 i = 0; i < length; ++i) {
         (*((READ_METHOD) callback))(stream, var, callback);
         list.append(var);
