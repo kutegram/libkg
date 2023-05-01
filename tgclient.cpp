@@ -1,7 +1,7 @@
 #include "tgclient.h"
 
 #include <QNetworkAccessManager>
-#include <QDebug>
+#include "debug.h"
 #include "tgtransport.h"
 #include "tlschema.h"
 
@@ -14,28 +14,48 @@ TgClient::TgClient(QObject *parent)
 
 void TgClient::start()
 {
-    qDebug() << "Starting client";
+    if (_transport)
+        return;
+
+    kgDebug() << "Starting client";
 
     _transport = new TgTransport(this);
     _transport->start();
 }
 
+void TgClient::stop() {
+    if (!_transport)
+        return;
+
+    kgDebug() << "Stopping client";
+
+    _transport->stop();
+    _transport->deleteLater();
+    _transport = 0;
+}
+
 void TgClient::handleConnected()
 {
-    qDebug() << "Client connected";
+    kgDebug() << "Client connected";
     emit connected();
 }
 
 void TgClient::handleDisconnected()
 {
-    qDebug() << "Client disconnected";
+    kgDebug() << "Client disconnected";
     emit disconnected();
 }
 
 void TgClient::handleInitialized()
 {
-    qDebug() << "Client initialized";
+    kgDebug() << "Client initialized";
     emit initialized();
+}
+
+void TgClient::handleRpcError(qint32 errorCode, QString errorMessage)
+{
+    kgWarning() << "RPC:" << errorCode << ":" << errorMessage;
+    emit rpcError(errorCode, errorMessage);
 }
 
 void TgClient::handleObject(QByteArray data, qint64 messageId)
@@ -54,8 +74,12 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::AuthSentCodeSuccess:
         emit authSendCodeResponse(tlDeserialize<&readTLAuthSentCode>(data).toMap(), messageId);
         break;
+    case TLType::AuthAuthorization:
+    case TLType::AuthAuthorizationSignUpRequired:
+        emit authSignInResponse(tlDeserialize<&readTLAuthAuthorization>(data).toMap(), messageId);
+        break;
     default:
-        qDebug() << "INFO: Unhandled object " << conId;
+        kgDebug() << "INFO: Unhandled object " << conId;
         break;
     }
 }

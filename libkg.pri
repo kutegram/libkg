@@ -24,7 +24,8 @@ HEADERS += \
     $$PWD/tgclient.h \
     $$PWD/tgtransport.h \
     $$PWD/systemname.h \
-    $$PWD/qcompressor.h
+    $$PWD/qcompressor.h \
+    $$PWD/debug.h
 
 SOURCES += \
     $$PWD/tlschema.cpp \

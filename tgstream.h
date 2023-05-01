@@ -6,6 +6,8 @@
 #include <QVariantMap>
 #include <QByteArray>
 
+//TODO: inline methods
+
 class TelegramStream : public QObject
 {
     Q_OBJECT

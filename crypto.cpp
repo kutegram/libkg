@@ -44,7 +44,6 @@ DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
 
         QByteArray result = hashSHA1(packet.toByteArray()).mid(12, 8);
         this->fingerprint = qFromLittleEndian<qint64>((const uchar*) result.constData());
-        qDebug() << this->fingerprint;
     }
 }
 

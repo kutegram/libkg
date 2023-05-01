@@ -18,7 +18,7 @@
 TgTransport::TgTransport(TgClient *parent)
     : QObject(parent)
     , _client(parent)
-    , _socket(0)
+    , _socket(new QTcpSocket(this))
     , _timer()
     , nonce()
     , serverNonce()
@@ -32,13 +32,6 @@ TgTransport::TgTransport(TgClient *parent)
     , sessionId(0)
     , pingId(0)
 {
-
-}
-
-void TgTransport::start() {
-    qDebug() << "Starting transport";
-
-    _socket = new QTcpSocket(this);
     _socket->setSocketOption(QTcpSocket::LowDelayOption, 1);
     _socket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
 
@@ -46,14 +39,24 @@ void TgTransport::start() {
     connect(_socket, SIGNAL(disconnected()), this, SLOT(_disconnected()));
     connect(_socket, SIGNAL(readyRead()), this, SLOT(_readyRead()));
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
+}
+
+void TgTransport::start() {
+    kgDebug() << "Starting transport";
 
     //TODO: remove hardcode
     _socket->connectToHost("149.154.167.40", 443);
 }
 
+void TgTransport::stop() {
+    kgDebug() << "Stopping transport";
+
+    _socket->disconnectFromHost();
+}
+
 void TgTransport::_connected()
 {
-    qDebug() << "Socket connected";
+    kgDebug() << "Socket connected";
 
     TgPacket packet;
     writeInt32(packet, 0xeeeeeeee);
@@ -68,7 +71,7 @@ void TgTransport::_connected()
 
 void TgTransport::_disconnected()
 {
-    qDebug() << "Socket disconnected";
+    kgDebug() << "Socket disconnected";
 
     _client->handleDisconnected();
 }
@@ -96,9 +99,6 @@ qint64 TgTransport::sendPlainMessage(QByteArray data)
 
 void TgTransport::sendIntermediate(QByteArray data)
 {
-    if (!_socket)
-        return;
-
     TgPacket packet;
     writeInt32(packet, data.length());
 
@@ -107,7 +107,7 @@ void TgTransport::sendIntermediate(QByteArray data)
 
 void TgTransport::authorize()
 {
-    qDebug() << "DH exchange: step 1";
+    kgDebug() << "DH exchange: step 1";
 
     TGOBJECT(MTType::ReqPqMultiMethod, reqPq);
     reqPq["nonce"] = nonce = randomBytes(INT128_BYTES);
@@ -116,16 +116,13 @@ void TgTransport::authorize()
 
 void TgTransport::_readyRead()
 {
-    qDebug() << "Ready to read";
+    kgDebug() << "Ready to read";
 
     processMessage(readIntermediate());
 }
 
 QByteArray TgTransport::readIntermediate()
 {
-    if (!_socket)
-        return QByteArray();
-
     QByteArray buffer = _socket->read(4);
     if (buffer.length() < 4) {
         buffer.append(QByteArray(4 - buffer.length(), 0));
@@ -155,6 +152,8 @@ QByteArray TgTransport::readIntermediate()
         }
     }
 
+    kgDebug() << "Readed" << buffer.size() << "bytes";
+
     return buffer;
 }
 
@@ -165,7 +164,7 @@ void TgTransport::processMessage(QByteArray message)
     if (message.length() <= 4) {
         QVariant error;
         readInt32(packet, error);
-        qDebug() << "Got MTProto error:" << error.toInt();
+        kgCritical() << "Got MTProto error:" << error.toInt();
         return;
     }
 
@@ -202,8 +201,6 @@ void TgTransport::processMessage(QByteArray message)
         readRawBytes(plainMessage, data, var.toInt());
     }
 
-    //qDebug() << "[IN ]" << data.toHex();
-
     handleObject(data, messageId);
 }
 
@@ -214,7 +211,7 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     readInt32(packet, var);
     qint32 conId = var.toInt();
 
-    qDebug() << "Got an object:" << conId;
+    kgDebug() << "Got an object:" << conId;
 
     switch (conId) {
     case MTType::ResPQ:
@@ -262,7 +259,7 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     case MTType::RpcAnswerDropped:
     case MTType::FutureSalt:
     case MTType::FutureSalts:
-        qDebug() << "INFO: Ignoring " << conId;
+        kgDebug() << "INFO: Ignoring " << conId;
         break;
     default:
         _client->handleObject(data, messageId);
@@ -278,16 +275,16 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
     readMTResPQ(packet, var);
     TgObject obj = var.toMap();
 
-    qDebug() << "DH exchange: step 2";
+    kgDebug() << "DH exchange: step 2";
 
     if (obj["nonce"].toByteArray() != nonce) {
-        qDebug() << "SECURITY ERROR: nonces are different";
+        kgCritical() << "SECURITY ERROR: nonces are different";
         return;
     }
 
     serverNonce = obj["server_nonce"].toByteArray();
 
-    qDebug() << "DH exchange: step 3";
+    kgDebug() << "DH exchange: step 3";
 
     QByteArray pqBytes = obj["pq"].toByteArray();
     quint64 pq = qFromBigEndian<quint64>((const uchar*) pqBytes.constData());
@@ -347,7 +344,7 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
         for (qint32 j = 0; j < keychain.length(); ++j) {
             if (serverKeyFingerprints[i].toLongLong() == keychain[j].fingerprint) {
                 matched << keychain[j];
-                qDebug() << "Matched fingerprint: " << keychain[j].fingerprint;
+                kgDebug() << "Matched fingerprint: " << keychain[j].fingerprint;
                 break;
             }
         }
@@ -357,7 +354,7 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
     }
 
     if (matched.isEmpty()) {
-        qDebug() << "SECURITY ERROR: no suitable keys are found";
+        kgCritical() << "SECURITY ERROR: no suitable keys are found";
         return;
     }
 
@@ -377,7 +374,7 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
     QByteArray pidData = pidPacket.toByteArray();
 
     if (pidData.length() > 144) {
-        qDebug() << "SECURITY ERROR: pqInnerData is longer that 144 bytes";
+        kgCritical() << "SECURITY ERROR: pqInnerData is longer that 144 bytes";
         return;
     }
 
@@ -394,7 +391,7 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
 
     sendPlainObject<&writeMTMethodReqDHParams>(reqDH);
 
-    qDebug() << "DH exchange: step 4";
+    kgDebug() << "DH exchange: step 4";
 }
 
 void TgTransport::handleServerDHParamsOk(QByteArray data, qint64 messageId)
@@ -407,15 +404,15 @@ void TgTransport::handleServerDHParamsOk(QByteArray data, qint64 messageId)
     readMTServerDHParams(packet, var);
     TgObject obj = var.toMap();
 
-    qDebug() << "DH exchange: step 5";
+    kgDebug() << "DH exchange: step 5";
 
     if (obj["nonce"].toByteArray() != nonce) {
-        qDebug() << "SECURITY ERROR: nonces are different";
+        kgCritical() << "SECURITY ERROR: nonces are different";
         return;
     }
 
     if (obj["server_nonce"].toByteArray() != serverNonce) {
-        qDebug() << "SECURITY ERROR: server nonces are different";
+        kgCritical() << "SECURITY ERROR: server nonces are different";
         return;
     }
 
@@ -482,23 +479,23 @@ void TgTransport::handleDhGenOk(QByteArray data, qint64 messageId)
     TgObject obj = var.toMap();
 
     if (obj["nonce"].toByteArray() != nonce) {
-        qDebug() << "SECURITY ERROR: nonces are different";
+        kgCritical() << "SECURITY ERROR: nonces are different";
         return;
     }
 
     if (obj["server_nonce"].toByteArray() != serverNonce) {
-        qDebug() << "SECURITY ERROR: server nonces are different";
+        kgCritical() << "SECURITY ERROR: server nonces are different";
         return;
     }
 
     QByteArray newNonceHash1 = hashSHA1(newNonce + QByteArray(1, 1) + hashSHA1(authKey).mid(0, 8)).mid(4);
     if (obj["new_nonce_hash1"].toByteArray() != newNonceHash1) {
-        qDebug() << "SECURITY ERROR: new nonce hashes are different";
+        kgCritical() << "SECURITY ERROR: new nonce hashes are different";
         return;
     }
 
     //TODO: important checks
-    qDebug() << "DH completed";
+    kgDebug() << "DH completed";
 
     initConnection();
 }
@@ -539,7 +536,7 @@ QByteArray TgTransport::gzipPacket(QByteArray data)
 {
     QByteArray packedData;
     if (!QCompressor::gzipCompress(data, packedData)) {
-        qDebug() << "[ERROR] Gzip compression error.";
+        kgCritical() << "ERROR: Gzip compression error.";
         return data;
     }
 
@@ -605,7 +602,7 @@ qint32 TgTransport::generateSequence(bool isContent)
 
 void TgTransport::_bytesSent(qint64 count)
 {
-    qDebug() << "Sent" << count << "bytes";
+    kgDebug() << "Sent" << count << "bytes";
 }
 
 void TgTransport::handleMsgContainer(QByteArray data, qint64 messageId)
@@ -641,7 +638,7 @@ void TgTransport::handleGzipPacked(QByteArray data, qint64 messageId)
     readByteArray(packet, var); //gzippedData
 
     if (!QCompressor::gzipDecompress(var.toByteArray(), data)) {
-        qDebug() << "[ERROR] Gzip decompression error.";
+        kgCritical() << "ERROR: Gzip decompression error.";
         return;
     }
 
@@ -659,7 +656,7 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
     QVariant errorMessage;
     readString(packet, errorMessage);
 
-    qDebug() << "[ERROR]" << errorCode.toInt() << ":" << errorMessage.toString();
+    _client->handleRpcError(errorCode.toInt(), errorMessage.toString());
 }
 
 void TgTransport::handlePingMethod(QByteArray data, qint64 messageId)
@@ -694,7 +691,7 @@ void TgTransport::handleMsgCopy(QByteArray data, qint64 messageId)
 void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
 {
     //TODO: bad msg
-    qDebug() << "TODO: handle bad msg notification";
+    kgDebug() << "TODO: handle bad msg notification";
 }
 
 void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
@@ -708,7 +705,7 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
     readInt64(packet, var); //newServerSalt
     serverSalt = var.toLongLong();
 
-    qDebug() << "INFO: bad server salt handled";
+    kgDebug() << "INFO: bad server salt handled";
 
     //TODO: resend bad_msg_id
 }
@@ -716,7 +713,7 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
 void TgTransport::handleConfig(QByteArray data, qint64 messageId)
 {
     //TODO: config
-    qDebug() << "TODO: handle config";
+    kgDebug() << "TODO: handle config";
 
     _client->handleInitialized();
 }

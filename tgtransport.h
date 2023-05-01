@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QBasicTimer>
-#include <QDebug>
+#include "debug.h"
 #include "tgstream.h"
 
 class TgClient;
@@ -42,6 +42,8 @@ public slots:
     void timerEvent(QTimerEvent *event);
 
     void start();
+    void stop();
+
     qint64 sendPlainMessage(QByteArray data);
     qint64 sendMTMessage(QByteArray data);
     void authorize();
@@ -75,13 +77,11 @@ public slots:
 
 template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)
 {
-    //qDebug() << "[OUT]" << tlSerialize<W>(i).toHex();
     return sendPlainMessage(tlSerialize<W>(i));
 }
 
 template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i)
 {
-    //qDebug() << "[OUT]" << tlSerialize<W>(i).toHex();
     return sendMTMessage(tlSerialize<W>(i));
 }
 
