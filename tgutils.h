@@ -8,6 +8,6 @@ TgObject toInputPeer(TgObject obj);
 TgLong getPeerId(TgObject obj);
 bool isUser(TgObject obj);
 bool isChat(TgObject obj);
-TgObject dialogsOffset(TgObject dialogs);
+TgObject getDialogsOffsets(TgObject dialogs);
 
 #endif // TGUTILS_H

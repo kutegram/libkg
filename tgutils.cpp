@@ -141,7 +141,7 @@ bool isUser(TgObject obj)
     return !isChat(obj);
 }
 
-TgObject dialogsOffset(TgObject dialogs)
+TgObject getDialogsOffsets(TgObject dialogs)
 {
     TgList dialogsList = dialogs["dialogs"].toList();
     TgList messagesList = dialogs["messages"].toList();
