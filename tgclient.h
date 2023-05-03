@@ -32,6 +32,7 @@ public slots:
     TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
     TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = emptyPeer(), qint32 limit = 1000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
     TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 1000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
+    TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
 
 signals:
     void connected();

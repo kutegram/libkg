@@ -27,3 +27,15 @@ TgLong TgClient::authSignIn(QString phoneNumber, QString phoneCodeHash, QString 
 
     return sendObject<&writeTLMethodAuthSignIn>(method);
 }
+
+TgLong TgClient::authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName)
+{
+    TGOBJECT(TLType::AuthSignUpMethod, method);
+
+    method["phone_number"] = phoneNumber;
+    method["phone_code_hash"] = phoneCodeHash;
+    method["first_name"] = firstName;
+    method["last_name"] = lastName;
+
+    return sendObject<&writeTLMethodAuthSignUp>(method);
+}
