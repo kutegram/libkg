@@ -5,6 +5,9 @@
 #include <QDataStream>
 #include <QVariantMap>
 #include <QByteArray>
+#include <QVariantMap>
+#include <QVariantList>
+#include <QByteArray>
 
 //TODO: inline methods
 
@@ -25,8 +28,24 @@ public:
 
 };
 
-typedef TelegramStream TelegramPacket;
+typedef QVariantMap TelegramObject;
+typedef QVariant TgVariant;
+typedef TelegramStream TgStream;
 typedef TelegramStream TgPacket;
+typedef QVariantMap TgObject;
+typedef QVariantMap TgMap;
+typedef QVariantList TgVector;
+typedef QVariantList TgList;
+typedef QVariantList TgArray;
+typedef QByteArray TgInt128;
+typedef QByteArray TgInt256;
+typedef qint32 TgInt;
+typedef qint64 TgLong;
+typedef long double TgDouble;
+typedef QString TgString;
+typedef bool TgBool;
+typedef QByteArray TgByteArray;
+
 typedef void (*WRITE_METHOD)(TelegramStream&, QVariant, void*);
 typedef void (*READ_METHOD)(TelegramStream&, QVariant&, void*);
 
@@ -57,37 +76,12 @@ void writeInt256(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeVector(TelegramStream& stream, QVariant i, void* callback);
 
 void readRawBytes(TelegramStream& stream, QByteArray &i, qint32 count);
+void skipRawBytes(TelegramStream& stream, qint32 count);
 void writeRawBytes(TelegramStream& stream, QByteArray i);
 
-#include <QVariantMap>
-#include <QVariantList>
-#include <QByteArray>
-
-typedef QVariantMap TelegramObject;
-typedef QVariantList TelegramVector;
-typedef QByteArray TelegramInt128;
-typedef QByteArray TelegramInt256;
-
-typedef QVariantMap TObject;
-typedef QVariantList TVector;
-typedef QVariantList TList;
-typedef QVariantList TArray;
-typedef QByteArray TInt128;
-typedef QByteArray TInt256;
-
-typedef QVariantMap TgObject;
-typedef QVariantList TgVector;
-typedef QVariantList TgList;
-typedef QVariantList TgArray;
-typedef QByteArray TgInt128;
-typedef QByteArray TgInt256;
-
-#define TOBJECT(id, name) \
-    TelegramObject name;  \
-    name["_"] = id;
-
 #define TGOBJECT(id, name) \
-    TOBJECT(id, name)
+    TgObject name;  \
+    name["_"] = id;
 
 #define ID_PROPERTY(name) \
     name["_"]
@@ -103,27 +97,23 @@ typedef QByteArray TgInt256;
 #define INT128_BYTES 16
 #define INT256_BYTES 32
 
+//TODO: use TLType
+
 #define VECTOR_ID 481674261
 #define BOOL_TRUE -1720552011
 #define BOOL_FALSE -1132882121
 
-QVariant getPeerId(TObject obj);
-TObject getInputPeer(TObject obj);
-TObject getInputMessage(TObject obj);
-qint32 commonPeerType(TObject peer);
-bool peersEqual(TObject peer1, TObject peer2);
-
 template <WRITE_METHOD W> QByteArray tlSerialize(QVariant obj)
 {
-    TelegramPacket packet;
+    TgPacket packet;
     (*W)(packet, obj, 0);
     return packet.toByteArray();
 }
 
 template <READ_METHOD R> QVariant tlDeserialize(QByteArray array)
 {
-    QVariant obj;
-    TelegramPacket packet(array);
+    TgVariant obj;
+    TgPacket packet(array);
     (*R)(packet, obj, 0);
     return obj;
 }

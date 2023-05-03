@@ -13,7 +13,7 @@ private:
 public:
     explicit TgClient(QObject *parent = 0);
     
-    template <WRITE_METHOD W> qint64 sendObject(QVariant i);
+    template <WRITE_METHOD W> TgLong sendObject(TgObject i);
     
 public slots:
     void start();
@@ -26,9 +26,9 @@ public slots:
     void handleInitialized();
     void handleRpcError(qint32 errorCode, QString errorMessage);
 
-    qint64 helpGetCountriesList(qint32 hash = 0, QString langCode = "");
-    qint64 authSendCode(QString phoneNumber);
-    qint64 authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
+    TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
+    TgLong authSendCode(QString phoneNumber);
+    TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
 
 signals:
     void connected();
@@ -36,13 +36,13 @@ signals:
     void initialized();
     void rpcError(qint32 errorCode, QString errorMessage);
 
-    void helpGetCountriesListResponse(QVariantMap object, qint64 messageId);
-    void authSendCodeResponse(QVariantMap object, qint64 messageId);
-    void authSignInResponse(QVariantMap object, qint64 messageId);
+    void helpGetCountriesListResponse(TgObject object, TgLong messageId);
+    void authSendCodeResponse(TgObject object, TgLong messageId);
+    void authSignInResponse(TgObject object, TgLong messageId);
 
 };
 
-template <WRITE_METHOD W> qint64 TgClient::sendObject(QVariant i)
+template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)
 {
     return _transport->sendMTObject<W>(i);
 }

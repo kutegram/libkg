@@ -28,6 +28,11 @@ void writeRawBytes(TelegramStream &stream, QByteArray i)
     stream.writeRawBytes(i);
 }
 
+void skipRawBytes(TelegramStream &stream, qint32 count)
+{
+    stream.skipRawBytes(count);
+}
+
 void readRawBytes(TelegramStream &stream, QByteArray &i, qint32 count)
 {
     stream.readRawBytes(i, count);
