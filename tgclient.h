@@ -24,7 +24,7 @@ public slots:
     void handleConnected();
     void handleDisconnected();
     void handleInitialized();
-    void handleRpcError(qint32 errorCode, QString errorMessage);
+    void handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
 
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
@@ -34,7 +34,7 @@ signals:
     void connected();
     void disconnected();
     void initialized();
-    void rpcError(qint32 errorCode, QString errorMessage);
+    void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
 
     void helpGetCountriesListResponse(TgObject object, TgLong messageId);
     void authSendCodeResponse(TgObject object, TgLong messageId);

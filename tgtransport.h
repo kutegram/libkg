@@ -17,6 +17,14 @@ private:
     QTcpSocket *_socket;
     QBasicTimer _timer;
 
+    bool testMode;
+    bool mediaOnly;
+    qint32 currentDc;
+    quint16 currentPort;
+    QString currentHost;
+
+    TgObject tgConfig;
+
     QByteArray nonce;
     QByteArray serverNonce;
     QByteArray newNonce;
@@ -30,6 +38,8 @@ private:
     qint64 sessionId;
     qint64 pingId;
 
+    QMap<qint64, QByteArray> pendingMessages;
+
 public:
     explicit TgTransport(TgClient *parent = 0);
 
@@ -40,6 +50,10 @@ signals:
     
 public slots:
     void timerEvent(QTimerEvent *event);
+
+
+    void migrateTo(qint32 dcId);
+    void resetDc();
 
     void start();
     void stop();
@@ -77,11 +91,13 @@ public slots:
 
 template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)
 {
+    kgDebug() << "Sending plain object:" << GETID(i.toMap());
     return sendPlainMessage(tlSerialize<W>(i));
 }
 
 template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i)
 {
+    kgDebug() << "Sending MT object:" << GETID(i.toMap());
     return sendMTMessage(tlSerialize<W>(i));
 }
 

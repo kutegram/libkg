@@ -18,7 +18,7 @@
 TgTransport::TgTransport(TgClient *parent)
     : QObject(parent)
     , _client(parent)
-    , _socket(new QTcpSocket(this))
+    , _socket(0)
     , _timer()
     , nonce()
     , serverNonce()
@@ -31,7 +31,15 @@ TgTransport::TgTransport(TgClient *parent)
     , lastMessageId(0)
     , sessionId(0)
     , pingId(0)
+    , currentDc(0)
+    , currentPort(0)
+    , currentHost()
+    , testMode(false)
+    , mediaOnly(false)
+    , tgConfig()
+    , pendingMessages()
 {
+    _socket = new QTcpSocket(this);
     _socket->setSocketOption(QTcpSocket::LowDelayOption, 1);
     _socket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
 
@@ -41,17 +49,83 @@ TgTransport::TgTransport(TgClient *parent)
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
 }
 
-void TgTransport::start() {
-    kgDebug() << "Starting transport";
+void TgTransport::resetDc()
+{
+    stop();
 
-    //TODO: remove hardcode
-    _socket->connectToHost("149.154.167.40", 443);
+    mediaOnly = false;
+    testMode = true;
+    currentDc = 2;
+    currentHost = "149.154.167.40";
+    currentPort = 443;
+    tgConfig = TgObject();
+}
+
+void TgTransport::migrateTo(qint32 dcId)
+{
+    kgDebug() << "Migrating to DC" << dcId;
+
+    stop();
+
+    TgList dcOptions = tgConfig["dc_options"].toList();
+
+    QString targetHost;
+    quint16 targetPort;
+
+    for (qint32 i = 0; i < dcOptions.size(); ++i) {
+        TgObject option = dcOptions[i].toMap();
+
+        if (option["id"].toInt() != dcId
+                || option["ipv6"].toBool()
+                || option["media_only"].toBool() != mediaOnly
+                || option["tcpo_only"].toBool()
+                || option["cdn"].toBool())
+            continue;
+
+        targetHost = option["ip_address"].toString();
+        targetPort = option["port"].toInt();
+        break;
+    }
+
+    if (targetHost.isEmpty()) {
+        kgDebug() << "DC" << dcId << "not found. Resetting to default DC.";
+        resetDc();
+        start();
+        return;
+    }
+
+    currentDc = dcId;
+    currentHost = targetHost;
+    if (targetPort) {
+        currentPort = targetPort;
+    }
+
+    start();
+}
+
+void TgTransport::start() {
+    if (_socket->state() != 0)
+        return;
+
+    if (currentHost.isEmpty() || !currentPort || !currentDc)
+        resetDc();
+
+    kgDebug() << "Starting transport, DC" << currentDc;
+
+    //TODO: reset crypto values
+
+    _socket->connectToHost(currentHost, currentPort);
+    _timer.start(60000, this);
 }
 
 void TgTransport::stop() {
+    if (_socket->state() == 0)
+        return;
+
     kgDebug() << "Stopping transport";
 
     _socket->disconnectFromHost();
+    _timer.stop();
 }
 
 void TgTransport::_connected()
@@ -62,11 +136,10 @@ void TgTransport::_connected()
     writeInt32(packet, 0xeeeeeeee);
 
     _socket->write(packet.toByteArray());
-    _timer.start(60000, this);
-
-    authorize();
 
     _client->handleConnected();
+
+    authorize();
 }
 
 void TgTransport::_disconnected()
@@ -78,6 +151,8 @@ void TgTransport::_disconnected()
 
 void TgTransport::timerEvent(QTimerEvent *event)
 {
+    kgDebug() << "Sending ping";
+
     TGOBJECT(MTType::PingDelayDisconnectMethod, ping);
     ping["ping_id"] = pingId++;
     ping["disconnect_delay"] = 75;
@@ -87,6 +162,9 @@ void TgTransport::timerEvent(QTimerEvent *event)
 
 qint64 TgTransport::sendPlainMessage(QByteArray data)
 {
+    if (data.isEmpty())
+        return 0;
+
     TgPacket packet;
     writeInt64(packet, 0);
     qint64 messageId = getNewMessageId();
@@ -152,7 +230,7 @@ QByteArray TgTransport::readIntermediate()
         }
     }
 
-    kgDebug() << "Readed" << buffer.size() << "bytes";
+    //kgDebug() << "Readed" << buffer.size() << "bytes";
 
     return buffer;
 }
@@ -213,6 +291,9 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
 
     kgDebug() << "Got an object:" << conId;
 
+    if (conId != MTType::RpcError && conId != MTType::BadMsgNotification && conId != MTType::BadServerSalt)
+        pendingMessages.remove(messageId);
+
     switch (conId) {
     case MTType::ResPQ:
         handleResPQ(data, messageId);
@@ -249,7 +330,6 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
         break;
     case TLType::Config:
         handleConfig(data, messageId);
-        _client->handleObject(data, messageId);
         break;
     case MTType::NewSessionCreated:
     case MTType::MsgsAck:
@@ -365,9 +445,8 @@ void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
     pqInnerData["nonce"] = nonce;
     pqInnerData["server_nonce"] = serverNonce;
     pqInnerData["new_nonce"] = newNonce = randomBytes(INT256_BYTES);
-    pqInnerData["dc"] = 10002; //TODO: remove hardcoded DC ID
-    //If DC is testing - DC id + 10000
-    //If DC is Media Only - DC id * -1
+    //it works without DC ID lol
+    pqInnerData["dc"] = (currentDc + (testMode ? 10000 : 0)) * (mediaOnly ? -1 : 1);
 
     TgPacket pidPacket;
     writeMTPQInnerData(pidPacket, pqInnerData);
@@ -548,13 +627,17 @@ QByteArray TgTransport::gzipPacket(QByteArray data)
     return packet.toByteArray();
 }
 
-qint64 TgTransport::sendMTMessage(QByteArray data)
+qint64 TgTransport::sendMTMessage(QByteArray originalData)
 {
     if (authKey.isEmpty())
-        return sendPlainMessage(data);
+        return sendPlainMessage(originalData);
+
+    if (originalData.isEmpty())
+        return 0;
 
     //TODO: send msgsAck
 
+    QByteArray data = originalData;
     if (data.size() > 255)
         data = gzipPacket(data);
 
@@ -579,6 +662,8 @@ qint64 TgTransport::sendMTMessage(QByteArray data)
     writeRawBytes(cipherPacket, messageKey);
     writeRawBytes(cipherPacket, cipherText);
 
+    pendingMessages.insert(messageId, originalData);
+
     sendIntermediate(cipherPacket.toByteArray());
     return messageId;
 }
@@ -602,7 +687,7 @@ qint32 TgTransport::generateSequence(bool isContent)
 
 void TgTransport::_bytesSent(qint64 count)
 {
-    kgDebug() << "Sent" << count << "bytes";
+    //kgDebug() << "Sent" << count << "bytes";
 }
 
 void TgTransport::handleMsgContainer(QByteArray data, qint64 messageId)
@@ -626,7 +711,13 @@ void TgTransport::handleMsgContainer(QByteArray data, qint64 messageId)
 
 void TgTransport::handleRpcResult(QByteArray data, qint64 messageId)
 {
-    handleObject(data.mid(12), messageId); //conId + req_msg_id
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt32(packet, var); //conId
+    readInt64(packet, var); //req_msg_id
+
+    handleObject(data.mid(12), var.toLongLong());
 }
 
 void TgTransport::handleGzipPacked(QByteArray data, qint64 messageId)
@@ -648,21 +739,36 @@ void TgTransport::handleGzipPacked(QByteArray data, qint64 messageId)
 void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
-
     QVariant errorCode;
+
     readInt32(packet, errorCode); //conId
     readInt32(packet, errorCode);
 
-    QVariant errorMessage;
-    readString(packet, errorMessage);
+    QVariant errorMessageVariant;
+    readString(packet, errorMessageVariant);
 
-    _client->handleRpcError(errorCode.toInt(), errorMessage.toString());
+    QString errorMessage = errorMessageVariant.toString();
+
+    qint32 messageParameter = 0;
+    QStringList splittedMessage = errorMessage.split("_");
+    if (!splittedMessage.isEmpty())
+        messageParameter = splittedMessage.last().toInt();
+
+    if (errorMessage.contains("_MIGRATE_") && !errorMessage.startsWith("FILE_")) {
+        migrateTo(messageParameter);
+        return;
+    }
+
+    pendingMessages.remove(messageId);
+
+    _client->handleRpcError(errorCode.toInt(), errorMessage, messageId);
 }
 
 void TgTransport::handlePingMethod(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
     QVariant pingId;
+
     readInt32(packet, pingId); //conId
     readInt64(packet, pingId);
 
@@ -690,7 +796,20 @@ void TgTransport::handleMsgCopy(QByteArray data, qint64 messageId)
 
 void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
 {
-    //TODO: bad msg
+    TgPacket packet(data);
+    QVariant var;
+
+    readInt32(packet, var); //conId
+    readInt64(packet, var); //badMsgId
+    qint64 badMsgId = var.toLongLong();
+    readInt32(packet, var); //badMsgSeqNo
+    readInt32(packet, var); //errorCode
+
+    pendingMessages.remove(badMsgId);
+
+    //TODO: handle bad msg notification
+    //sendMTMessage(pendingMessages.take(badMsgId));
+
     kgDebug() << "TODO: handle bad msg notification";
 }
 
@@ -699,21 +818,29 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
     TgPacket packet(data);
     QVariant var;
 
+    readInt32(packet, var); //conId
     readInt64(packet, var); //badMsgId
+    qint64 badMsgId = var.toLongLong();
     readInt32(packet, var); //badMsgSeqNo
     readInt32(packet, var); //errorCode
     readInt64(packet, var); //newServerSalt
     serverSalt = var.toLongLong();
 
-    kgDebug() << "INFO: bad server salt handled";
+    sendMTMessage(pendingMessages.take(badMsgId));
 
-    //TODO: resend bad_msg_id
+    kgDebug() << "INFO: bad server salt handled";
 }
 
 void TgTransport::handleConfig(QByteArray data, qint64 messageId)
 {
-    //TODO: config
-    kgDebug() << "TODO: handle config";
+    tgConfig = tlDeserialize<&readTLConfig>(data).toMap();
+    //TODO: fill DC info
+
+    QList<qint64> keys = pendingMessages.keys();
+    kgDebug() << "Pending:" << keys;
+    for (qint32 i = 0; i < keys.size(); ++i) {
+        sendMTMessage(pendingMessages.take(keys[i]));
+    }
 
     _client->handleInitialized();
 }

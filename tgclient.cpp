@@ -1,61 +1,58 @@
 #include "tgclient.h"
 
 #include <QNetworkAccessManager>
+#include <QStringList>
 #include "debug.h"
 #include "tgtransport.h"
 #include "tlschema.h"
 
 TgClient::TgClient(QObject *parent)
     : QObject(parent)
-    , _transport(0)
+    , _transport(new TgTransport(this))
 {
 
 }
 
 void TgClient::start()
 {
-    if (_transport)
-        return;
-
     kgDebug() << "Starting client";
 
-    _transport = new TgTransport(this);
     _transport->start();
 }
 
-void TgClient::stop() {
-    if (!_transport)
-        return;
-
+void TgClient::stop()
+{
     kgDebug() << "Stopping client";
 
     _transport->stop();
-    _transport->deleteLater();
-    _transport = 0;
 }
 
 void TgClient::handleConnected()
 {
     kgDebug() << "Client connected";
+
     emit connected();
 }
 
 void TgClient::handleDisconnected()
 {
     kgDebug() << "Client disconnected";
+
     emit disconnected();
 }
 
 void TgClient::handleInitialized()
 {
     kgDebug() << "Client initialized";
+
     emit initialized();
 }
 
-void TgClient::handleRpcError(qint32 errorCode, QString errorMessage)
+void TgClient::handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId)
 {
     kgWarning() << "RPC:" << errorCode << ":" << errorMessage;
-    emit rpcError(errorCode, errorMessage);
+
+    emit rpcError(errorCode, errorMessage, messageId);
 }
 
 void TgClient::handleObject(QByteArray data, qint64 messageId)
