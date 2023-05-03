@@ -20,9 +20,19 @@ TgTransport::TgTransport(TgClient *parent)
     , _client(parent)
     , _socket(0)
     , _timer()
+
+    , testMode(false)
+    , mediaOnly(false)
+    , currentDc(0)
+    , currentPort(0)
+    , currentHost()
+
+    , tgConfig()
+
     , nonce()
     , serverNonce()
     , newNonce()
+
     , authKey()
     , serverSalt(0)
     , authKeyId(0)
@@ -31,12 +41,7 @@ TgTransport::TgTransport(TgClient *parent)
     , lastMessageId(0)
     , sessionId(0)
     , pingId(0)
-    , currentDc(0)
-    , currentPort(0)
-    , currentHost()
-    , testMode(false)
-    , mediaOnly(false)
-    , tgConfig()
+
     , pendingMessages()
 {
     _socket = new QTcpSocket(this);
@@ -112,8 +117,6 @@ void TgTransport::start() {
 
     kgDebug() << "Starting transport, DC" << currentDc;
 
-    //TODO: reset crypto values
-
     _socket->connectToHost(currentHost, currentPort);
     _timer.start(60000, this);
 }
@@ -186,6 +189,9 @@ void TgTransport::sendIntermediate(QByteArray data)
 void TgTransport::authorize()
 {
     kgDebug() << "DH exchange: step 1";
+
+    newNonce.clear();
+    serverNonce.clear();
 
     TGOBJECT(MTType::ReqPqMultiMethod, reqPq);
     reqPq["nonce"] = nonce = randomBytes(INT128_BYTES);

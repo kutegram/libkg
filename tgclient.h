@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "tgtransport.h"
+#include "tgutils.h"
 
 class TgClient : public QObject
 {
@@ -29,6 +30,8 @@ public slots:
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
     TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
+    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = emptyPeer(), qint32 limit = 1000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
+    TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 1000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
 
 signals:
     void connected();
@@ -39,6 +42,7 @@ signals:
     void helpGetCountriesListResponse(TgObject object, TgLong messageId);
     void authSendCodeResponse(TgObject object, TgLong messageId);
     void authSignInResponse(TgObject object, TgLong messageId);
+    void messagesGetDialogsResponse(TgObject object, TgLong messageId);
 
 };
 

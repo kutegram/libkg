@@ -62,6 +62,8 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     readInt32(packet, var);
     qint32 conId = var.toInt();
 
+    //TODO: map
+
     switch (conId) {
     case TLType::HelpCountriesList:
     case TLType::HelpCountriesListNotModified:
@@ -74,6 +76,11 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::AuthAuthorization:
     case TLType::AuthAuthorizationSignUpRequired:
         emit authSignInResponse(tlDeserialize<&readTLAuthAuthorization>(data).toMap(), messageId);
+        break;
+    case TLType::MessagesDialogs:
+    case TLType::MessagesDialogsNotModified:
+    case TLType::MessagesDialogsSlice:
+        emit messagesGetDialogsResponse(tlDeserialize<&readTLMessagesDialogs>(data).toMap(), messageId);
         break;
     default:
         kgDebug() << "INFO: Unhandled object " << conId;
