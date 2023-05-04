@@ -37,11 +37,19 @@ private:
     qint64 lastMessageId;
     qint64 sessionId;
     qint64 pingId;
+    qint64 userId;
 
     QMap<qint64, QByteArray> pendingMessages;
 
+    QString _sessionName;
+
+    TgVector msgsToAck;
+
+    qint64 authCheckMsgId;
+
 public:
-    explicit TgTransport(TgClient *parent = 0);
+    explicit TgTransport(TgClient *parent = 0, QString sessionName = "");
+    ~TgTransport();
 
     template <WRITE_METHOD W> qint64 sendPlainObject(QVariant i);
     template <WRITE_METHOD W> qint64 sendMTObject(QVariant i);
@@ -51,6 +59,15 @@ signals:
 public slots:
     void timerEvent(QTimerEvent *event);
 
+    void resetSession();
+    void saveSession();
+    void loadSession();
+
+    bool hasSession();
+
+    void checkAuthorization();
+
+    TgLong sendMsgsAck();
 
     void migrateTo(qint32 dcId);
     void resetDc();
@@ -87,6 +104,8 @@ public slots:
     void handleBadMsgNotification(QByteArray data, qint64 messageId);
     void handleBadServerSalt(QByteArray data, qint64 messageId);
     void handleConfig(QByteArray data, qint64 messageId);
+    void handleAuthorization(QByteArray data, qint64 messageId);
+    void handleVector(QByteArray data, qint64 messageId);
 };
 
 template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)

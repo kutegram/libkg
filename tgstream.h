@@ -61,6 +61,7 @@ void readByteArray(TelegramStream& stream, QVariant &i, void* callback = 0);
 void readInt128(TelegramStream& stream, QVariant &i, void* callback = 0);
 void readInt256(TelegramStream& stream, QVariant &i, void* callback = 0);
 void readVector(TelegramStream& stream, QVariant &i, void* callback);
+void readList(TelegramStream& stream, QVariant &i, void* callback);
 
 void writeUInt8(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeUInt32(TelegramStream& stream, QVariant i, void* callback = 0);
@@ -74,6 +75,7 @@ void writeByteArray(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeInt128(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeInt256(TelegramStream& stream, QVariant i, void* callback = 0);
 void writeVector(TelegramStream& stream, QVariant i, void* callback);
+void writeList(TelegramStream& stream, QVariant i, void* callback);
 
 void readRawBytes(TelegramStream& stream, QByteArray &i, qint32 count);
 void skipRawBytes(TelegramStream& stream, qint32 count);

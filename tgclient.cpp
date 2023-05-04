@@ -6,11 +6,23 @@
 #include "tgtransport.h"
 #include "tlschema.h"
 
-TgClient::TgClient(QObject *parent)
+TgClient::TgClient(QObject *parent, QString sessionName)
     : QObject(parent)
-    , _transport(new TgTransport(this))
+    , _transport(new TgTransport(this, sessionName))
 {
 
+}
+
+void TgClient::resetSession()
+{
+    kgDebug() << "Resetting session";
+
+    _transport->resetSession();
+}
+
+bool TgClient::hasSession()
+{
+    return _transport->hasSession();
 }
 
 void TgClient::start()
@@ -46,6 +58,13 @@ void TgClient::handleInitialized()
     kgDebug() << "Client initialized";
 
     emit initialized();
+}
+
+void TgClient::handleAuthorized(qint64 userId)
+{
+    kgDebug() << "Client authorized";
+
+    emit authorized(userId);
 }
 
 void TgClient::handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId)

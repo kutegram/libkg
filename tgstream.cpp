@@ -136,6 +136,11 @@ void writeVector(TelegramStream &stream, QVariant i, void *callback)
     }
 }
 
+void writeList(TelegramStream &stream, QVariant i, void *callback)
+{
+    writeVector(stream, i, callback);
+}
+
 void readUInt8(TelegramStream &stream, QVariant &i, void *callback)
 {
     quint8 var;
@@ -246,4 +251,9 @@ void readVector(TelegramStream &stream, QVariant &i, void *callback)
         list.append(var);
     }
     i = list;
+}
+
+void readList(TelegramStream &stream, QVariant &i, void *callback)
+{
+    readVector(stream, i, callback);
 }

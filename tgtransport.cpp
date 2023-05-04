@@ -14,8 +14,9 @@
 #include <QLocale>
 #include <QStringList>
 #include <qcompressor.h>
+#include <QSettings>
 
-TgTransport::TgTransport(TgClient *parent)
+TgTransport::TgTransport(TgClient *parent, QString sessionName)
     : QObject(parent)
     , _client(parent)
     , _socket(0)
@@ -41,9 +42,20 @@ TgTransport::TgTransport(TgClient *parent)
     , lastMessageId(0)
     , sessionId(0)
     , pingId(0)
+    , userId(0)
 
     , pendingMessages()
+
+    , _sessionName(sessionName)
+
+    , msgsToAck()
+
+    , authCheckMsgId(0)
 {
+    if (_sessionName.isEmpty()) {
+        _sessionName = "user_session";
+    }
+
     _socket = new QTcpSocket(this);
     _socket->setSocketOption(QTcpSocket::LowDelayOption, 1);
     _socket->setSocketOption(QTcpSocket::KeepAliveOption, 1);
@@ -52,6 +64,87 @@ TgTransport::TgTransport(TgClient *parent)
     connect(_socket, SIGNAL(disconnected()), this, SLOT(_disconnected()));
     connect(_socket, SIGNAL(readyRead()), this, SLOT(_readyRead()));
     connect(_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(_bytesSent(qint64)));
+
+    loadSession();
+}
+
+TgTransport::~TgTransport()
+{
+    stop();
+}
+
+void TgTransport::resetSession()
+{
+    //TODO: log out event
+
+    kgDebug() << "Resetting session";
+
+    stop();
+
+    resetDc();
+    authKey = QByteArray();
+    sessionId = 0;
+    userId = 0;
+
+    saveSession();
+}
+
+bool TgTransport::hasSession()
+{
+    return userId && sessionId && serverSalt && authKeyId && !authKey.isEmpty();
+}
+
+void TgTransport::saveSession()
+{
+    kgDebug() << "Saving session" << _sessionName;
+
+    //TODO: password encryption
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName() + "_" + _sessionName);
+
+    settings.beginGroup("CurrentSession");
+
+    settings.setValue("TestMode",       testMode);
+    settings.setValue("MediaOnly",      mediaOnly);
+    settings.setValue("CurrentDc",      currentDc);
+    settings.setValue("CurrentHost",    currentHost);
+    settings.setValue("CurrentPort",    currentPort);
+    settings.setValue("AuthKey",        authKey);
+    settings.setValue("ServerSalt",     serverSalt);
+    settings.setValue("AuthKeyId",      authKeyId);
+    settings.setValue("TimeOffset",     timeOffset);
+    settings.setValue("Sequence",       sequence);
+    settings.setValue("LastMessageId",  lastMessageId);
+    settings.setValue("SessionId",      sessionId);
+    settings.setValue("PingId",         pingId);
+    settings.setValue("UserId",         userId);
+
+    settings.endGroup();
+}
+
+void TgTransport::loadSession()
+{
+    kgDebug() << "Loading session" << _sessionName;
+
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName() + "_" + _sessionName);
+
+    settings.beginGroup("CurrentSession");
+
+    testMode        = settings.value("TestMode").toBool();
+    mediaOnly       = settings.value("MediaOnly").toBool();
+    currentDc       = settings.value("CurrentDc").toInt();
+    currentHost     = settings.value("CurrentHost").toString();
+    currentPort     = settings.value("CurrentPort").toInt();
+    authKey         = settings.value("AuthKey").toByteArray();
+    serverSalt      = settings.value("ServerSalt").toLongLong();
+    authKeyId       = settings.value("AuthKeyId").toLongLong();
+    timeOffset      = settings.value("TimeOffset").toInt();
+    sequence        = settings.value("Sequence").toInt();
+    lastMessageId   = settings.value("LastMessageId").toLongLong();
+    sessionId       = settings.value("SessionId").toLongLong();
+    pingId          = settings.value("PingId").toLongLong();
+    userId          = settings.value("UserId").toLongLong();
+
+    settings.endGroup();
 }
 
 void TgTransport::resetDc()
@@ -64,6 +157,8 @@ void TgTransport::resetDc()
     currentHost = "149.154.167.40";
     currentPort = 443;
     tgConfig = TgObject();
+
+    saveSession();
 }
 
 void TgTransport::migrateTo(qint32 dcId)
@@ -112,8 +207,13 @@ void TgTransport::start() {
     if (_socket->state() != 0)
         return;
 
-    if (currentHost.isEmpty() || !currentPort || !currentDc)
+
+    loadSession();
+
+    if (currentHost.isEmpty() || !currentPort || !currentDc) {
         resetDc();
+        saveSession();
+    }
 
     kgDebug() << "Starting transport, DC" << currentDc;
 
@@ -127,8 +227,14 @@ void TgTransport::stop() {
 
     kgDebug() << "Stopping transport";
 
-    _socket->disconnectFromHost();
+    sendMsgsAck();
+
+    saveSession();
+
     _timer.stop();
+    _socket->disconnectFromHost();
+    if (_socket->state() == QTcpSocket::ClosingState)
+        _socket->waitForBytesWritten();
 }
 
 void TgTransport::_connected()
@@ -142,7 +248,11 @@ void TgTransport::_connected()
 
     _client->handleConnected();
 
-    authorize();
+    if (hasSession()) {
+        initConnection();
+    } else {
+        authorize();
+    }
 }
 
 void TgTransport::_disconnected()
@@ -155,6 +265,10 @@ void TgTransport::_disconnected()
 void TgTransport::timerEvent(QTimerEvent *event)
 {
     kgDebug() << "Sending ping";
+
+    sendMsgsAck();
+
+    saveSession();
 
     TGOBJECT(MTType::PingDelayDisconnectMethod, ping);
     ping["ping_id"] = pingId++;
@@ -295,7 +409,10 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     readInt32(packet, var);
     qint32 conId = var.toInt();
 
-    kgDebug() << "Got an object:" << conId;
+    kgDebug() << "Got an object" << conId << ", msg id" << messageId;
+
+    if (!msgsToAck.contains(messageId))
+        msgsToAck.append(messageId);
 
     if (conId != MTType::RpcError && conId != MTType::BadMsgNotification && conId != MTType::BadServerSalt)
         pendingMessages.remove(messageId);
@@ -336,6 +453,12 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
         break;
     case TLType::Config:
         handleConfig(data, messageId);
+        break;
+    case TLType::AuthAuthorization:
+        handleAuthorization(data, messageId);
+        break;
+    case MTType::Vector:
+        handleVector(data, messageId);
         break;
     case MTType::NewSessionCreated:
     case MTType::MsgsAck:
@@ -582,6 +705,8 @@ void TgTransport::handleDhGenOk(QByteArray data, qint64 messageId)
     //TODO: important checks
     kgDebug() << "DH completed";
 
+    saveSession();
+
     initConnection();
 }
 
@@ -598,7 +723,7 @@ void TgTransport::initConnection()
         appVersion = "1.0.0";
     initConnection["app_version"] = appVersion;
     initConnection["system_lang_code"] = QLocale::system().name().split("_")[0];
-    initConnection["lang_pack"] = ""; //TODO: what is lang pack?
+    initConnection["lang_pack"] = "";
     initConnection["lang_code"] = QLocale::system().name().split("_")[0];
     initConnection["query"] = getConfig;
 
@@ -613,8 +738,6 @@ void TgTransport::initConnection()
                 &writeTLMethodInitConnection
                 < &readTLMethodHelpGetConfig ,
                 &writeTLMethodHelpGetConfig > > >(invokeWithLayer);
-
-    //TODO: timer send pingdelayconnection
 }
 
 QByteArray TgTransport::gzipPacket(QByteArray data)
@@ -633,6 +756,21 @@ QByteArray TgTransport::gzipPacket(QByteArray data)
     return packet.toByteArray();
 }
 
+TgLong TgTransport::sendMsgsAck()
+{
+    if (msgsToAck.isEmpty())
+        return 0;
+
+    kgDebug() << "Sending MsgsAck," << msgsToAck.size() << "items";
+    if (msgsToAck.size() <= 20) kgDebug() << msgsToAck;
+
+    TGOBJECT(MTType::MsgsAck, msgsAck);
+    msgsAck["msg_ids"] = TgList(msgsToAck);
+    msgsToAck.clear();
+
+    return sendMTObject<&writeMTMsgsAck>(msgsAck);
+}
+
 qint64 TgTransport::sendMTMessage(QByteArray originalData)
 {
     if (authKey.isEmpty())
@@ -641,7 +779,7 @@ qint64 TgTransport::sendMTMessage(QByteArray originalData)
     if (originalData.isEmpty())
         return 0;
 
-    //TODO: send msgsAck
+    sendMsgsAck();
 
     QByteArray data = originalData;
     if (data.size() > 255)
@@ -745,10 +883,12 @@ void TgTransport::handleGzipPacked(QByteArray data, qint64 messageId)
 void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
-    QVariant errorCode;
+    QVariant errorCodeVariant;
 
-    readInt32(packet, errorCode); //conId
-    readInt32(packet, errorCode);
+    readInt32(packet, errorCodeVariant); //conId
+    readInt32(packet, errorCodeVariant);
+
+    qint32 errorCode = errorCodeVariant.toInt();
 
     QVariant errorMessageVariant;
     readString(packet, errorMessageVariant);
@@ -765,9 +905,14 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
         return;
     }
 
+    if (errorCode == 401) {
+        resetSession();
+        return;
+    }
+
     pendingMessages.remove(messageId);
 
-    _client->handleRpcError(errorCode.toInt(), errorMessage, messageId);
+    _client->handleRpcError(errorCode, errorMessage, messageId);
 }
 
 void TgTransport::handlePingMethod(QByteArray data, qint64 messageId)
@@ -830,7 +975,9 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
     readInt32(packet, var); //badMsgSeqNo
     readInt32(packet, var); //errorCode
     readInt64(packet, var); //newServerSalt
+
     serverSalt = var.toLongLong();
+    saveSession();
 
     sendMTMessage(pendingMessages.take(badMsgId));
 
@@ -840,7 +987,12 @@ void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
 void TgTransport::handleConfig(QByteArray data, qint64 messageId)
 {
     tgConfig = tlDeserialize<&readTLConfig>(data).toMap();
-    //TODO: fill DC info
+
+    qint32 thisDc = tgConfig["this_dc"].toInt();
+    if (thisDc)
+        currentDc = thisDc;
+
+    saveSession();
 
     QList<qint64> keys = pendingMessages.keys();
     kgDebug() << "Pending:" << keys;
@@ -849,4 +1001,53 @@ void TgTransport::handleConfig(QByteArray data, qint64 messageId)
     }
 
     _client->handleInitialized();
+
+    checkAuthorization();
+}
+
+void TgTransport::checkAuthorization()
+{
+    if (!userId)
+        return;
+
+    TGOBJECT(TLType::UsersGetUsersMethod, getUsers);
+    TGOBJECT(TLType::InputUserSelf, self);
+    TgList ids;
+    ids.append(self);
+    getUsers["id"] = ids;
+
+    authCheckMsgId = sendMTObject<&writeTLMethodUsersGetUsers>(getUsers);
+}
+
+void TgTransport::handleVector(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    TgVariant var;
+    readVector(packet, var, (void*) &readTLUser);
+    TgVector vector = var.toList();
+    TgObject user = vector.isEmpty() ? TgObject() : vector.first().toMap();
+    qint64 newUserId = user["id"].toLongLong();
+
+    if (messageId == authCheckMsgId && GETID(user) != 0 && isUser(user) && newUserId) {
+        userId = newUserId;
+
+        saveSession();
+
+        _client->handleAuthorized(userId);
+    }
+
+    _client->handleObject(data, messageId);
+}
+
+void TgTransport::handleAuthorization(QByteArray data, qint64 messageId)
+{
+    TgObject auth = tlDeserialize<&readTLAuthAuthorization>(data).toMap();
+
+    userId = auth["user"].toMap()["id"].toLongLong();
+
+    saveSession();
+
+    _client->handleAuthorized(userId);
+
+    _client->handleObject(data, messageId);
 }

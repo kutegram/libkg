@@ -12,7 +12,7 @@ private:
     TgTransport *_transport;
 
 public:
-    explicit TgClient(QObject *parent = 0);
+    explicit TgClient(QObject *parent = 0, QString sessionName = "");
     
     template <WRITE_METHOD W> TgLong sendObject(TgObject i);
     
@@ -20,12 +20,16 @@ public slots:
     void start();
     void stop();
 
+    void resetSession();
+    bool hasSession();
+
     void handleObject(QByteArray data, qint64 messageId);
 
     void handleConnected();
     void handleDisconnected();
     void handleInitialized();
     void handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
+    void handleAuthorized(qint64 userId);
 
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
@@ -39,6 +43,7 @@ signals:
     void disconnected();
     void initialized();
     void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
+    void authorized(qint64 userId);
 
     void helpGetCountriesListResponse(TgObject object, TgLong messageId);
     void authSendCodeResponse(TgObject object, TgLong messageId);
