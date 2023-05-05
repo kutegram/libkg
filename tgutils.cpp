@@ -155,9 +155,9 @@ TgObject getDialogsOffsets(TgObject dialogs)
     TgObject lastMessage;
     TgObject lastPeer;
 
-    for (qint32 i = messagesList.size() - 1; i >= 0; --i) {
+    for (qint32 i = 0; i < messagesList.size(); ++i) {
         TgObject message = messagesList[i].toMap();
-        if (getPeerId(message["peer"].toMap()) == getPeerId(lastPeerDialog)
+        if (getPeerId(message["peer_id"].toMap()) == getPeerId(lastPeerDialog)
                 && message["id"].toInt() == lastTopMessage) {
             lastMessage = message;
             break;

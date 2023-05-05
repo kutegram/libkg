@@ -52,7 +52,7 @@ public:
     ~TgTransport();
 
     template <WRITE_METHOD W> qint64 sendPlainObject(QVariant i);
-    template <WRITE_METHOD W> qint64 sendMTObject(QVariant i);
+    template <WRITE_METHOD W> qint64 sendMTObject(QVariant i, bool isMsgAck = false);
 
 signals:
     
@@ -76,8 +76,8 @@ public slots:
     void start();
     void stop(bool sendMsgsAckBool = true);
 
-    qint64 sendPlainMessage(QByteArray data);
-    qint64 sendMTMessage(QByteArray data);
+    qint64 sendPlainMessage(QByteArray data, qint64 oldMid = 0);
+    qint64 sendMTMessage(QByteArray data, qint64 oldMid = 0, bool isMsgAck = false);
     void authorize();
     void sendIntermediate(QByteArray data);
     QByteArray readIntermediate();
@@ -87,10 +87,13 @@ public slots:
     qint64 getNewMessageId();
     qint32 generateSequence(bool isContent);
 
+    void broadcastMessageChange(qint64 oldMsg, qint64 newMsg);
+
     void _connected();
     void _disconnected();
     void _readyRead();
     void _bytesSent(qint64 count);
+    void _error(QAbstractSocket::SocketError socketError);
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleResPQ(QByteArray data, qint64 messageId);
@@ -117,10 +120,10 @@ template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)
     return sendPlainMessage(tlSerialize<W>(i));
 }
 
-template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i)
+template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i, bool isMsgAck)
 {
     kgDebug() << "Sending MT object:" << GETID(i.toMap());
-    return sendMTMessage(tlSerialize<W>(i));
+    return sendMTMessage(tlSerialize<W>(i), 0, isMsgAck);
 }
 
 #endif // TGTRANSPORT_H

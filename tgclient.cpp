@@ -72,6 +72,13 @@ void TgClient::handleAuthorized(qint64 userId)
     emit authorized(userId);
 }
 
+void TgClient::handleMessageChanged(qint64 oldMsg, qint64 newMsg)
+{
+    kgDebug() << "Message changed" << oldMsg << "->" << newMsg;
+
+    emit messageChanged(oldMsg, newMsg);
+}
+
 void TgClient::handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId)
 {
     kgWarning() << "RPC:" << errorCode << ":" << errorMessage;

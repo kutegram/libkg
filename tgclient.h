@@ -32,6 +32,7 @@ public slots:
     void handleInitialized();
     void handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void handleAuthorized(qint64 userId);
+    void handleMessageChanged(qint64 oldMsg, qint64 newMsg);
 
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
@@ -46,6 +47,8 @@ signals:
     void initialized(bool hasUserId);
     void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void authorized(qint64 userId);
+
+    void messageChanged(qint64 oldMsg, qint64 newMsg);
 
     void helpGetCountriesListResponse(TgObject object, TgLong messageId);
     void authSendCodeResponse(TgObject object, TgLong messageId);
