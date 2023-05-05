@@ -45,12 +45,15 @@ TgTransport::TgTransport(TgClient *parent, QString sessionName)
     , userId(0)
 
     , pendingMessages()
+    , migrationMessages()
 
     , _sessionName(sessionName)
 
     , msgsToAck()
 
     , authCheckMsgId(0)
+
+    , initialized(false)
 {
     if (_sessionName.isEmpty()) {
         _sessionName = "user_session";
@@ -88,7 +91,10 @@ void TgTransport::resetSession()
     saveSession();
 
     pendingMessages.clear();
+    migrationMessages.clear();
     msgsToAck.clear();
+
+    initialized = false;
 
     _client->handleDisconnected();
 }
@@ -257,6 +263,10 @@ void TgTransport::_connected()
 {
     kgDebug() << "Socket connected";
 
+//    lastMessageId = 0;
+//    sequence = 0;
+//    sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+
     TgPacket packet;
     writeInt32(packet, 0xeeeeeeee);
 
@@ -274,6 +284,8 @@ void TgTransport::_connected()
 void TgTransport::_disconnected()
 {
     kgDebug() << "Socket disconnected";
+
+    initialized = false;
 
     _client->handleDisconnected();
 }
@@ -340,9 +352,11 @@ void TgTransport::authorize()
 
 void TgTransport::_readyRead()
 {
-    kgDebug() << "Ready to read";
+    //kgDebug() << "Ready to read";
 
-    processMessage(readIntermediate());
+    while (_socket->bytesAvailable()) {
+        processMessage(readIntermediate());
+    }
 }
 
 QByteArray TgTransport::readIntermediate()
@@ -437,7 +451,7 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     readInt32(packet, var);
     qint32 conId = var.toInt();
 
-    kgDebug() << "Got an object" << conId << ", msg id" << messageId;
+    //kgDebug() << "Got an object" << conId << ", msg id" << messageId;
 
     if (!msgsToAck.contains(messageId))
         msgsToAck.append(messageId);
@@ -773,7 +787,7 @@ void TgTransport::initConnection()
                 &writeTLMethodHelpGetConfig > ,
                 &writeTLMethodInitConnection
                 < &readTLMethodHelpGetConfig ,
-                &writeTLMethodHelpGetConfig > > >(invokeWithLayer, true);
+                &writeTLMethodHelpGetConfig > > >(invokeWithLayer);
 }
 
 QByteArray TgTransport::gzipPacket(QByteArray data)
@@ -797,8 +811,11 @@ TgLong TgTransport::sendMsgsAck()
     if (msgsToAck.isEmpty())
         return 0;
 
+    if (!initialized)
+        return 0;
+
     kgDebug() << "Sending MsgsAck," << msgsToAck.size() << "items";
-    if (msgsToAck.size() <= 20) kgDebug() << msgsToAck;
+    //if (msgsToAck.size() <= 20) kgDebug() << msgsToAck;
 
     //TODO: max 8192 ids
 
@@ -806,20 +823,20 @@ TgLong TgTransport::sendMsgsAck()
     msgsAck["msg_ids"] = TgList(msgsToAck);
     msgsToAck.clear();
 
-    return sendMTObject<&writeMTMsgsAck>(msgsAck, true);
+    return sendMTMessage(tlSerialize<&writeMTMsgsAck>(msgsAck), 0, true);
 }
 
-qint64 TgTransport::sendMTMessage(QByteArray originalData, qint64 oldMid, bool isMsgAck)
+qint64 TgTransport::sendMTMessage(QByteArray originalData, qint64 oldMid, bool isMsgsAck)
 {
     //TODO: lock
 
     if (authKey.isEmpty())
-        return sendPlainMessage(originalData);
+        return sendPlainMessage(originalData, oldMid);
 
     if (originalData.isEmpty())
         return 0;
 
-    if (!isMsgAck)
+    if (!isMsgsAck)
         sendMsgsAck();
 
     QByteArray data = originalData;
@@ -831,7 +848,7 @@ qint64 TgTransport::sendMTMessage(QByteArray originalData, qint64 oldMid, bool i
     writeInt64(packet, sessionId);
     qint64 messageId = getNewMessageId();
     writeInt64(packet, messageId);
-    writeInt32(packet, generateSequence(true));
+    writeInt32(packet, generateSequence(!isMsgsAck));
     writeInt32(packet, data.length());
     writeRawBytes(packet, data);
     writeRawBytes(packet, randomBytes((0x7FFFFFF0 - data.length()) % 16 + (randomInt(14) + 2) * 16));
@@ -847,7 +864,8 @@ qint64 TgTransport::sendMTMessage(QByteArray originalData, qint64 oldMid, bool i
     writeRawBytes(cipherPacket, messageKey);
     writeRawBytes(cipherPacket, cipherText);
 
-    pendingMessages.insert(messageId, originalData);
+    if (!isMsgsAck)
+        pendingMessages.insert(messageId, originalData);
 
     if (oldMid)
         broadcastMessageChange(oldMid, messageId);
@@ -875,7 +893,7 @@ qint32 TgTransport::generateSequence(bool isContent)
 
 void TgTransport::_bytesSent(qint64 count)
 {
-    kgDebug() << "Sent" << count << "bytes";
+    //kgDebug() << "Sent" << count << "bytes";
 }
 
 void TgTransport::handleMsgContainer(QByteArray data, qint64 messageId)
@@ -945,6 +963,7 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
         messageParameter = splittedMessage.last().toInt();
 
     if (errorMessage.contains("_MIGRATE_") && !errorMessage.startsWith("FILE_")) {
+        migrationMessages.insert(messageId, pendingMessages.take(messageId));
         migrateTo(messageParameter);
         return;
     }
@@ -1021,7 +1040,7 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
 
     saveSession();
 
-    sendMTMessage(pendingMessages.take(badMsgId), badMsgId, true);
+    sendMTMessage(pendingMessages.take(badMsgId), badMsgId, false);
 
     kgDebug() << "INFO: bad msg notification handled";
 }
@@ -1043,11 +1062,13 @@ void TgTransport::handleConfig(QByteArray data, qint64 messageId)
 
     saveSession();
 
-    QList<qint64> keys = pendingMessages.keys();
+    QList<qint64> keys = migrationMessages.keys();
     kgDebug() << "Pending:" << keys;
     for (qint32 i = 0; i < keys.size(); ++i) {
-        sendMTMessage(pendingMessages.take(keys[i]), keys[i], true);
+        sendMTMessage(migrationMessages.take(keys[i]), keys[i], false);
     }
+
+    initialized = true;
 
     _client->handleInitialized();
 
@@ -1067,7 +1088,7 @@ void TgTransport::checkAuthorization()
     ids.append(self);
     getUsers["id"] = ids;
 
-    authCheckMsgId = sendMTObject<&writeTLMethodUsersGetUsers>(getUsers, true);
+    authCheckMsgId = sendMTObject<&writeTLMethodUsersGetUsers>(getUsers);
 }
 
 void TgTransport::handleVector(QByteArray data, qint64 messageId)
@@ -1087,8 +1108,6 @@ void TgTransport::handleVector(QByteArray data, qint64 messageId)
 
     qint64 newUserId = user["id"].toLongLong();
 
-    kgDebug() << "Got vector, msgsIds:" << messageId << authCheckMsgId;
-
     if (messageId == authCheckMsgId && GETID(user) != 0 && isUser(user) && newUserId) {
         userId = newUserId;
 
@@ -1096,6 +1115,8 @@ void TgTransport::handleVector(QByteArray data, qint64 messageId)
 
         _client->handleAuthorized(userId);
     }
+//    else if (GETID(user) != 0 && isUser(user))
+//        kgDebug() << "Got user vector, msgsIds:" << messageId << authCheckMsgId;
 
     _client->handleObject(data, messageId);
 }
@@ -1108,7 +1129,7 @@ void TgTransport::handleAuthorization(QByteArray data, qint64 messageId)
 
     saveSession();
 
-    _client->handleAuthorized(userId);
+    checkAuthorization();
 
     _client->handleObject(data, messageId);
 }

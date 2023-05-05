@@ -40,6 +40,7 @@ private:
     qint64 userId;
 
     QMap<qint64, QByteArray> pendingMessages;
+    QMap<qint64, QByteArray> migrationMessages;
 
     QString _sessionName;
 
@@ -47,12 +48,14 @@ private:
 
     qint64 authCheckMsgId;
 
+    bool initialized;
+
 public:
     explicit TgTransport(TgClient *parent = 0, QString sessionName = "");
     ~TgTransport();
 
     template <WRITE_METHOD W> qint64 sendPlainObject(QVariant i);
-    template <WRITE_METHOD W> qint64 sendMTObject(QVariant i, bool isMsgAck = false);
+    template <WRITE_METHOD W> qint64 sendMTObject(QVariant i);
 
 signals:
     
@@ -76,8 +79,8 @@ public slots:
     void start();
     void stop(bool sendMsgsAckBool = true);
 
-    qint64 sendPlainMessage(QByteArray data, qint64 oldMid = 0);
-    qint64 sendMTMessage(QByteArray data, qint64 oldMid = 0, bool isMsgAck = false);
+    qint64 sendPlainMessage(QByteArray data, qint64 oldMid);
+    qint64 sendMTMessage(QByteArray data, qint64 oldMid, bool isMsgsAck);
     void authorize();
     void sendIntermediate(QByteArray data);
     QByteArray readIntermediate();
@@ -117,13 +120,13 @@ public slots:
 template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)
 {
     kgDebug() << "Sending plain object:" << GETID(i.toMap());
-    return sendPlainMessage(tlSerialize<W>(i));
+    return sendPlainMessage(tlSerialize<W>(i), 0);
 }
 
-template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i, bool isMsgAck)
+template <WRITE_METHOD W> qint64 TgTransport::sendMTObject(QVariant i)
 {
     kgDebug() << "Sending MT object:" << GETID(i.toMap());
-    return sendMTMessage(tlSerialize<W>(i), 0, isMsgAck);
+    return sendMTMessage(tlSerialize<W>(i), 0, false);
 }
 
 #endif // TGTRANSPORT_H

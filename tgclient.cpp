@@ -114,7 +114,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         emit messagesGetDialogsResponse(tlDeserialize<&readTLMessagesDialogs>(data).toMap(), messageId);
         break;
     default:
-        kgDebug() << "INFO: Unhandled object " << conId;
+        kgDebug() << "UNHANDLED object:" << conId;
         emit unknownResponse(conId, data, messageId);
         break;
     }
