@@ -229,13 +229,14 @@ void TgTransport::start() {
     _timer.start(60000, this);
 }
 
-void TgTransport::stop() {
+void TgTransport::stop(bool sendMsgsAckBool) {
     if (_socket->state() == 0)
         return;
 
     kgDebug() << "Stopping transport";
 
-    sendMsgsAck();
+    if (sendMsgsAckBool)
+        sendMsgsAck();
 
     saveSession();
 
@@ -977,30 +978,38 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
     qint64 badMsgId = var.toLongLong();
     readInt32(packet, var); //badMsgSeqNo
     readInt32(packet, var); //errorCode
+    qint32 errorCode = var.toInt();
 
-    sendMTMessage(pendingMessages.take(badMsgId));
+    switch (errorCode) {
+    case 16:
+    case 17:
+        lastMessageId = 0;
+        timeOffset = (qint32) (messageId >> 32) - QDateTime::currentDateTimeUtc().toTime_t();
+        break;
+    case 32:
+    case 33:
+        lastMessageId = 0;
+        sequence = 0;
+        sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+        stop(false);
+        start();
+        break;
+    case 48:
+        readInt64(packet, var);
+        serverSalt = var.toLongLong();
+        break;
+    }
 
-    kgDebug() << "INFO: got bad msg notification";
-}
-
-void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
-{
-    TgPacket packet(data);
-    QVariant var;
-
-    readInt32(packet, var); //conId
-    readInt64(packet, var); //badMsgId
-    qint64 badMsgId = var.toLongLong();
-    readInt32(packet, var); //badMsgSeqNo
-    readInt32(packet, var); //errorCode
-    readInt64(packet, var); //newServerSalt
-
-    serverSalt = var.toLongLong();
     saveSession();
 
     sendMTMessage(pendingMessages.take(badMsgId));
 
-    kgDebug() << "INFO: bad server salt handled";
+    kgDebug() << "INFO: bad msg notification handled";
+}
+
+void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
+{
+    handleBadMsgNotification(data, messageId);
 }
 
 void TgTransport::handleConfig(QByteArray data, qint64 messageId)

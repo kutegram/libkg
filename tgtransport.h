@@ -74,7 +74,7 @@ public slots:
     void resetDc();
 
     void start();
-    void stop();
+    void stop(bool sendMsgsAckBool = true);
 
     qint64 sendPlainMessage(QByteArray data);
     qint64 sendMTMessage(QByteArray data);
