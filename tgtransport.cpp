@@ -87,11 +87,18 @@ void TgTransport::resetSession()
     userId = 0;
 
     saveSession();
+
+    _client->handleDisconnected();
 }
 
 bool TgTransport::hasSession()
 {
     return userId && sessionId && serverSalt && authKeyId && !authKey.isEmpty();
+}
+
+bool TgTransport::hasUserId()
+{
+    return userId;
 }
 
 void TgTransport::saveSession()
@@ -232,6 +239,7 @@ void TgTransport::stop() {
     saveSession();
 
     _timer.stop();
+    _socket->flush();
     _socket->disconnectFromHost();
     if (_socket->state() == QTcpSocket::ClosingState)
         _socket->waitForBytesWritten();
@@ -764,6 +772,8 @@ TgLong TgTransport::sendMsgsAck()
     kgDebug() << "Sending MsgsAck," << msgsToAck.size() << "items";
     if (msgsToAck.size() <= 20) kgDebug() << msgsToAck;
 
+    //TODO: max 8192 ids
+
     TGOBJECT(MTType::MsgsAck, msgsAck);
     msgsAck["msg_ids"] = TgList(msgsToAck);
     msgsToAck.clear();
@@ -961,7 +971,7 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
     //TODO: handle bad msg notification
     //sendMTMessage(pendingMessages.take(badMsgId));
 
-    kgDebug() << "TODO: handle bad msg notification";
+    kgDebug() << "INFO: got bad msg notification";
 }
 
 void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)

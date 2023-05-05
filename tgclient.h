@@ -21,7 +21,9 @@ public slots:
     void stop();
 
     void resetSession();
+
     bool hasSession();
+    bool hasUserId();
 
     void handleObject(QByteArray data, qint64 messageId);
 
@@ -39,9 +41,9 @@ public slots:
     TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
 
 signals:
-    void connected();
-    void disconnected();
-    void initialized();
+    void connected(bool hasUserId);
+    void disconnected(bool hasUserId);
+    void initialized(bool hasUserId);
     void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void authorized(qint64 userId);
 

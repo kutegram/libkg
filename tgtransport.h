@@ -64,6 +64,7 @@ public slots:
     void loadSession();
 
     bool hasSession();
+    bool hasUserId();
 
     void checkAuthorization();
 

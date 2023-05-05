@@ -25,6 +25,11 @@ bool TgClient::hasSession()
     return _transport->hasSession();
 }
 
+bool TgClient::hasUserId()
+{
+    return _transport->hasUserId();
+}
+
 void TgClient::start()
 {
     kgDebug() << "Starting client";
@@ -43,21 +48,21 @@ void TgClient::handleConnected()
 {
     kgDebug() << "Client connected";
 
-    emit connected();
+    emit connected(hasUserId());
 }
 
 void TgClient::handleDisconnected()
 {
     kgDebug() << "Client disconnected";
 
-    emit disconnected();
+    emit disconnected(hasUserId());
 }
 
 void TgClient::handleInitialized()
 {
     kgDebug() << "Client initialized";
 
-    emit initialized();
+    emit initialized(hasUserId());
 }
 
 void TgClient::handleAuthorized(qint64 userId)
