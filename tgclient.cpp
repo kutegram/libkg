@@ -108,6 +108,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         break;
     default:
         kgDebug() << "INFO: Unhandled object " << conId;
+        emit unknownResponse(conId, data, messageId);
         break;
     }
 }

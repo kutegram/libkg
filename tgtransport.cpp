@@ -75,8 +75,6 @@ TgTransport::~TgTransport()
 
 void TgTransport::resetSession()
 {
-    //TODO: log out event
-
     kgDebug() << "Resetting session";
 
     stop();
@@ -87,6 +85,9 @@ void TgTransport::resetSession()
     userId = 0;
 
     saveSession();
+
+    pendingMessages.clear();
+    msgsToAck.clear();
 
     _client->handleDisconnected();
 }
@@ -273,6 +274,11 @@ void TgTransport::_disconnected()
 void TgTransport::timerEvent(QTimerEvent *event)
 {
     kgDebug() << "Sending ping";
+
+    if (pendingMessages.size() >= 40) {
+        kgDebug() << "TOO MANY pending messages," << pendingMessages.size() << "items, clearing";
+        pendingMessages.clear();
+    }
 
     sendMsgsAck();
 
@@ -467,6 +473,12 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
         break;
     case MTType::Vector:
         handleVector(data, messageId);
+        break;
+    case MTType::MsgDetailedInfo:
+        handleMsgDetailedInfo(data, messageId);
+        break;
+    case MTType::MsgNewDetailedInfo:
+        handleMsgNewDetailedInfo(data, messageId);
         break;
     case MTType::NewSessionCreated:
     case MTType::MsgsAck:
@@ -966,10 +978,7 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
     readInt32(packet, var); //badMsgSeqNo
     readInt32(packet, var); //errorCode
 
-    pendingMessages.remove(badMsgId);
-
-    //TODO: handle bad msg notification
-    //sendMTMessage(pendingMessages.take(badMsgId));
+    sendMTMessage(pendingMessages.take(badMsgId));
 
     kgDebug() << "INFO: got bad msg notification";
 }
@@ -1033,9 +1042,17 @@ void TgTransport::handleVector(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
     TgVariant var;
-    readVector(packet, var, (void*) &readTLUser);
-    TgVector vector = var.toList();
-    TgObject user = vector.isEmpty() ? TgObject() : vector.first().toMap();
+
+    readInt32(packet, var);
+    readInt32(packet, var);
+
+    TgObject user;
+
+    if (var.toInt() > 0) {
+        readTLUser(packet, var);
+        user = var.toMap();
+    }
+
     qint64 newUserId = user["id"].toLongLong();
 
     if (messageId == authCheckMsgId && GETID(user) != 0 && isUser(user) && newUserId) {
@@ -1060,4 +1077,33 @@ void TgTransport::handleAuthorization(QByteArray data, qint64 messageId)
     _client->handleAuthorized(userId);
 
     _client->handleObject(data, messageId);
+}
+
+void TgTransport::handleMsgDetailedInfo(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    TgVariant var;
+
+    readInt32(packet, var); //conId
+    readInt64(packet, var); //msgId
+
+    if (!msgsToAck.contains(var.toLongLong()))
+        msgsToAck.append(var.toLongLong());
+
+    readInt64(packet, var); //answerMsgId
+
+    if (!msgsToAck.contains(var.toLongLong()))
+        msgsToAck.append(var.toLongLong());
+}
+
+void TgTransport::handleMsgNewDetailedInfo(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    TgVariant var;
+
+    readInt32(packet, var); //conId
+    readInt64(packet, var); //answerMsgId
+
+    if (!msgsToAck.contains(var.toLongLong()))
+        msgsToAck.append(var.toLongLong());
 }

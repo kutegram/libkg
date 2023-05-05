@@ -52,6 +52,8 @@ signals:
     void authSignInResponse(TgObject object, TgLong messageId);
     void messagesGetDialogsResponse(TgObject object, TgLong messageId);
 
+    void unknownResponse(qint32 conId, QByteArray object, qint64 messageId);
+
 };
 
 template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)
