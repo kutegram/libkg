@@ -120,4 +120,6 @@ template <READ_METHOD R> QVariant tlDeserialize(QByteArray array)
     return obj;
 }
 
+QByteArray readFully(QIODevice &socket, qint32 length);
+
 #endif // TELEGRAMSTREAM_H

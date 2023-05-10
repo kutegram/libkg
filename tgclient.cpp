@@ -6,9 +6,13 @@
 #include "tgtransport.h"
 #include "tlschema.h"
 
+//TODO: isNull in schema to toBool?
+
 TgClient::TgClient(QObject *parent, QString sessionName)
     : QObject(parent)
     , _transport(new TgTransport(this, sessionName))
+    , processedFiles()
+    , filePackets()
 {
 
 }
@@ -89,6 +93,13 @@ void TgClient::handleRpcError(qint32 errorCode, QString errorMessage, qint64 mes
     kgWarning() << "RPC:" << errorCode << ":" << errorMessage;
 
     emit rpcError(errorCode, errorMessage, messageId);
+}
+
+void TgClient::handleBool(bool response, qint64 messageId)
+{
+    handleUploadFile(response, messageId);
+
+    emit boolResponse(response, messageId);
 }
 
 void TgClient::handleObject(QByteArray data, qint64 messageId)

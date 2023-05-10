@@ -257,3 +257,28 @@ void readList(TelegramStream &stream, QVariant &i, void *callback)
 {
     readVector(stream, i, callback);
 }
+
+QByteArray readFully(QIODevice &socket, qint32 length)
+{
+    QByteArray buffer;
+    qint32 readed = 0, result = 0;
+
+    buffer.reserve(length);
+    buffer.resize(length);
+
+    while (length > 0) {
+        result = socket.read(buffer.data() + readed, length);
+        if (result == -1) {
+            return QByteArray();
+        }
+
+        length -= result;
+        readed += result;
+
+        if (length > 0) {
+            socket.waitForReadyRead(10000);
+        }
+    }
+
+    return buffer;
+}

@@ -22,7 +22,8 @@ TgTransport::TgTransport(TgClient *parent, QString sessionName)
     , _socket(0)
     , _timer()
 
-    , testMode(false)
+    , testMode(false) //Change it for debugging or whatever
+
     , mediaOnly(false)
     , currentDc(0)
     , currentPort(0)
@@ -57,6 +58,10 @@ TgTransport::TgTransport(TgClient *parent, QString sessionName)
 {
     if (_sessionName.isEmpty()) {
         _sessionName = "user_session";
+    }
+
+    if (testMode) {
+        _sessionName += "_testmode";
     }
 
     _socket = new QTcpSocket(this);
@@ -123,7 +128,6 @@ void TgTransport::saveSession()
 
     settings.beginGroup("CurrentSession");
 
-    settings.setValue("TestMode",       testMode);
     settings.setValue("MediaOnly",      mediaOnly);
     settings.setValue("CurrentDc",      currentDc);
     settings.setValue("CurrentHost",    currentHost);
@@ -149,7 +153,6 @@ void TgTransport::loadSession()
 
     settings.beginGroup("CurrentSession");
 
-    testMode        = settings.value("TestMode").toBool();
     mediaOnly       = settings.value("MediaOnly").toBool();
     currentDc       = settings.value("CurrentDc").toInt();
     currentHost     = settings.value("CurrentHost").toString();
@@ -366,38 +369,17 @@ void TgTransport::_readyRead()
 
 QByteArray TgTransport::readIntermediate()
 {
-    QByteArray buffer = _socket->read(4);
-    if (buffer.length() < 4) {
-        buffer.append(QByteArray(4 - buffer.length(), 0));
-        return buffer;
+    QByteArray buffer = readFully(*_socket, 4);
+
+    if (buffer.isEmpty()) {
+        return QByteArray();
     }
 
     TgPacket packet(buffer);
     QVariant var;
     readInt32(packet, var);
 
-    qint32 length = var.toInt(), readed = 0, result = 0;
-
-    buffer.reserve(length);
-    buffer.resize(length);
-
-    while (length > 0) {
-        result = _socket->read(buffer.data() + readed, length);
-        if (result == -1) {
-            return QByteArray();
-        }
-
-        length -= result;
-        readed += result;
-
-        if (length > 0) {
-            _socket->waitForReadyRead();
-        }
-    }
-
-    //kgDebug() << "Readed" << buffer.size() << "bytes";
-
-    return buffer;
+    return readFully(*_socket, var.toInt());
 }
 
 void TgTransport::processMessage(QByteArray message)
@@ -465,6 +447,10 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
         pendingMessages.remove(messageId);
 
     switch (conId) {
+    case TLType::BoolTrue:
+    case TLType::BoolFalse:
+        handleBool(data, messageId);
+        break;
     case MTType::ResPQ:
         handleResPQ(data, messageId);
         break;
@@ -1177,4 +1163,14 @@ void TgTransport::handleMsgNewDetailedInfo(QByteArray data, qint64 messageId)
 
     if (!msgsToAck.contains(var.toLongLong()))
         msgsToAck.append(var.toLongLong());
+}
+
+void TgTransport::handleBool(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    TgVariant var;
+
+    readInt32(packet, var); //conId
+
+    _client->handleBool(var.toInt() == TLType::BoolTrue, messageId);
 }

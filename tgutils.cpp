@@ -10,6 +10,12 @@ TgObject emptyPeer()
     return peer;
 }
 
+TgObject selfPeer()
+{
+    TGOBJECT(InputPeerSelf, peer);
+    return peer;
+}
+
 TgObject toInputPeer(TgObject obj)
 {
     switch (ID(obj)) {

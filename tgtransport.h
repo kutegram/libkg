@@ -116,6 +116,7 @@ public slots:
     void handleVector(QByteArray data, qint64 messageId);
     void handleMsgDetailedInfo(QByteArray data, qint64 messageId);
     void handleMsgNewDetailedInfo(QByteArray data, qint64 messageId);
+    void handleBool(QByteArray data, qint64 messageId);
 };
 
 template <WRITE_METHOD W> qint64 TgTransport::sendPlainObject(QVariant i)

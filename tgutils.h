@@ -4,6 +4,7 @@
 #include "tgstream.h"
 
 TgObject emptyPeer();
+TgObject selfPeer();
 TgObject toInputPeer(TgObject obj);
 TgLong getPeerId(TgObject obj);
 bool isUser(TgObject obj);
