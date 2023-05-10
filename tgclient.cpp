@@ -30,6 +30,11 @@ bool TgClient::hasUserId()
     return _transport->hasUserId();
 }
 
+TgLong TgClient::getUserId()
+{
+    return _transport->getUserId();
+}
+
 void TgClient::start()
 {
     kgDebug() << "Starting client";

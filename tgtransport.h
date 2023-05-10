@@ -68,6 +68,7 @@ public slots:
 
     bool hasSession();
     bool hasUserId();
+    TgLong getUserId();
 
     void checkAuthorization();
 

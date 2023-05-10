@@ -106,6 +106,11 @@ bool TgTransport::hasSession()
 
 bool TgTransport::hasUserId()
 {
+    return userId != 0;
+}
+
+TgLong TgTransport::getUserId()
+{
     return userId;
 }
 

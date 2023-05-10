@@ -24,6 +24,7 @@ public slots:
 
     bool hasSession();
     bool hasUserId();
+    TgLong getUserId();
 
     void handleObject(QByteArray data, qint64 messageId);
 
