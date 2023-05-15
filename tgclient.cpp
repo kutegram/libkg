@@ -243,8 +243,9 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     {
         TgObject exported = tlDeserialize<&readTLAuthExportedAuthorization>(data).toMap();
         TgInt dcId = migrationForDc.take(messageId);
-        if (dcId != 0) {
-            getClientForDc(dcId)->importAuthorization(exported["id"].toLongLong(), exported["bytes"].toByteArray());
+        TgClient* c = getClientForDc(dcId);
+        if (dcId != 0 && c != 0) {
+            c->importAuthorization(exported["id"].toLongLong(), exported["bytes"].toByteArray());
         }
         break;
     }
@@ -266,6 +267,8 @@ TgLong TgClient::exportAuthorization(qint32 dcId)
 
 TgLong TgClient::importAuthorization(qint64 id, QByteArray bytes)
 {
+    kgInfo() << "Importing authorization" << id;
+
     TGOBJECT(TLType::AuthImportAuthorizationMethod, method);
 
     method["id"] = id;

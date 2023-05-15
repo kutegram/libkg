@@ -114,6 +114,8 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
     processedDownloadFiles.insert(ctx->fileId, ctx);
     downloadNextFilePart(ctx->fileId);
 
+    //TODO: load files one after other sequensively (only one file at time)
+
     return ctx->fileId;
 }
 

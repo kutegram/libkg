@@ -85,7 +85,6 @@ void TgTransport::resetSession()
 
     stop();
 
-    resetDc();
     authKey = QByteArray();
     sessionId = 0;
     userId = 0;
@@ -262,6 +261,7 @@ void TgTransport::migrateTo(qint32 dcId)
         currentPort = targetPort;
     }
 
+    saveSession();
     start();
 }
 
@@ -998,6 +998,11 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
             return;
         }
 
+        if (!isMain) {
+            pendingMessages.remove(messageId);
+            return;
+        }
+
         migrationMessages.insert(messageId, pendingMessages.take(messageId));
         migrateTo(messageParameter);
         return;
@@ -1116,6 +1121,11 @@ void TgTransport::checkAuthorization()
 {
     if (!userId)
         return;
+
+    if (!isMain) {
+        _client->handleAuthorized(userId);
+        return;
+    }
 
     kgDebug() << "Checking authorzation";
 
