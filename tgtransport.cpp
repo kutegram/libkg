@@ -1073,6 +1073,8 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
         break;
     }
 
+    //TODO: fix too many bad msg 35 errors (fix MsgsAck?)
+
     saveSession();
 
     sendMTMessage(pendingMessages.take(badMsgId), badMsgId, false);

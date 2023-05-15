@@ -42,7 +42,12 @@ private:
     QMap<TgLong, TgFileCtx*> processedDownloadFiles;
     QMap<TgLong, TgLong> filePackets;
     QMap<qint32, TgClient*> clientForDc;
-    bool isMain;
+    QMap<TgLong, TgInt> migrationForDc;
+    bool _main;
+    bool _connected;
+    bool _initialized;
+    bool _authorized;
+    TgObject importMethod;
 
 public:
     explicit TgClient(QObject *parent = 0, qint32 dcId = 0, QString sessionName = "");
@@ -60,6 +65,10 @@ public slots:
     bool hasSession();
     bool hasUserId();
     TgLong getUserId();
+    bool isMain();
+    bool isConnected();
+    bool isInitialized();
+    bool isAuthorized();
 
     void cancelUpload(TgLong fileId);
     TgLong uploadFile(QString filePath);
@@ -69,9 +78,12 @@ public slots:
     void cancelDownload(TgLong fileId);
     TgLong downloadFile(QString filePath, TgObject inputFile, TgLong fileSize = 0, qint32 dcId = 0, TgLong fileId = 0);
     TgLong downloadNextFilePart(TgLong fileId);
-    void migrateFileTo(TgLong messageId, TgInt dcId);
+    TgLong migrateFileTo(TgLong messageId, TgInt dcId);
     void fileProbablyDownloaded(TgLong messageId);
     void handleUploadFile(TgObject response, TgLong messageId);
+
+    TgLong exportAuthorization(qint32 dcId);
+    TgLong importAuthorization(qint64 id, QByteArray bytes);
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleBool(bool response, qint64 messageId);

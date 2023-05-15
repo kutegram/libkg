@@ -16,14 +16,19 @@ TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     , processedDownloadFiles()
     , filePackets()
     , clientForDc()
-    , isMain(dcId == 0)
+    , _main(dcId == 0)
+    , _connected()
+    , _initialized()
+    , _authorized()
+    , migrationForDc()
+    , importMethod()
 {
 
 }
 
 TgClient* TgClient::getClientForDc(int dcId)
 {
-    if (!isMain) {
+    if (!isMain()) {
         TgClient* c = static_cast<TgClient*>(parent());
         if (c == 0) {
             return 0;
@@ -47,7 +52,7 @@ TgClient* TgClient::getClientForDc(int dcId)
     clientForDc.insert(dcId, client);
     client->migrateTo(_transport->config(), dcId);
 
-    //TODO: migrate authorization
+    migrationForDc.insert(exportAuthorization(dcId), dcId);
 
     return client;
 }
@@ -95,25 +100,56 @@ void TgClient::stop()
     _transport->stop();
 }
 
-void TgClient::handleConnected()
+bool TgClient::isMain()
 {
-    kgDebug() << "Client connected";
+    return _main;
+}
 
-    clientForDc.insert(_transport->dcId(), this);
+bool TgClient::isConnected()
+{
+    return _connected;
+}
 
-    emit connected(hasUserId());
+bool TgClient::isInitialized()
+{
+    return _connected && _initialized;
+}
+
+bool TgClient::isAuthorized()
+{
+    return _connected && _initialized && _authorized;
 }
 
 void TgClient::handleDisconnected()
 {
     kgDebug() << "Client disconnected";
 
+    _connected = _initialized = _authorized = false;
+
     emit disconnected(hasUserId());
+}
+
+void TgClient::handleConnected()
+{
+    kgDebug() << "Client connected";
+
+    _connected = true;
+
+    clientForDc.insert(_transport->dcId(), this);
+
+    emit connected(hasUserId());
 }
 
 void TgClient::handleInitialized()
 {
     kgDebug() << "Client initialized";
+
+    _initialized = true;
+
+    if (!importMethod.isEmpty()) {
+        sendObject<&writeTLMethodAuthImportAuthorization>(importMethod);
+        importMethod = TgObject();
+    }
 
     emit initialized(hasUserId());
 }
@@ -121,6 +157,8 @@ void TgClient::handleInitialized()
 void TgClient::handleAuthorized(qint64 userId)
 {
     kgDebug() << "Client authorized";
+
+    _authorized = userId != 0;
 
     if (userId != 0) {
         QList<TgLong> fileIds = processedDownloadFiles.keys();
@@ -201,9 +239,43 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::Updates:
         //TODO: handle all types of updates
         break;
+    case TLType::AuthExportedAuthorization:
+    {
+        TgObject exported = tlDeserialize<&readTLAuthExportedAuthorization>(data).toMap();
+        TgInt dcId = migrationForDc.take(messageId);
+        if (dcId != 0) {
+            getClientForDc(dcId)->importAuthorization(exported["id"].toLongLong(), exported["bytes"].toByteArray());
+        }
+        break;
+    }
     default:
         kgDebug() << "UNHANDLED object:" << conId;
         emit unknownResponse(conId, data, messageId);
         break;
     }
 }
+
+TgLong TgClient::exportAuthorization(qint32 dcId)
+{
+    TGOBJECT(TLType::AuthExportAuthorizationMethod, method);
+
+    method["dc_id"] = dcId;
+
+    return sendObject<&writeTLMethodAuthExportAuthorization>(method);
+}
+
+TgLong TgClient::importAuthorization(qint64 id, QByteArray bytes)
+{
+    TGOBJECT(TLType::AuthImportAuthorizationMethod, method);
+
+    method["id"] = id;
+    method["bytes"] = bytes;
+
+    if (!isInitialized()) {
+        importMethod = method;
+        return 0;
+    }
+
+    return sendObject<&writeTLMethodAuthImportAuthorization>(method);
+}
+

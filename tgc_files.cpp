@@ -117,19 +117,20 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
     return ctx->fileId;
 }
 
-void TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
+TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
 {
     TgLong fileId = filePackets.take(messageId);
     TgFileCtx *ctx = processedDownloadFiles.take(fileId);
     if (ctx == NULL)
-        return;
+        return 0;
 
-    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
     if (client == 0) {
         client = this;
     }
-    client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
+    TgLong mid = client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
     delete ctx;
+    return mid;
 }
 
 void TgClient::fileProbablyDownloaded(TgLong messageId)
@@ -139,7 +140,7 @@ void TgClient::fileProbablyDownloaded(TgLong messageId)
     if (ctx == NULL)
         return;
 
-    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
     if (client == 0) {
         client = this;
     }
@@ -153,7 +154,7 @@ void TgClient::cancelDownload(TgLong fileId)
     if (ctx == NULL)
         return;
 
-    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
     if (client == 0) {
         client = this;
     }
@@ -174,7 +175,7 @@ TgLong TgClient::downloadNextFilePart(TgLong fileId)
     if (ctx->length != 0 && ctx->bytesLeft <= 0) {
         processedDownloadFiles.remove(ctx->fileId);
 
-        TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+        TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
         if (client == 0) {
             client = this;
         }
@@ -206,7 +207,7 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
         ctx->localFile.write(bytes);
         ctx->bytesLeft -= bytes.size();
 
-        TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+        TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
         if (client == 0) {
             client = this;
         }
@@ -243,6 +244,10 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
     //TODO: FILE_PARTS_INVALID
     //TODO: FILE_PART_X_MISSING
     //TODO: MD5_CHECKSUM_INVALID
+
+    if (!isAuthorized()) {
+        return 0;
+    }
 
     TgFileCtx *ctx = processedFiles.value(fileId, NULL);
     if (ctx == NULL)
