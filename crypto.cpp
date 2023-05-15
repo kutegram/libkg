@@ -28,9 +28,14 @@ unsigned __aeabi_uidiv(unsigned numerator, unsigned denominator)
 
 #endif
 
+qint64 randomLong()
+{
+    return qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+}
+
 DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
-    publicKey(QByteArray::fromHex(publicKey.toAscii())),
-    exponent(QByteArray::fromHex(exponent.toAscii())),
+    publicKey(QByteArray::fromHex(publicKey.toLatin1())),
+    exponent(QByteArray::fromHex(exponent.toLatin1())),
     fingerprint(fingerprint)
 {
     if (!this->publicKey.isEmpty() && this->publicKey.at(0) == 0) {

@@ -16,18 +16,19 @@
 #include <qcompressor.h>
 #include <QSettings>
 
-TgTransport::TgTransport(TgClient *parent, QString sessionName)
+TgTransport::TgTransport(TgClient *parent, QString sessionName, qint32 dcId)
     : QObject(parent)
     , _client(parent)
     , _socket(0)
     , _timer()
 
     , testMode(false) //Change it for debugging or whatever
+    , mediaOnly(false) //Change it for debugging or whatever
 
-    , mediaOnly(false)
-    , currentDc(0)
+    , currentDc(dcId)
     , currentPort(0)
     , currentHost()
+    , isMain(dcId == 0)
 
     , tgConfig()
 
@@ -58,10 +59,6 @@ TgTransport::TgTransport(TgClient *parent, QString sessionName)
 {
     if (_sessionName.isEmpty()) {
         _sessionName = "user_session";
-    }
-
-    if (testMode) {
-        _sessionName += "_testmode";
     }
 
     _socket = new QTcpSocket(this);
@@ -119,17 +116,30 @@ TgLong TgTransport::getUserId()
     return userId;
 }
 
+qint32 TgTransport::dcId()
+{
+    return currentDc;
+}
+
 void TgTransport::saveSession()
 {
+    if (currentDc == 0) {
+        return;
+    }
+
     kgDebug() << "Saving session" << _sessionName;
 
     //TODO: password encryption
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName() + "_" + _sessionName);
 
-    settings.beginGroup("CurrentSession");
+    if (isMain) {
+        settings.beginGroup("Transport");
+        settings.setValue("MainDc", currentDc);
+        settings.endGroup();
+    }
 
-    settings.setValue("MediaOnly",      mediaOnly);
-    settings.setValue("CurrentDc",      currentDc);
+    settings.beginGroup("DcSession" + QString::number((currentDc + (testMode ? 10000 : 0)) * (mediaOnly ? -1 : 1)));
+
     settings.setValue("CurrentHost",    currentHost);
     settings.setValue("CurrentPort",    currentPort);
     settings.setValue("AuthKey",        authKey);
@@ -151,10 +161,14 @@ void TgTransport::loadSession()
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName() + "_" + _sessionName);
 
-    settings.beginGroup("CurrentSession");
+    if (isMain) {
+        settings.beginGroup("Transport");
+        currentDc = settings.value("MainDc").toInt();
+        settings.endGroup();
+    }
 
-    mediaOnly       = settings.value("MediaOnly").toBool();
-    currentDc       = settings.value("CurrentDc").toInt();
+    settings.beginGroup("DcSession" + QString::number((currentDc + (testMode ? 10000 : 0)) * (mediaOnly ? -1 : 1)));
+
     currentHost     = settings.value("CurrentHost").toString();
     currentPort     = settings.value("CurrentPort").toInt();
     authKey         = settings.value("AuthKey").toByteArray();
@@ -170,21 +184,47 @@ void TgTransport::loadSession()
     settings.endGroup();
 }
 
-void TgTransport::resetDc()
+void TgTransport::setDc(QString host, quint16 port, qint32 dcId)
 {
     stop();
 
-    currentHost = testMode ? "149.154.167.40" : "149.154.167.50";
-    mediaOnly = false;
-    currentDc = 2;
-    currentPort = 443;
+    currentDc = dcId;
+    loadSession();
+
+    currentDc = dcId;
+    currentHost = host;
+    currentPort = port;
     tgConfig = TgObject();
 
     saveSession();
 }
 
+void TgTransport::resetDc()
+{
+    setDc(testMode ? "149.154.167.40" : "149.154.167.50", 443, 2);
+}
+
+TgObject TgTransport::config()
+{
+    return tgConfig;
+}
+
+void TgTransport::setConfig(TgObject config)
+{
+    if (!tgConfig.isEmpty()) {
+        return;
+    }
+
+    tgConfig = config;
+}
+
 void TgTransport::migrateTo(qint32 dcId)
 {
+    if (dcId == currentDc) {
+        kgDebug() << "Already on" << currentDc << ", migration not needed";
+        return;
+    }
+
     kgDebug() << "Migrating to DC" << dcId;
 
     stop();
@@ -270,10 +310,6 @@ void TgTransport::_error(QAbstractSocket::SocketError socketError)
 void TgTransport::_connected()
 {
     kgDebug() << "Socket connected";
-
-//    lastMessageId = 0;
-//    sequence = 0;
-//    sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
 
     TgPacket packet;
     writeInt32(packet, 0xeeeeeeee);
@@ -515,6 +551,8 @@ void TgTransport::handleObject(QByteArray data, qint64 messageId)
     }
 }
 
+//TODO: handle NewSessionCreated?
+
 void TgTransport::handleResPQ(QByteArray data, qint64 messageId)
 {
     TgPacket packet(data);
@@ -704,7 +742,7 @@ void TgTransport::handleServerDHParamsOk(QByteArray data, qint64 messageId)
     setParams["server_nonce"] = serverNonce;
     setParams["encrypted_data"] = encryptedData;
 
-    sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+    sessionId = randomLong();
     QByteArray gaBytes = innerData["g_a"].toByteArray();
     authKey = encryptRSA(gaBytes, dhPrime, bBytes);
     authKey.insert(0, QByteArray(256 - authKey.size(), 0));
@@ -878,7 +916,7 @@ qint64 TgTransport::getNewMessageId()
 qint32 TgTransport::generateSequence(bool isContent)
 {
     //TODO: lock
-    qint32 result = isContent ? sequence++ * 2 + 1 : sequence * 2;
+    qint32 result = isContent ? sequence++ * 2 + 1 : sequence++ * 2;
     return result;
 }
 
@@ -953,7 +991,13 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
     if (!splittedMessage.isEmpty())
         messageParameter = splittedMessage.last().toInt();
 
-    if (errorMessage.contains("_MIGRATE_") && !errorMessage.startsWith("FILE_")) {
+    if (errorMessage.contains("_MIGRATE_")) {
+        if (errorMessage.startsWith("FILE_")) {
+            pendingMessages.remove(messageId);
+            _client->migrateFileTo(messageId, messageParameter);
+            return;
+        }
+
         migrationMessages.insert(messageId, pendingMessages.take(messageId));
         migrateTo(messageParameter);
         return;
@@ -1021,7 +1065,7 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
     case 33:
         lastMessageId = 0;
         sequence = 0;
-        sessionId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+        sessionId = randomLong();
         break;
     case 48:
         readInt64(packet, var);
@@ -1033,7 +1077,7 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
 
     sendMTMessage(pendingMessages.take(badMsgId), badMsgId, false);
 
-    kgDebug() << "INFO: bad msg notification handled";
+    kgDebug() << "INFO: bad msg notification handled" << errorCode;
 }
 
 //TODO: flood wait

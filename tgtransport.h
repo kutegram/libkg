@@ -22,6 +22,7 @@ private:
     qint32 currentDc;
     quint16 currentPort;
     QString currentHost;
+    bool isMain;
 
     TgObject tgConfig;
 
@@ -51,7 +52,7 @@ private:
     bool initialized;
 
 public:
-    explicit TgTransport(TgClient *parent = 0, QString sessionName = "");
+    explicit TgTransport(TgClient *parent = 0, QString sessionName = "", qint32 dcId = 0);
     ~TgTransport();
 
     template <WRITE_METHOD W> qint64 sendPlainObject(QVariant i);
@@ -74,8 +75,12 @@ public slots:
 
     TgLong sendMsgsAck();
 
+    TgObject config();
+    void setConfig(TgObject config);
     void migrateTo(qint32 dcId);
     void resetDc();
+    void setDc(QString host, quint16 port, qint32 dcId);
+    qint32 dcId();
 
     void start();
     void stop(bool sendMsgsAckBool = true);

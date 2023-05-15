@@ -27,5 +27,6 @@ QByteArray hashSHA1(QByteArray dataToHash);
 QByteArray calcMessageKey(QByteArray authKey, QByteArray data);
 QByteArray calcEncryptionKey(QByteArray sharedKey, QByteArray msgKey, QByteArray &iv, bool client);
 QByteArray rsaPad(QByteArray data, DHKey key);
+qint64 randomLong();
 
 #endif // CRYPTO_H

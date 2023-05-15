@@ -13,6 +13,7 @@ class TgFileCtx
 {
 public:
     TgFileCtx(QString fileName);
+    TgFileCtx(TgObject input, QString fileName, TgLong fileSize);
 
     TgLong fileId;
     QFile localFile;
@@ -23,18 +24,28 @@ public:
     qint32 currentPart;
     bool isBig;
     QLinkedList<qint64> queue;
+    TgObject download;
 };
+
+//TODO: send message
+//TODO: send document
+//TODO: send photo
+//TODO: record PCM and convert to ogg vorbis
 
 class TgClient : public QObject
 {
     Q_OBJECT
 private:
+    QString clientSessionName;
     TgTransport *_transport;
     QMap<TgLong, TgFileCtx*> processedFiles;
+    QMap<TgLong, TgFileCtx*> processedDownloadFiles;
     QMap<TgLong, TgLong> filePackets;
+    QMap<qint32, TgClient*> clientForDc;
+    bool isMain;
 
 public:
-    explicit TgClient(QObject *parent = 0, QString sessionName = "");
+    explicit TgClient(QObject *parent = 0, qint32 dcId = 0, QString sessionName = "");
     
     template <WRITE_METHOD W> TgLong sendObject(TgObject i);
     
@@ -43,14 +54,24 @@ public slots:
     void stop();
 
     void resetSession();
+    void migrateTo(TgObject config, qint32 dcId);
+    TgClient* getClientForDc(qint32 dcId);
 
     bool hasSession();
     bool hasUserId();
     TgLong getUserId();
 
+    void cancelUpload(TgLong fileId);
     TgLong uploadFile(QString filePath);
     TgLong uploadNextFilePart(TgLong fileId);
-    void handleUploadFile(bool response, qint64 messageId);
+    void handleUploadingFile(bool response, TgLong messageId);
+
+    void cancelDownload(TgLong fileId);
+    TgLong downloadFile(QString filePath, TgObject inputFile, TgLong fileSize = 0, qint32 dcId = 0, TgLong fileId = 0);
+    TgLong downloadNextFilePart(TgLong fileId);
+    void migrateFileTo(TgLong messageId, TgInt dcId);
+    void fileProbablyDownloaded(TgLong messageId);
+    void handleUploadFile(TgObject response, TgLong messageId);
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleBool(bool response, qint64 messageId);
@@ -76,8 +97,13 @@ signals:
     void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void authorized(qint64 userId);
 
-    void fileUploading(qint64 fileId, qint32 filePart, qint32 totalParts, qint64 totalLength);
+    void fileDownloading(qint64 fileId, qint64 downloadedLength, qint64 totalLength);
+    void fileDownloaded(qint64 fileId, QString filePath);
+    void fileDownloadCanceled(qint64 fileId);
+
+    void fileUploading(qint64 fileId, qint64 uploadedLength, qint64 totalLength);
     void fileUploaded(qint64 fileId, TgObject inputFile);
+    void fileUploadCanceled(qint64 fileId);
 
     void messageChanged(qint64 oldMsg, qint64 newMsg);
 

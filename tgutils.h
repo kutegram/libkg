@@ -10,6 +10,5 @@ TgLong getPeerId(TgObject obj);
 bool isUser(TgObject obj);
 bool isChat(TgObject obj);
 TgObject getDialogsOffsets(TgObject dialogs);
-QByteArray getJpegPayload(QByteArray bytes);
 
 #endif // TGUTILS_H

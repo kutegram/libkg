@@ -4,6 +4,8 @@
 #include "tlschema.h"
 #include <QFileInfo>
 
+#define FILE_PART_SIZE 524288
+
 TgFileCtx::TgFileCtx(QString fileName)
     : fileId()
     , localFile()
@@ -14,15 +16,204 @@ TgFileCtx::TgFileCtx(QString fileName)
     , currentPart()
     , isBig()
     , queue()
+    , download()
 {
-    fileId = qFromLittleEndian<qint64>((const uchar*) randomBytes(INT64_BYTES).constData());
+    fileId = randomLong();
     localFile.setFileName(fileName);
     MD5_Init(&md5);
     length = localFile.size();
     bytesLeft = length;
-    fileParts = (qint32) ((length - 1) / 524288) + 1; //512 KiB
+    fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
     currentPart = 0;
     isBig = length > 10485760; //10 MB as Telegram says (10 MiB)
+}
+
+TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
+    : fileId()
+    , localFile()
+    , md5()
+    , length()
+    , bytesLeft()
+    , fileParts()
+    , currentPart()
+    , isBig()
+    , queue()
+    , download()
+{
+    fileId = randomLong();
+    localFile.setFileName(fileName);
+    length = fileSize;
+    bytesLeft = length;
+    fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
+    currentPart = 0;
+    isBig = length > 10485760; //10 MB as Telegram says (10 MiB)
+    download = input;
+}
+
+TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileSize, qint32 dcId, TgLong fileId)
+{
+    //TODO: file references
+    //TODO: CDN DCs
+
+    switch (GETID(inputFile)) {
+    case TLType::MessageMediaPhoto:
+        return downloadFile(filePath, inputFile["photo"].toMap());
+    case TLType::MessageMediaDocument:
+        return downloadFile(filePath, inputFile["document"].toMap());
+    case TLType::Photo:
+    {
+        TGOBJECT(TLType::InputPhotoFileLocation, loc);
+        loc["id"] = inputFile["id"];
+        loc["access_hash"] = inputFile["access_hash"];
+        loc["file_reference"] = inputFile["file_reference"];
+        TgList sizes = inputFile["sizes"].toList();
+        TgObject thumbSize;
+
+        for (qint32 i = 0; i < sizes.size(); ++i) {
+            TgObject obj = sizes[i].toMap();
+            if (obj["w"].toInt() > thumbSize["w"].toInt() || obj["h"].toInt() > thumbSize["h"].toInt())
+                thumbSize = obj;
+        }
+
+        loc["thumb_size"] = thumbSize["type"];
+        return downloadFile(filePath, loc, thumbSize["size"].toLongLong(), inputFile["dc_id"].toInt());
+    }
+    case TLType::Document:
+    {
+        TGOBJECT(TLType::InputDocumentFileLocation, loc);
+        loc["id"] = inputFile["id"];
+        loc["access_hash"] = inputFile["access_hash"];
+        loc["file_reference"] = inputFile["file_reference"];
+        loc["thumb_size"] = "";
+        return downloadFile(filePath, loc, inputFile["size"].toLongLong(), inputFile["dc_id"].toInt());
+    }
+    }
+
+    if (inputFile["id"].toLongLong() == 0
+            || inputFile["access_hash"].toLongLong() == 0
+            || inputFile["file_reference"].toByteArray().isEmpty()) {
+        return 0;
+    }
+
+    TgClient* dcClient = getClientForDc(dcId);
+    if (dcClient == 0) {
+        return 0;
+    }
+
+    TgFileCtx *ctx = new TgFileCtx(inputFile, filePath, fileSize);
+
+    if (!ctx->localFile.open(QFile::WriteOnly)) {
+        delete ctx;
+        return 0;
+    }
+
+    if (fileId != 0) {
+        ctx->fileId = fileId;
+    }
+
+    processedDownloadFiles.insert(ctx->fileId, ctx);
+    downloadNextFilePart(ctx->fileId);
+
+    return ctx->fileId;
+}
+
+void TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
+{
+    TgLong fileId = filePackets.take(messageId);
+    TgFileCtx *ctx = processedDownloadFiles.take(fileId);
+    if (ctx == NULL)
+        return;
+
+    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    if (client == 0) {
+        client = this;
+    }
+    client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
+    delete ctx;
+}
+
+void TgClient::fileProbablyDownloaded(TgLong messageId)
+{
+    TgLong fileId = filePackets.take(messageId);
+    TgFileCtx *ctx = processedDownloadFiles.take(fileId);
+    if (ctx == NULL)
+        return;
+
+    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    if (client == 0) {
+        client = this;
+    }
+    emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
+    delete ctx;
+}
+
+void TgClient::cancelDownload(TgLong fileId)
+{
+    TgFileCtx *ctx = processedDownloadFiles.take(fileId);
+    if (ctx == NULL)
+        return;
+
+    TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+    if (client == 0) {
+        client = this;
+    }
+    emit client->fileDownloadCanceled(fileId);
+    delete ctx;
+}
+
+TgLong TgClient::downloadNextFilePart(TgLong fileId)
+{
+    //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(FILE_PART_SIZE, length - offset))
+    //TODO: get 2-3 parts in queue
+    //TODO: Verify hash chunks
+
+    TgFileCtx *ctx = processedDownloadFiles.value(fileId, NULL);
+    if (ctx == NULL)
+        return 0;
+
+    if (ctx->length != 0 && ctx->bytesLeft <= 0) {
+        processedDownloadFiles.remove(ctx->fileId);
+
+        TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+        if (client == 0) {
+            client = this;
+        }
+        emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
+        delete ctx;
+
+        return 0;
+    }
+
+    TGOBJECT(TLType::UploadGetFileMethod, getFile);
+    getFile["location"] = ctx->download;
+    getFile["offset"] = (ctx->currentPart++) * (qint64) FILE_PART_SIZE;
+    getFile["limit"] = FILE_PART_SIZE;
+
+    TgLong mid = sendObject<&writeTLMethodUploadGetFile>(getFile);
+
+    ctx->queue << mid;
+    filePackets.insert(mid, ctx->fileId);
+
+    return mid;
+}
+
+void TgClient::handleUploadFile(TgObject response, TgLong messageId)
+{
+    TgLong fileId = filePackets.take(messageId);
+    TgFileCtx *ctx = processedDownloadFiles.value(fileId, NULL);
+    if (ctx != NULL) {
+        QByteArray bytes = response["bytes"].toByteArray();
+        ctx->localFile.write(bytes);
+        ctx->bytesLeft -= bytes.size();
+
+        TgClient* client = isMain ? this : static_cast<TgClient*>(parent());
+        if (client == 0) {
+            client = this;
+        }
+        emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length);
+    }
+
+    downloadNextFilePart(fileId);
 }
 
 TgLong TgClient::uploadFile(QString filePath)
@@ -47,13 +238,17 @@ TgLong TgClient::uploadFile(QString filePath)
 
 TgLong TgClient::uploadNextFilePart(TgLong fileId)
 {
-    //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(524288, length - offset))
+    //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(FILE_PART_SIZE, length - offset))
     //TODO: send 2-3 parts in queue
+    //TODO: FILE_PARTS_INVALID
+    //TODO: FILE_PART_X_MISSING
+    //TODO: MD5_CHECKSUM_INVALID
+
     TgFileCtx *ctx = processedFiles.value(fileId, NULL);
     if (ctx == NULL)
         return 0;
 
-    if (ctx->bytesLeft == 0) {
+    if (ctx->length != 0 && ctx->bytesLeft <= 0) {
         TGOBJECT(ctx->isBig ? TLType::InputFileBig : TLType::InputFile, inputFile);
         inputFile["id"] = ctx->fileId;
         inputFile["parts"] = ctx->fileParts;
@@ -74,7 +269,7 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
         return 0;
     }
 
-    QByteArray fileBytes = readFully(ctx->localFile, qMin((qint64) 524288, ctx->bytesLeft));
+    QByteArray fileBytes = readFully(ctx->localFile, qMin((qint64) FILE_PART_SIZE, ctx->bytesLeft));
     ctx->bytesLeft -= fileBytes.size();
 
     if (!ctx->isBig)
@@ -97,18 +292,30 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
     ctx->queue << mid;
     filePackets.insert(mid, ctx->fileId);
 
-    emit fileUploading(saveFile["file_id"].toLongLong(), saveFile["file_part"].toInt(), saveFile["file_total_parts"].toInt(), ctx->length);
+    emit fileUploading(saveFile["file_id"].toLongLong(), saveFile["file_part"].toInt() * (qint64) FILE_PART_SIZE, ctx->length);
 
     return mid;
 }
 
-void TgClient::handleUploadFile(bool response, qint64 messageId)
+void TgClient::cancelUpload(TgLong fileId)
 {
+    TgFileCtx *ctx = processedFiles.take(fileId);
+    if (ctx == NULL)
+        return;
+
+    emit fileUploadCanceled(fileId);
+    delete ctx;
+}
+
+void TgClient::handleUploadingFile(bool response, qint64 messageId)
+{
+    TgLong fileId = filePackets.take(messageId);
+
     if (!response) {
         kgWarning() << "File upload response is false " << messageId;
-        //TODO: resend it?
+        cancelUpload(fileId);
         return;
     }
 
-    uploadNextFilePart(filePackets.take(messageId));
+    uploadNextFilePart(fileId);
 }

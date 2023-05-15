@@ -8,8 +8,9 @@ symbian:LIBS += -llibcrypto
 !symbian:!android:unix:LIBS += -lcrypto
 
 android:LIBS += -lz
-android:LIBS += -LC:/QtAndroid/openssl -lcrypto
-android:INCLUDEPATH += C:/QtAndroid/openssl/include
+android:LIBS += -LC:/Users/Mathew/Desktop/openssl-0.9.8zf -lcrypto
+android:INCLUDEPATH += C:/Users/Mathew/Desktop/openssl-0.9.8zf/include
+android:ANDROID_EXTRA_LIBS = C:/Users/Mathew/Desktop/openssl-0.9.8zf/libcrypto.so
 
 win32:include(zlib/zlib.pri)
 win32:LIBS += -LC:/OpenSSL-Win32/lib -llibcrypto
