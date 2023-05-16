@@ -48,6 +48,7 @@ TgTransport::TgTransport(TgClient *parent, QString sessionName, qint32 dcId)
 
     , pendingMessages()
     , migrationMessages()
+    , floodMessages()
 
     , _sessionName(sessionName)
 
@@ -341,6 +342,12 @@ void TgTransport::timerEvent(QTimerEvent *event)
     if (pendingMessages.size() >= 40) {
         kgDebug() << "TOO MANY pending messages," << pendingMessages.size() << "items, clearing";
         pendingMessages.clear();
+    }
+
+    QList<qint64> keys = floodMessages.keys();
+    kgDebug() << "Flood Pending:" << keys;
+    for (qint32 i = 0; i < keys.size(); ++i) {
+        sendMTMessage(floodMessages.take(keys[i]), keys[i], false);
     }
 
     sendMsgsAck();
@@ -1008,6 +1015,11 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
         return;
     }
 
+    if (errorMessage.contains("FLOOD_WAIT_")) {
+        floodMessages.insert(messageId, pendingMessages.take(messageId));
+        return;
+    }
+
     if (errorCode == 401) {
         resetSession();
         return;
@@ -1086,8 +1098,6 @@ void TgTransport::handleBadMsgNotification(QByteArray data, qint64 messageId)
 
     kgDebug() << "INFO: bad msg notification handled" << errorCode;
 }
-
-//TODO: flood wait
 
 void TgTransport::handleBadServerSalt(QByteArray data, qint64 messageId)
 {

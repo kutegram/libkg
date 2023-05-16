@@ -42,6 +42,7 @@ private:
 
     QMap<qint64, QByteArray> pendingMessages;
     QMap<qint64, QByteArray> migrationMessages;
+    QMap<qint64, QByteArray> floodMessages;
 
     QString _sessionName;
 
