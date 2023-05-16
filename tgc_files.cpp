@@ -118,8 +118,8 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
         return 0;
     }
 
-    processedDownloadFiles.insert(ctx->fileId, ctx);
-    downloadNextFilePart(ctx->fileId);
+    dcClient->processedDownloadFiles.insert(ctx->fileId, ctx);
+    dcClient->downloadNextFilePart();
 
     //TODO: load files one after other sequensively (only one file at time)
 
@@ -139,6 +139,9 @@ TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
     }
     TgLong mid = client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
     delete ctx;
+
+    currentDownloading = 0;
+    downloadNextFilePart();
     return mid;
 }
 
@@ -155,6 +158,9 @@ void TgClient::fileProbablyDownloaded(TgLong messageId)
     }
     emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
     delete ctx;
+
+    currentDownloading = 0;
+    downloadNextFilePart();
 }
 
 void TgClient::cancelDownload(TgLong fileId)
@@ -169,17 +175,36 @@ void TgClient::cancelDownload(TgLong fileId)
     }
     emit client->fileDownloadCanceled(fileId);
     delete ctx;
+
+    currentDownloading = 0;
+    downloadNextFilePart();
 }
 
-TgLong TgClient::downloadNextFilePart(TgLong fileId)
+TgLong TgClient::downloadNextFilePart()
 {
     //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(FILE_PART_SIZE, length - offset))
     //TODO: get 2-3 parts in queue
     //TODO: Verify hash chunks
+    if (!isAuthorized()) {
+        return 0;
+    }
 
-    TgFileCtx *ctx = processedDownloadFiles.value(fileId, NULL);
+    if (processedDownloadFiles.isEmpty()) {
+        currentDownloading = 0;
+        return 0;
+    }
+
+    if (currentDownloading == 0) {
+        currentDownloading = processedDownloadFiles.begin().key();
+    }
+
+    TgFileCtx *ctx = processedDownloadFiles.value(currentDownloading, NULL);
     if (ctx == NULL)
         return 0;
+
+    if (!ctx->queue.isEmpty()) {
+        return 0;
+    }
 
     if (ctx->length != 0 && ctx->bytesLeft <= 0) {
         processedDownloadFiles.remove(ctx->fileId);
@@ -201,7 +226,7 @@ TgLong TgClient::downloadNextFilePart(TgLong fileId)
 
     TgLong mid = sendObject<&writeTLMethodUploadGetFile>(getFile);
 
-    ctx->queue << mid;
+    ctx->queue.append(mid);
     filePackets.insert(mid, ctx->fileId);
 
     return mid;
@@ -215,6 +240,7 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
         QByteArray bytes = response["bytes"].toByteArray();
         ctx->localFile.write(bytes);
         ctx->bytesLeft -= bytes.size();
+        ctx->queue.removeOne(messageId);
 
         TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
         if (client == 0) {
@@ -225,12 +251,15 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
             processedDownloadFiles.remove(fileId);
             emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
             delete ctx;
+
+            currentDownloading = 0;
+            downloadNextFilePart();
             return;
         }
         else emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length);
     }
 
-    downloadNextFilePart(fileId);
+    downloadNextFilePart();
 }
 
 TgLong TgClient::uploadFile(QString filePath)

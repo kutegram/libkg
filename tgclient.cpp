@@ -17,6 +17,7 @@ TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     , _transport(0)
     , processedFiles()
     , processedDownloadFiles()
+    , currentDownloading(0)
     , filePackets()
     , clientForDc()
     , _main()
@@ -49,6 +50,11 @@ QDir TgClient::cacheDirectory()
     return _cacheDirectory;
 }
 
+TgInt TgClient::dcId()
+{
+    return _transport->dcId();
+}
+
 TgClient* TgClient::getClientForDc(int dcId)
 {
     if (!isMain()) {
@@ -59,11 +65,11 @@ TgClient* TgClient::getClientForDc(int dcId)
         return c->getClientForDc(dcId);
     }
 
-    kgInfo() << "Requested client with DC ID" << dcId;
-
     if (dcId == 0 || _transport->dcId() == dcId) {
         return this;
     }
+
+    kgInfo() << "Requested client with DC ID" << dcId;
 
     TgClient* client = clientForDc.value(dcId);
 
@@ -74,8 +80,6 @@ TgClient* TgClient::getClientForDc(int dcId)
     client = new TgClient(this, dcId, clientSessionName);
     clientForDc.insert(dcId, client);
     client->migrateTo(_transport->config(), dcId);
-
-    migrationForDc.insert(exportAuthorization(dcId), dcId);
 
     return client;
 }
@@ -174,6 +178,13 @@ void TgClient::handleInitialized()
         importMethod = TgObject();
     }
 
+    if (!hasUserId() && !isMain()) {
+        TgClient* c = static_cast<TgClient*>(parent());
+        if (c != 0) {
+            c->migrationForDc.insert(c->exportAuthorization(_transport->dcId()), _transport->dcId());
+        }
+    }
+
     emit initialized(hasUserId());
 }
 
@@ -183,11 +194,8 @@ void TgClient::handleAuthorized(qint64 userId)
 
     _authorized = userId != 0;
 
-    if (userId != 0) {
-        QList<TgLong> fileIds = processedDownloadFiles.keys();
-        for (qint32 i = 0; i < fileIds.size(); ++i) {
-            downloadNextFilePart(fileIds[i]);
-        }
+    if (userId != 0 && !processedDownloadFiles.isEmpty()) {
+        downloadNextFilePart();
     }
 
     emit authorized(userId);
@@ -197,9 +205,21 @@ void TgClient::handleMessageChanged(qint64 oldMsg, qint64 newMsg)
 {
     kgDebug() << "Message changed" << oldMsg << "->" << newMsg;
 
+    migrationForDc.insert(newMsg, migrationForDc.take(oldMsg));
+
     TgLong fileId = filePackets.take(oldMsg);
+    TgFileCtx *uploadCtx = processedFiles.value(fileId, NULL);
+    TgFileCtx *downloadCtx = processedDownloadFiles.value(fileId, NULL);
     if (fileId != 0) {
         filePackets.insert(newMsg, fileId);
+        if (uploadCtx != NULL) {
+            uploadCtx->queue.removeOne(oldMsg);
+            uploadCtx->queue.append(newMsg);
+        }
+        if (downloadCtx != NULL) {
+            downloadCtx->queue.removeOne(oldMsg);
+            downloadCtx->queue.append(newMsg);
+        }
     }
 
     emit messageChanged(oldMsg, newMsg);

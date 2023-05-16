@@ -41,6 +41,7 @@ private:
     TgTransport *_transport;
     QMap<TgLong, TgFileCtx*> processedFiles;
     QMap<TgLong, TgFileCtx*> processedDownloadFiles;
+    TgLong currentDownloading;
     QMap<TgLong, TgLong> filePackets;
     QMap<qint32, TgClient*> clientForDc;
     QMap<TgLong, TgInt> migrationForDc;
@@ -65,6 +66,7 @@ public slots:
     void migrateTo(TgObject config, qint32 dcId);
     TgClient* getClientForDc(qint32 dcId);
 
+    TgInt dcId();
     bool hasSession();
     bool hasUserId();
     TgLong getUserId();
@@ -80,7 +82,7 @@ public slots:
 
     void cancelDownload(TgLong fileId);
     TgLong downloadFile(QString filePath, TgObject inputFile, TgLong fileSize = 0, qint32 dcId = 0, TgLong fileId = 0);
-    TgLong downloadNextFilePart(TgLong fileId);
+    TgLong downloadNextFilePart();
     TgLong migrateFileTo(TgLong messageId, TgInt dcId);
     void fileProbablyDownloaded(TgLong messageId);
     void handleUploadFile(TgObject response, TgLong messageId);
