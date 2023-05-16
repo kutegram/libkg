@@ -55,11 +55,19 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
     //TODO: file references
     //TODO: CDN DCs
 
+    if ((isUser(inputFile) || isChat(inputFile)) && GETID(inputFile["photo"].toMap()) != 0) {
+        TGOBJECT(TLType::InputPeerPhotoFileLocation, fileLocation);
+        fileLocation["peer"] = toInputPeer(inputFile);
+        fileLocation["photo_id"] = inputFile["photo"].toMap()["photo_id"];
+
+        return downloadFile(filePath, fileLocation, fileSize, inputFile["photo"].toMap()["dc_id"].toInt(), fileId);
+    }
+
     switch (GETID(inputFile)) {
     case TLType::MessageMediaPhoto:
-        return downloadFile(filePath, inputFile["photo"].toMap());
+        return downloadFile(filePath, inputFile["photo"].toMap(), fileSize, dcId, fileId);
     case TLType::MessageMediaDocument:
-        return downloadFile(filePath, inputFile["document"].toMap());
+        return downloadFile(filePath, inputFile["document"].toMap(), fileSize, dcId, fileId);
     case TLType::Photo:
     {
         TGOBJECT(TLType::InputPhotoFileLocation, loc);
@@ -76,7 +84,7 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
         }
 
         loc["thumb_size"] = thumbSize["type"];
-        return downloadFile(filePath, loc, thumbSize["size"].toLongLong(), inputFile["dc_id"].toInt());
+        return downloadFile(filePath, loc, thumbSize["size"].toLongLong(), inputFile["dc_id"].toInt(), fileId);
     }
     case TLType::Document:
     {
@@ -85,18 +93,11 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
         loc["access_hash"] = inputFile["access_hash"];
         loc["file_reference"] = inputFile["file_reference"];
         loc["thumb_size"] = "";
-        return downloadFile(filePath, loc, inputFile["size"].toLongLong(), inputFile["dc_id"].toInt());
+        return downloadFile(filePath, loc, inputFile["size"].toLongLong(), inputFile["dc_id"].toInt(), fileId);
     }
     }
 
-    if (inputFile["id"].toLongLong() == 0
-            || inputFile["access_hash"].toLongLong() == 0
-            || inputFile["file_reference"].toByteArray().isEmpty()) {
-        return 0;
-    }
-
-    TgClient* dcClient = getClientForDc(dcId);
-    if (dcClient == 0) {
+    if (inputFile["id"].toLongLong() == 0 && inputFile["photo_id"].toLongLong() == 0) {
         return 0;
     }
 
@@ -109,6 +110,12 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
 
     if (fileId != 0) {
         ctx->fileId = fileId;
+    }
+
+    TgClient* dcClient = getClientForDc(dcId);
+    if (dcClient == 0) {
+        delete ctx;
+        return 0;
     }
 
     processedDownloadFiles.insert(ctx->fileId, ctx);
@@ -213,7 +220,14 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
         if (client == 0) {
             client = this;
         }
-        emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length);
+
+        if (bytes.size() != FILE_PART_SIZE) {
+            processedDownloadFiles.remove(fileId);
+            emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
+            delete ctx;
+            return;
+        }
+        else emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length);
     }
 
     downloadNextFilePart(fileId);

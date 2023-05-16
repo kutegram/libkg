@@ -144,7 +144,33 @@ bool isChat(TgObject obj)
 
 bool isUser(TgObject obj)
 {
-    return !isChat(obj);
+    switch (ID(obj)) {
+    case InputUserEmpty:
+    case InputUserSelf:
+    case InputUser:
+    case InputUserFromMessage:
+    case TLType::User:
+    case UserEmpty:
+    case PeerUser:
+    case InputPeerEmpty:
+    case InputPeerSelf:
+    case InputPeerUser:
+    case InputPeerUserFromMessage:
+        return true;
+    case Chat:
+    case ChatEmpty:
+    case ChatForbidden:
+    case Channel:
+    case ChannelForbidden:
+    case PeerChat:
+    case PeerChannel:
+    case InputPeerChat:
+    case InputPeerChannel:
+    case InputPeerChannelFromMessage:
+        return false;
+    default:
+        return false;
+    }
 }
 
 TgObject getDialogsOffsets(TgObject dialogs)
@@ -170,7 +196,7 @@ TgObject getDialogsOffsets(TgObject dialogs)
         }
     }
 
-    if (isUser(lastDialog["peer"].toMap())) {
+    if (isUser(lastPeerDialog)) {
         for (qint32 i = 0; i < usersList.size(); ++i) {
             if (getPeerId(usersList[i].toMap()) == getPeerId(lastPeerDialog)) {
                 lastPeer = usersList[i].toMap();

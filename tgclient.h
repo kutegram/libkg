@@ -8,6 +8,7 @@
 #include "crypto.h"
 #include <openssl/md5.h>
 #include <QLinkedList>
+#include <QDir>
 
 class TgFileCtx
 {
@@ -48,6 +49,7 @@ private:
     bool _initialized;
     bool _authorized;
     TgObject importMethod;
+    QDir _cacheDirectory;
 
 public:
     explicit TgClient(QObject *parent = 0, qint32 dcId = 0, QString sessionName = "");
@@ -57,6 +59,7 @@ public:
 public slots:
     void start();
     void stop();
+    QDir cacheDirectory();
 
     void resetSession();
     void migrateTo(TgObject config, qint32 dcId);

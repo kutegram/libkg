@@ -5,25 +5,48 @@
 #include "debug.h"
 #include "tgtransport.h"
 #include "tlschema.h"
+#include <QDir>
+#include <QSettings>
+#include <QCoreApplication>
 
 //TODO: isNull in schema to toBool?
 
 TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     : QObject(parent)
-    , clientSessionName(sessionName)
-    , _transport(new TgTransport(this, sessionName, dcId))
+    , clientSessionName()
+    , _transport(0)
     , processedFiles()
     , processedDownloadFiles()
     , filePackets()
     , clientForDc()
-    , _main(dcId == 0)
+    , _main()
     , _connected()
     , _initialized()
     , _authorized()
     , migrationForDc()
     , importMethod()
+    , _cacheDirectory()
 {
+    _main = dcId == 0;
+    clientSessionName = sessionName;
+    if (clientSessionName.isEmpty()) {
+        clientSessionName = "user_session";
+    }
 
+    _cacheDirectory = QDir(QDir::cleanPath(QSettings(
+                                           QSettings::IniFormat,
+                                           QSettings::UserScope,
+                                           QCoreApplication::organizationName(),
+                                           QCoreApplication::applicationName() + "_" + clientSessionName)
+                                       .fileName()+"/../" + QCoreApplication::applicationName() + "_" + clientSessionName));
+    _cacheDirectory.mkpath(".");
+
+    _transport = new TgTransport(this, clientSessionName, dcId);
+}
+
+QDir TgClient::cacheDirectory()
+{
+    return _cacheDirectory;
 }
 
 TgClient* TgClient::getClientForDc(int dcId)
