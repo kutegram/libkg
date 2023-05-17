@@ -1025,7 +1025,7 @@ void readTLUser(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 268435456) obj["premium"] = true;
         if (obj["flags"].toUInt() & 536870912) obj["attach_menu_enabled"] = true;
         readUInt32(stream, obj["flags2"], callback);
-        if (obj["flags"].toUInt() & 2) obj["bot_can_edit"] = true;
+        if (obj["flags2"].toUInt() & 2) obj["bot_can_edit"] = true;
         readInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 1) readInt64(stream, obj["access_hash"], callback);
         if (obj["flags"].toUInt() & 2) readString(stream, obj["first_name"], callback);
@@ -1039,7 +1039,7 @@ void readTLUser(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 524288) readString(stream, obj["bot_inline_placeholder"], callback);
         if (obj["flags"].toUInt() & 4194304) readString(stream, obj["lang_code"], callback);
         if (obj["flags"].toUInt() & 1073741824) readTLEmojiStatus(stream, obj["emoji_status"], callback);
-        if (obj["flags"].toUInt() & 1) readVector(stream, obj["usernames"], (void*) &readTLUsername);
+        if (obj["flags2"].toUInt() & 1) readVector(stream, obj["usernames"], (void*) &readTLUsername);
     break;
     }
     i = obj;
@@ -1074,7 +1074,6 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
             (!obj["bot_attach_menu"].isNull() << 27) | 
             (!obj["premium"].isNull() << 28) | 
             (!obj["attach_menu_enabled"].isNull() << 29) | 
-            (!obj["bot_can_edit"].isNull() << 1) | 
             (!obj["access_hash"].isNull()) | 
             (!obj["first_name"].isNull() << 1) | 
             (!obj["last_name"].isNull() << 2) | 
@@ -1087,40 +1086,9 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
             (!obj["bot_inline_placeholder"].isNull() << 19) | 
             (!obj["lang_code"].isNull() << 22) | 
             (!obj["emoji_status"].isNull() << 30) | 
-            (!obj["usernames"].isNull()) | 
         0), callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["self"].isNull() << 10) | 
-            (!obj["contact"].isNull() << 11) | 
-            (!obj["mutual_contact"].isNull() << 12) | 
-            (!obj["deleted"].isNull() << 13) | 
-            (!obj["bot"].isNull() << 14) | 
-            (!obj["bot_chat_history"].isNull() << 15) | 
-            (!obj["bot_nochats"].isNull() << 16) | 
-            (!obj["verified"].isNull() << 17) | 
-            (!obj["restricted"].isNull() << 18) | 
-            (!obj["min"].isNull() << 20) | 
-            (!obj["bot_inline_geo"].isNull() << 21) | 
-            (!obj["support"].isNull() << 23) | 
-            (!obj["scam"].isNull() << 24) | 
-            (!obj["apply_min_photo"].isNull() << 25) | 
-            (!obj["fake"].isNull() << 26) | 
-            (!obj["bot_attach_menu"].isNull() << 27) | 
-            (!obj["premium"].isNull() << 28) | 
-            (!obj["attach_menu_enabled"].isNull() << 29) | 
+        writeUInt32(stream, obj["flags2"] = (
             (!obj["bot_can_edit"].isNull() << 1) | 
-            (!obj["access_hash"].isNull()) | 
-            (!obj["first_name"].isNull() << 1) | 
-            (!obj["last_name"].isNull() << 2) | 
-            (!obj["username"].isNull() << 3) | 
-            (!obj["phone"].isNull() << 4) | 
-            (!obj["photo"].isNull() << 5) | 
-            (!obj["status"].isNull() << 6) | 
-            (!obj["bot_info_version"].isNull() << 14) | 
-            (!obj["restriction_reason"].isNull() << 18) | 
-            (!obj["bot_inline_placeholder"].isNull() << 19) | 
-            (!obj["lang_code"].isNull() << 22) | 
-            (!obj["emoji_status"].isNull() << 30) | 
             (!obj["usernames"].isNull()) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
@@ -1136,7 +1104,7 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 524288) writeString(stream, obj["bot_inline_placeholder"], callback);
         if (obj["flags"].toUInt() & 4194304) writeString(stream, obj["lang_code"], callback);
         if (obj["flags"].toUInt() & 1073741824) writeTLEmojiStatus(stream, obj["emoji_status"], callback);
-        if (obj["flags"].toUInt() & 1) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
+        if (obj["flags2"].toUInt() & 1) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
     break;
     }
 }
@@ -1310,7 +1278,7 @@ void readTLChat(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 32768) readTLChatBannedRights(stream, obj["banned_rights"], callback);
         if (obj["flags"].toUInt() & 262144) readTLChatBannedRights(stream, obj["default_banned_rights"], callback);
         if (obj["flags"].toUInt() & 131072) readInt32(stream, obj["participants_count"], callback);
-        if (obj["flags"].toUInt() & 1) readVector(stream, obj["usernames"], (void*) &readTLUsername);
+        if (obj["flags2"].toUInt() & 1) readVector(stream, obj["usernames"], (void*) &readTLUsername);
     break;
     case 399807445:
         obj["_"] = conId.toInt();
@@ -1392,36 +1360,8 @@ void writeTLChat(TelegramStream &stream, QVariant i, void* callback)
             (!obj["banned_rights"].isNull() << 15) | 
             (!obj["default_banned_rights"].isNull() << 18) | 
             (!obj["participants_count"].isNull() << 17) | 
-            (!obj["usernames"].isNull()) | 
         0), callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["creator"].isNull()) | 
-            (!obj["left"].isNull() << 2) | 
-            (!obj["broadcast"].isNull() << 5) | 
-            (!obj["verified"].isNull() << 7) | 
-            (!obj["megagroup"].isNull() << 8) | 
-            (!obj["restricted"].isNull() << 9) | 
-            (!obj["signatures"].isNull() << 11) | 
-            (!obj["min"].isNull() << 12) | 
-            (!obj["scam"].isNull() << 19) | 
-            (!obj["has_link"].isNull() << 20) | 
-            (!obj["has_geo"].isNull() << 21) | 
-            (!obj["slowmode_enabled"].isNull() << 22) | 
-            (!obj["call_active"].isNull() << 23) | 
-            (!obj["call_not_empty"].isNull() << 24) | 
-            (!obj["fake"].isNull() << 25) | 
-            (!obj["gigagroup"].isNull() << 26) | 
-            (!obj["noforwards"].isNull() << 27) | 
-            (!obj["join_to_send"].isNull() << 28) | 
-            (!obj["join_request"].isNull() << 29) | 
-            (!obj["forum"].isNull() << 30) | 
-            (!obj["access_hash"].isNull() << 13) | 
-            (!obj["username"].isNull() << 6) | 
-            (!obj["restriction_reason"].isNull() << 9) | 
-            (!obj["admin_rights"].isNull() << 14) | 
-            (!obj["banned_rights"].isNull() << 15) | 
-            (!obj["default_banned_rights"].isNull() << 18) | 
-            (!obj["participants_count"].isNull() << 17) | 
+        writeUInt32(stream, obj["flags2"] = (
             (!obj["usernames"].isNull()) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
@@ -1435,7 +1375,7 @@ void writeTLChat(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 32768) writeTLChatBannedRights(stream, obj["banned_rights"], callback);
         if (obj["flags"].toUInt() & 262144) writeTLChatBannedRights(stream, obj["default_banned_rights"], callback);
         if (obj["flags"].toUInt() & 131072) writeInt32(stream, obj["participants_count"], callback);
-        if (obj["flags"].toUInt() & 1) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
+        if (obj["flags2"].toUInt() & 1) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
     break;
     case 399807445:
         writeInt32(stream, obj["_"], callback);
@@ -1493,10 +1433,10 @@ void readTLChatFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 1048576) obj["can_view_stats"] = true;
         if (obj["flags"].toUInt() & 4194304) obj["blocked"] = true;
         readUInt32(stream, obj["flags2"], callback);
-        if (obj["flags"].toUInt() & 1) obj["can_delete_channel"] = true;
-        if (obj["flags"].toUInt() & 2) obj["antispam"] = true;
-        if (obj["flags"].toUInt() & 4) obj["participants_hidden"] = true;
-        if (obj["flags"].toUInt() & 8) obj["translations_disabled"] = true;
+        if (obj["flags2"].toUInt() & 1) obj["can_delete_channel"] = true;
+        if (obj["flags2"].toUInt() & 2) obj["antispam"] = true;
+        if (obj["flags2"].toUInt() & 4) obj["participants_hidden"] = true;
+        if (obj["flags2"].toUInt() & 8) obj["translations_disabled"] = true;
         readInt64(stream, obj["id"], callback);
         readString(stream, obj["about"], callback);
         if (obj["flags"].toUInt() & 1) readInt32(stream, obj["participants_count"], callback);
@@ -1588,10 +1528,6 @@ void writeTLChatFull(TelegramStream &stream, QVariant i, void* callback)
             (!obj["has_scheduled"].isNull() << 19) | 
             (!obj["can_view_stats"].isNull() << 20) | 
             (!obj["blocked"].isNull() << 22) | 
-            (!obj["can_delete_channel"].isNull()) | 
-            (!obj["antispam"].isNull() << 1) | 
-            (!obj["participants_hidden"].isNull() << 2) | 
-            (!obj["translations_disabled"].isNull() << 3) | 
             (!obj["participants_count"].isNull()) | 
             (!obj["admins_count"].isNull() << 1) | 
             (!obj["kicked_count"].isNull() << 2) | 
@@ -1619,45 +1555,11 @@ void writeTLChatFull(TelegramStream &stream, QVariant i, void* callback)
             (!obj["default_send_as"].isNull() << 29) | 
             (!obj["available_reactions"].isNull() << 30) | 
         0), callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["can_view_participants"].isNull() << 3) | 
-            (!obj["can_set_username"].isNull() << 6) | 
-            (!obj["can_set_stickers"].isNull() << 7) | 
-            (!obj["hidden_prehistory"].isNull() << 10) | 
-            (!obj["can_set_location"].isNull() << 16) | 
-            (!obj["has_scheduled"].isNull() << 19) | 
-            (!obj["can_view_stats"].isNull() << 20) | 
-            (!obj["blocked"].isNull() << 22) | 
+        writeUInt32(stream, obj["flags2"] = (
             (!obj["can_delete_channel"].isNull()) | 
             (!obj["antispam"].isNull() << 1) | 
             (!obj["participants_hidden"].isNull() << 2) | 
             (!obj["translations_disabled"].isNull() << 3) | 
-            (!obj["participants_count"].isNull()) | 
-            (!obj["admins_count"].isNull() << 1) | 
-            (!obj["kicked_count"].isNull() << 2) | 
-            (!obj["banned_count"].isNull() << 2) | 
-            (!obj["online_count"].isNull() << 13) | 
-            (!obj["exported_invite"].isNull() << 23) | 
-            (!obj["migrated_from_chat_id"].isNull() << 4) | 
-            (!obj["migrated_from_max_id"].isNull() << 4) | 
-            (!obj["pinned_msg_id"].isNull() << 5) | 
-            (!obj["stickerset"].isNull() << 8) | 
-            (!obj["available_min_id"].isNull() << 9) | 
-            (!obj["folder_id"].isNull() << 11) | 
-            (!obj["linked_chat_id"].isNull() << 14) | 
-            (!obj["location"].isNull() << 15) | 
-            (!obj["slowmode_seconds"].isNull() << 17) | 
-            (!obj["slowmode_next_send_date"].isNull() << 18) | 
-            (!obj["stats_dc"].isNull() << 12) | 
-            (!obj["call"].isNull() << 21) | 
-            (!obj["ttl_period"].isNull() << 24) | 
-            (!obj["pending_suggestions"].isNull() << 25) | 
-            (!obj["groupcall_default_join_as"].isNull() << 26) | 
-            (!obj["theme_emoticon"].isNull() << 27) | 
-            (!obj["requests_pending"].isNull() << 28) | 
-            (!obj["recent_requesters"].isNull() << 28) | 
-            (!obj["default_send_as"].isNull() << 29) | 
-            (!obj["available_reactions"].isNull() << 30) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
         writeString(stream, obj["about"], callback);

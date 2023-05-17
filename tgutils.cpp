@@ -113,36 +113,15 @@ TgLong getPeerId(TgObject obj)
 
 bool isChat(TgObject obj)
 {
-    switch (ID(obj)) {
-    case InputUserEmpty:
-    case InputUserSelf:
-    case InputUser:
-    case InputUserFromMessage:
-    case TLType::User:
-    case UserEmpty:
-    case PeerUser:
-    case InputPeerEmpty:
-    case InputPeerSelf:
-    case InputPeerUser:
-    case InputPeerUserFromMessage:
-        return false;
-    case Chat:
-    case ChatEmpty:
-    case ChatForbidden:
-    case Channel:
-    case ChannelForbidden:
-    case PeerChat:
-    case PeerChannel:
-    case InputPeerChat:
-    case InputPeerChannel:
-    case InputPeerChannelFromMessage:
-        return true;
-    default:
-        return false;
-    }
+    return commonPeerType(obj) == TLType::Chat;
 }
 
 bool isUser(TgObject obj)
+{
+    return commonPeerType(obj) == TLType::User;
+}
+
+TgLong commonPeerType(TgObject obj)
 {
     switch (ID(obj)) {
     case InputUserEmpty:
@@ -156,7 +135,7 @@ bool isUser(TgObject obj)
     case InputPeerSelf:
     case InputPeerUser:
     case InputPeerUserFromMessage:
-        return true;
+        return TLType::User;
     case Chat:
     case ChatEmpty:
     case ChatForbidden:
@@ -167,10 +146,15 @@ bool isUser(TgObject obj)
     case InputPeerChat:
     case InputPeerChannel:
     case InputPeerChannelFromMessage:
-        return false;
+        return TLType::Chat;
     default:
-        return false;
+        return 0;
     }
+}
+
+bool peersEqual(TgObject peer1, TgObject peer2)
+{
+    return commonPeerType(peer1) == commonPeerType(peer2) && getPeerId(peer1) == getPeerId(peer2);
 }
 
 TgObject getDialogsOffsets(TgObject dialogs)
@@ -189,7 +173,7 @@ TgObject getDialogsOffsets(TgObject dialogs)
 
     for (qint32 i = 0; i < messagesList.size(); ++i) {
         TgObject message = messagesList[i].toMap();
-        if (getPeerId(message["peer_id"].toMap()) == getPeerId(lastPeerDialog)
+        if (peersEqual(message["peer_id"].toMap(), lastPeerDialog)
                 && message["id"].toInt() == lastTopMessage) {
             lastMessage = message;
             break;

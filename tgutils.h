@@ -10,5 +10,7 @@ TgLong getPeerId(TgObject obj);
 bool isUser(TgObject obj);
 bool isChat(TgObject obj);
 TgObject getDialogsOffsets(TgObject dialogs);
+TgLong commonPeerType(TgObject obj);
+bool peersEqual(TgObject peer1, TgObject peer2);
 
 #endif // TGUTILS_H

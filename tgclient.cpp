@@ -9,8 +9,6 @@
 #include <QSettings>
 #include <QCoreApplication>
 
-//TODO: isNull in schema to toBool?
-
 TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     : QObject(parent)
     , clientSessionName()
