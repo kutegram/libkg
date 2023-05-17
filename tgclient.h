@@ -116,7 +116,7 @@ signals:
 
     void fileDownloading(qint64 fileId, qint64 downloadedLength, qint64 totalLength);
     void fileDownloaded(qint64 fileId, QString filePath);
-    void fileDownloadCanceled(qint64 fileId);
+    void fileDownloadCanceled(qint64 fileId, QString filePath);
 
     void fileUploading(qint64 fileId, qint64 uploadedLength, qint64 totalLength);
     void fileUploaded(qint64 fileId, TgObject inputFile);

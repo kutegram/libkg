@@ -176,7 +176,8 @@ void TgClient::cancelDownload(TgLong fileId)
         client = this;
     }
     ctx->localFile.close();
-    emit client->fileDownloadCanceled(fileId);
+    ctx->localFile.remove();
+    emit client->fileDownloadCanceled(fileId, ctx->localFile.fileName());
     delete ctx;
 
     currentDownloading = 0;
