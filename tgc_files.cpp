@@ -137,6 +137,7 @@ TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
     if (client == 0) {
         client = this;
     }
+    ctx->localFile.close();
     TgLong mid = client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
     delete ctx;
 
@@ -156,6 +157,7 @@ void TgClient::fileProbablyDownloaded(TgLong messageId)
     if (client == 0) {
         client = this;
     }
+    ctx->localFile.close();
     emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
     delete ctx;
 
@@ -173,6 +175,7 @@ void TgClient::cancelDownload(TgLong fileId)
     if (client == 0) {
         client = this;
     }
+    ctx->localFile.close();
     emit client->fileDownloadCanceled(fileId);
     delete ctx;
 
@@ -213,6 +216,7 @@ TgLong TgClient::downloadNextFilePart()
         if (client == 0) {
             client = this;
         }
+        ctx->localFile.close();
         emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
         delete ctx;
 
@@ -249,6 +253,7 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
 
         if (bytes.size() != FILE_PART_SIZE) {
             processedDownloadFiles.remove(fileId);
+            ctx->localFile.close();
             emit client->fileDownloaded(ctx->fileId, ctx->localFile.fileName());
             delete ctx;
 
@@ -353,6 +358,7 @@ void TgClient::cancelUpload(TgLong fileId)
     if (ctx == NULL)
         return;
 
+    ctx->localFile.close();
     emit fileUploadCanceled(fileId);
     delete ctx;
 }

@@ -6,7 +6,7 @@ TgLong TgClient::messagesGetDialogs(qint32 offsetDate, qint32 offsetId, TgObject
 {
     TGOBJECT(TLType::MessagesGetDialogsMethod, method);
 
-    method["exclude_pinned"] = excludePinned;
+    if (excludePinned) method["exclude_pinned"] = true;
     method["folder_id"] = folderId == 1 ? 1 : 0;
     method["offset_date"] = offsetDate;
     method["offset_id"] = offsetId;
