@@ -21,6 +21,7 @@ TgObject toInputPeer(TgObject obj)
     switch (ID(obj)) {
     case Chat:
     case ChatForbidden:
+    case PeerChat:
     {
         TGOBJECT(InputPeerChat, v);
 
@@ -47,6 +48,14 @@ TgObject toInputPeer(TgObject obj)
 
         return v;
     }
+    case InputPeerEmpty:
+    case InputPeerSelf:
+    case InputPeerChat:
+    case InputPeerUser:
+    case InputPeerChannel:
+    case InputPeerUserFromMessage:
+    case InputPeerChannelFromMessage:
+        return obj;
     default:
     {
         TGOBJECT(InputPeerEmpty, v);

@@ -103,9 +103,10 @@ public slots:
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
     TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
-    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = emptyPeer(), qint32 limit = 1000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
-    TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 2000000000, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
+    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = emptyPeer(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
+    TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
     TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
+    TgLong messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, qint64 hash = 0);
 
 signals:
     void connected(bool hasUserId);
@@ -124,10 +125,12 @@ signals:
 
     void messageChanged(qint64 oldMsg, qint64 newMsg);
 
+    //TODO: rename to objects types
     void helpGetCountriesListResponse(TgObject object, TgLong messageId);
     void authSendCodeResponse(TgObject object, TgLong messageId);
     void authSignInResponse(TgObject object, TgLong messageId);
     void messagesGetDialogsResponse(TgObject object, TgLong messageId);
+    void messagesGetHistoryResponse(TgObject object, TgLong messageId);
 
     void boolResponse(bool response, qint64 messageId);
     void unknownResponse(qint32 conId, QByteArray object, qint64 messageId);

@@ -21,3 +21,19 @@ TgLong TgClient::messagesGetDialogsWithOffsets(TgObject offsets, qint32 limit, q
 {
     return messagesGetDialogs(offsets["offset_date"].toInt(), offsets["offset_id"].toInt(), offsets["offset_peer"].toMap(), limit, folderId, excludePinned, hash);
 }
+
+TgLong TgClient::messagesGetHistory(TgObject inputPeer, qint32 offsetId, qint32 offsetDate, qint32 addOffset, qint32 limit, qint32 maxId, qint32 minId, qint64 hash)
+{
+    TGOBJECT(TLType::MessagesGetHistoryMethod, method);
+
+    method["peer"] = toInputPeer(inputPeer);
+    method["offset_id"] = offsetId;
+    method["offset_date"] = offsetDate;
+    method["add_offset"] = addOffset;
+    method["limit"] = limit;
+    method["max_id"] = maxId;
+    method["min_id"] = minId;
+    method["hash"] = hash;
+
+    return sendObject<&writeTLMethodMessagesGetHistory>(method);
+}

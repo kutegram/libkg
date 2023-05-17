@@ -290,6 +290,12 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         }
         break;
     }
+    case TLType::MessagesChannelMessages:
+    case TLType::MessagesMessages:
+    case TLType::MessagesMessagesSlice:
+    case TLType::MessagesMessagesNotModified:
+        emit messagesGetHistoryResponse(tlDeserialize<&readTLMessagesMessages>(data).toMap(), messageId);
+        break;
     default:
         kgDebug() << "UNHANDLED object:" << conId;
         emit unknownResponse(conId, data, messageId);
