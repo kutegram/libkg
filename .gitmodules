@@ -1,6 +1,0 @@
-[submodule "zlib"]
-	path = zlib
-	url = https://github.com/curoviyxru/zlib-qt
-[submodule "qt-json"]
-	path = qt-json
-	url = https://github.com/curoviyxru/qt-json
