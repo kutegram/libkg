@@ -1,20 +1,8 @@
 QT += network xml sql
 
-include(qt-json/qt-json.pri)
-
-symbian:LIBS += -llibcrypto
-
-!symbian:!android:unix:LIBS += -lz
-!symbian:!android:unix:LIBS += -lcrypto
-
-android:LIBS += -lz
-android:INCLUDEPATH += C:/Users/Mathew/Desktop/Android/openssl-1.0.2j/include
-android:LIBS += C:/Users/Mathew/Desktop/Android/openssl-1.0.2j/libcrypto.a
-android:ANDROID_EXTRA_LIBS = C:/Users/Mathew/Desktop/Android/openssl-1.0.2j/libcrypto.so
-
-win32:include(zlib/zlib.pri)
-win32:LIBS += -LC:/OpenSSL-Win32/lib -llibcrypto
-win32:INCLUDEPATH += C:/OpenSSL-Win32/include
+include($$PWD/qt-json/qt-json.pri)
+include($$PWD/zlib/zlib.pri)
+include($$PWD/mbedtls/mbedtls.pri)
 
 HEADERS += \
     $$PWD/apisecrets.h \

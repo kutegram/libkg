@@ -1,0 +1,9 @@
+[submodule "qt-json"]
+	path = qt-json
+	url = https://github.com/kutegram/qt-json
+[submodule "mbedtls"]
+	path = mbedtls
+	url = https://github.com/kutegram/mbedtls
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/kutegram/zlib
