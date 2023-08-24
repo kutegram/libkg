@@ -9,7 +9,7 @@
 TgFileCtx::TgFileCtx(QString fileName)
     : fileId()
     , localFile()
-    , md5()
+    , digest()
     , length()
     , bytesLeft()
     , fileParts()
@@ -20,7 +20,8 @@ TgFileCtx::TgFileCtx(QString fileName)
 {
     fileId = randomLong();
     localFile.setFileName(fileName);
-    MD5_Init(&md5);
+    mbedtls_md5_init(&digest);
+    mbedtls_md5_starts(&digest);
     length = localFile.size();
     bytesLeft = length;
     fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
@@ -31,7 +32,7 @@ TgFileCtx::TgFileCtx(QString fileName)
 TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
     : fileId()
     , localFile()
-    , md5()
+    , digest()
     , length()
     , bytesLeft()
     , fileParts()
@@ -42,6 +43,8 @@ TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
 {
     fileId = randomLong();
     localFile.setFileName(fileName);
+    mbedtls_md5_init(&digest);
+    mbedtls_md5_starts(&digest);
     length = fileSize;
     bytesLeft = length;
     fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
@@ -312,8 +315,8 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
 
         if (!ctx->isBig) {
             QByteArray md5Hash;
-            md5Hash.resize(MD5_DIGEST_LENGTH);
-            MD5_Final((unsigned char*) md5Hash.data(), &(ctx->md5));
+            md5Hash.resize(16);
+            mbedtls_md5_finish(&(ctx->digest), (unsigned char*) md5Hash.data());
             inputFile["md5_checksum"] = md5Hash;
         }
 
@@ -329,7 +332,7 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
     ctx->bytesLeft -= fileBytes.size();
 
     if (!ctx->isBig)
-        MD5_Update(&(ctx->md5), fileBytes.constData(), fileBytes.size());
+        mbedtls_md5_update(&(ctx->digest), (const unsigned char*) fileBytes.constData(), fileBytes.size());
 
     TGOBJECT(ctx->isBig ? TLType::UploadSaveBigFilePartMethod : TLType::UploadSaveFilePartMethod, saveFile);
     saveFile["file_id"] = ctx->fileId;

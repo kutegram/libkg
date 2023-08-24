@@ -1,14 +1,12 @@
 #include "crypto.h"
 
 #include <QDateTime>
-#include <QCryptographicHash>
-#include "mtschema.h"
 #include <QtCore>
-#include <openssl/bn.h>
-#include <openssl/sha.h>
-#include <openssl/aes.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
+#include "mtschema.h"
+#include <mbedtls/aes.h>
+#include <mbedtls/bignum.h>
+#include <mbedtls/sha256.h>
+#include <mbedtls/sha1.h>
 
 #ifdef Q_OS_SYMBIAN
 
@@ -62,8 +60,16 @@ qint32 randomInt(qint32 lowerThan)
 QByteArray randomBytes(qint32 size)
 {
     QByteArray array;
+    array.resize((size / 4 + 1) * 4);
+
+    qsrand(QDateTime::currentDateTime().toTime_t());
+    int* data = (int*) array.data();
+
+    for (qint32 i = 0; i < size / 4; ++i) {
+        data[i] = qrand();
+    }
+
     array.resize(size);
-    RAND_bytes((unsigned char*) array.data(), size);
 
     return array;
 }
@@ -169,55 +175,56 @@ QByteArray xorArray(QByteArray a, QByteArray b)
 
 QByteArray decryptAES256IGE(QByteArray data, QByteArray iv, QByteArray key)
 {
-    AES_KEY key_enc;
-    AES_set_decrypt_key((const unsigned char*) key.constData(), 256, &key_enc);
+    QByteArray output;
+    output.resize(data.size());
 
-    QByteArray outData;
-    outData.resize(data.size());
+    mbedtls_aes_context aes;
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_dec(&aes, (const unsigned char*) key.constData(), 256);
+    mbedtls_aes_crypt_ige(&aes, MBEDTLS_AES_DECRYPT, data.size(), (unsigned char*) iv.data(), (const unsigned char*) data.constData(), (unsigned char*) output.data());
+    mbedtls_aes_free(&aes);
 
-    AES_ige_encrypt((const unsigned char*) data.constData(), (unsigned char*) outData.data(), data.size(), &key_enc, (unsigned char*) iv.data(), AES_DECRYPT);
-
-    return outData;
+    return output;
 }
 
 QByteArray encryptAES256IGE(QByteArray data, QByteArray iv, QByteArray key)
 {
-    AES_KEY key_enc;
-    AES_set_encrypt_key((const unsigned char*) key.constData(), 256, &key_enc);
+    QByteArray output;
+    output.resize(data.size());
 
-    QByteArray outData;
-    outData.resize(data.size());
+    mbedtls_aes_context aes;
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, (const unsigned char*) key.constData(), 256);
+    mbedtls_aes_crypt_ige(&aes, MBEDTLS_AES_ENCRYPT, data.size(), (unsigned char*) iv.data(), (const unsigned char*) data.constData(), (unsigned char*) output.data());
+    mbedtls_aes_free(&aes);
 
-    AES_ige_encrypt((const unsigned char*) data.constData(), (unsigned char*) outData.data(), data.size(), &key_enc, (unsigned char*) iv.data(), AES_ENCRYPT);
-
-    return outData;
+    return output;
 }
 
 QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
 {
-    //data ^ exp mod key
-    BIGNUM* x = BN_new();
-    BIGNUM* n = BN_new();
-    BIGNUM* e = BN_new();
-    BIGNUM* r = BN_new();
-    BN_CTX* ctx = BN_CTX_new();
+    mbedtls_mpi a, e, n, r;
+    mbedtls_mpi_init(&a);
+    mbedtls_mpi_init(&e);
+    mbedtls_mpi_init(&n);
+    mbedtls_mpi_init(&r);
 
-    BN_bin2bn((const unsigned char*) data.constData(), data.length(), x);
-    BN_bin2bn((const unsigned char*) key.constData(), key.length(), n);
-    BN_bin2bn((const unsigned char*) exp.constData(), exp.length(), e);
-    int result = BN_mod_exp(r, x, e, n, ctx);
+    mbedtls_mpi_read_binary(&a, (const unsigned char*) data.constData(), data.size());
+    mbedtls_mpi_read_binary(&e, (const unsigned char*) exp.constData(),  exp.size());
+    mbedtls_mpi_read_binary(&n, (const unsigned char*) key.constData(),  key.size());
 
     QByteArray resultArray;
-    if (result) {
-        resultArray.resize(BN_num_bytes(r));
-        BN_bn2bin(r, (unsigned char*) resultArray.data());
+
+    qint32 result = mbedtls_mpi_exp_mod(&r, &a, &e, &n, 0);
+    if (result != 0) {
+        resultArray.resize(mbedtls_mpi_size(&r));
+        mbedtls_mpi_write_binary(&r, (unsigned char*) resultArray.data(), resultArray.size());
     }
 
-    BN_free(x);
-    BN_free(n);
-    BN_free(e);
-    BN_free(r);
-    BN_CTX_free(ctx);
+    mbedtls_mpi_free(&a);
+    mbedtls_mpi_free(&e);
+    mbedtls_mpi_free(&n);
+    mbedtls_mpi_free(&r);
 
     return resultArray;
 }
@@ -225,12 +232,14 @@ QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
 QByteArray hashSHA256(QByteArray dataToHash)
 {
     QByteArray hash;
-    hash.resize(SHA256_DIGEST_LENGTH);
+    hash.resize(32);
 
-    SHA256_CTX ctx;
-    SHA256_Init(&ctx);
-    SHA256_Update(&ctx, dataToHash.constData(), dataToHash.size());
-    SHA256_Final((unsigned char*) hash.data(), &ctx);
+    mbedtls_sha256_context ctx;
+    mbedtls_sha256_init(&ctx);
+    mbedtls_sha256_starts(&ctx, false);
+    mbedtls_sha256_update(&ctx, (const unsigned char*) dataToHash.constData(), dataToHash.size());
+    mbedtls_sha256_finish(&ctx, (unsigned char*) hash.data());
+    mbedtls_sha256_free(&ctx);
 
     return hash;
 }
@@ -238,12 +247,14 @@ QByteArray hashSHA256(QByteArray dataToHash)
 QByteArray hashSHA1(QByteArray dataToHash)
 {
     QByteArray hash;
-    hash.resize(SHA_DIGEST_LENGTH);
+    hash.resize(20);
 
-    SHA_CTX ctx;
-    SHA1_Init(&ctx);
-    SHA1_Update(&ctx, dataToHash.constData(), dataToHash.size());
-    SHA1_Final((unsigned char*)hash.data(), &ctx);
+    mbedtls_sha1_context ctx;
+    mbedtls_sha1_init(&ctx);
+    mbedtls_sha1_starts(&ctx);
+    mbedtls_sha1_update(&ctx, (const unsigned char*) dataToHash.constData(), dataToHash.size());
+    mbedtls_sha1_finish(&ctx, (unsigned char*) hash.data());
+    mbedtls_sha1_free(&ctx);
 
     return hash;
 }

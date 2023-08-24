@@ -11,8 +11,18 @@ TgLong TgClient::authSendCode(QString phoneNumber)
     method["settings"] = codeSettings;
 
     method["phone_number"] = phoneNumber;
+
+#if defined(KUTEGRAM_API_ID)
     method["api_id"] = KUTEGRAM_API_ID;
+#else
+    #error "Please, specify an API id."
+#endif
+
+#if defined(KUTEGRAM_API_HASH)
     method["api_hash"] = KUTEGRAM_API_HASH;
+#else
+    #error "Please, specify an API hash."
+#endif
 
     return sendObject<&writeTLMethodAuthSendCode>(method);
 }

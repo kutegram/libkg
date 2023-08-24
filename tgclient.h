@@ -6,9 +6,9 @@
 #include "tgutils.h"
 #include <QFile>
 #include "crypto.h"
-#include <openssl/md5.h>
 #include <QLinkedList>
 #include <QDir>
+#include <mbedtls/md5.h>
 
 class TgFileCtx
 {
@@ -18,7 +18,7 @@ public:
 
     TgLong fileId;
     QFile localFile;
-    MD5_CTX md5;
+    mbedtls_md5_context digest;
     qint64 length;
     qint64 bytesLeft;
     qint32 fileParts;
