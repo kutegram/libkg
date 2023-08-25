@@ -126,14 +126,14 @@ signals:
     void messageChanged(qint64 oldMsg, qint64 newMsg);
 
     //TODO: rename to objects types
-    void helpGetCountriesListResponse(TgObject object, TgLong messageId);
-    void authSendCodeResponse(TgObject object, TgLong messageId);
-    void authSignInResponse(TgObject object, TgLong messageId);
-    void messagesGetDialogsResponse(TgObject object, TgLong messageId);
-    void messagesGetHistoryResponse(TgObject object, TgLong messageId);
+    void helpGetCountriesListResponse(TgObject data, TgLong messageId);
+    void authSendCodeResponse(TgObject data, TgLong messageId);
+    void authSignInResponse(TgObject data, TgLong messageId);
+    void messagesGetDialogsResponse(TgObject data, TgLong messageId);
+    void messagesGetHistoryResponse(TgObject data, TgLong messageId);
 
     void boolResponse(bool response, qint64 messageId);
-    void unknownResponse(qint32 conId, QByteArray object, qint64 messageId);
+    void unknownResponse(qint32 conId, QByteArray data, qint64 messageId);
 };
 
 template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)
