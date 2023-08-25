@@ -30,7 +30,6 @@ SOURCES += \
     $$PWD/tgc_help.cpp \
     $$PWD/tgc_messages.cpp \
     $$PWD/tgutils.cpp \
-    $$PWD/tgc_files.cpp \
-    $$PWD/division.c
+    $$PWD/tgc_files.cpp
 
 INCLUDEPATH += $$PWD
