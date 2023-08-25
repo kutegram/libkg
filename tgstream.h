@@ -28,10 +28,11 @@ public:
 
 };
 
-typedef QVariantMap TelegramObject;
-typedef QVariant TgVariant;
 typedef TelegramStream TgStream;
 typedef TelegramStream TgPacket;
+typedef QVariantMap TelegramObject;
+
+typedef QVariant TgVariant;
 typedef QVariantMap TgObject;
 typedef QVariantMap TgMap;
 typedef QVariantList TgVector;
@@ -40,6 +41,7 @@ typedef QVariantList TgArray;
 typedef QByteArray TgInt128;
 typedef QByteArray TgInt256;
 typedef qint32 TgInt;
+typedef qint32 TgInteger;
 typedef qint64 TgLong;
 typedef long double TgDouble;
 typedef QString TgString;
