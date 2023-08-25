@@ -198,7 +198,7 @@ QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
     QByteArray resultArray;
 
     qint32 result = mbedtls_mpi_exp_mod(&r, &a, &e, &n, 0);
-    if (result != 0) {
+    if (result == 0) {
         resultArray.resize(mbedtls_mpi_size(&r));
         mbedtls_mpi_write_binary(&r, (unsigned char*) resultArray.data(), resultArray.size());
     }
