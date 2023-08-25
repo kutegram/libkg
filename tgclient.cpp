@@ -43,6 +43,11 @@ TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     _transport = new TgTransport(this, clientSessionName, dcId);
 }
 
+qint32 TgClient::objectId(TgObject var)
+{
+    return var["_"].toInt();
+}
+
 QDir TgClient::cacheDirectory()
 {
     return _cacheDirectory;

@@ -58,6 +58,8 @@ public:
     template <WRITE_METHOD W> TgLong sendObject(TgObject i);
     
 public slots:
+    qint32 objectId(TgObject var);
+
     void start();
     void stop();
     QDir cacheDirectory();
