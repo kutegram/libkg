@@ -993,6 +993,8 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
 
     QString errorMessage = errorMessageVariant.toString();
 
+    kgDebug() << "[RPC ERROR]" << errorCode << ":" << errorMessage;
+
     qint32 messageParameter = 0;
     QStringList splittedMessage = errorMessage.split("_");
     if (!splittedMessage.isEmpty())
@@ -1017,6 +1019,12 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
 
     if (errorMessage.contains("FLOOD_WAIT_")) {
         floodMessages.insert(messageId, pendingMessages.take(messageId));
+        return;
+    }
+
+    if (errorMessage == "SESSION_PASSWORD_NEEDED") {
+        pendingMessages.remove(messageId);
+        _client->handleTFARequired();
         return;
     }
 

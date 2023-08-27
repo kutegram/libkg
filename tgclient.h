@@ -96,12 +96,14 @@ public slots:
     void handleObject(QByteArray data, qint64 messageId);
     void handleBool(bool response, qint64 messageId);
 
+    void handleMessageChanged(qint64 oldMsg, qint64 newMsg);
+
     void handleConnected();
     void handleDisconnected();
     void handleInitialized();
     void handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void handleAuthorized(qint64 userId);
-    void handleMessageChanged(qint64 oldMsg, qint64 newMsg);
+    void handleTFARequired();
 
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
@@ -117,6 +119,7 @@ signals:
     void initialized(bool hasUserId);
     void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
     void authorized(qint64 userId);
+    void tfaRequired();
 
     void fileDownloading(qint64 fileId, qint64 downloadedLength, qint64 totalLength);
     void fileDownloaded(qint64 fileId, QString filePath);

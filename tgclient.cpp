@@ -207,6 +207,13 @@ void TgClient::handleDisconnected()
     emit disconnected(hasUserId());
 }
 
+void TgClient::handleTFARequired()
+{
+    kgDebug() << "Account required TFA to log in";
+
+    emit tfaRequired();
+}
+
 void TgClient::handleConnected()
 {
     kgDebug() << "Client connected";
