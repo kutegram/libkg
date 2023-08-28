@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include "tgtransport.h"
-#include "tgutils.h"
 #include <QFile>
 #include "crypto.h"
 #include <QLinkedList>
@@ -105,10 +104,22 @@ public slots:
     void handleAuthorized(qint64 userId);
     void handleTFARequired();
 
+    TgObject emptyPeer();
+    TgObject selfPeer();
+    TgObject toInputPeer(TgObject obj);
+    TgLong getPeerId(TgObject obj);
+    bool isUser(TgObject obj);
+    static bool _isUser(TgObject obj);
+    bool isChat(TgObject obj);
+    TgObject getDialogsOffsets(TgObject dialogs);
+    TgLong commonPeerType(TgObject obj);
+    static TgLong _commonPeerType(TgObject obj);
+    bool peersEqual(TgObject peer1, TgObject peer2);
+
     TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLong authSendCode(QString phoneNumber);
     TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
-    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = emptyPeer(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
+    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
     TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
     TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
     TgLong messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, qint64 hash = 0);

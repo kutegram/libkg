@@ -14,8 +14,7 @@ HEADERS += \
     $$PWD/tgtransport.h \
     $$PWD/systemname.h \
     $$PWD/qcompressor.h \
-    $$PWD/debug.h \
-    $$PWD/tgutils.h
+    $$PWD/debug.h
 
 SOURCES += \
     $$PWD/tlschema.cpp \
@@ -29,7 +28,7 @@ SOURCES += \
     $$PWD/tgc_auth.cpp \
     $$PWD/tgc_help.cpp \
     $$PWD/tgc_messages.cpp \
-    $$PWD/tgutils.cpp \
+    $$PWD/tgc_utils.cpp \
     $$PWD/tgc_files.cpp
 
 INCLUDEPATH += $$PWD

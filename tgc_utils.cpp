@@ -1,22 +1,22 @@
-#include "tgutils.h"
+#include "tgclient.h"
 
 #include "tlschema.h"
 
 using namespace TLType;
 
-TgObject emptyPeer()
+TgObject TgClient::emptyPeer()
 {
     TGOBJECT(InputPeerEmpty, peer);
     return peer;
 }
 
-TgObject selfPeer()
+TgObject TgClient::selfPeer()
 {
     TGOBJECT(InputPeerSelf, peer);
     return peer;
 }
 
-TgObject toInputPeer(TgObject obj)
+TgObject TgClient::toInputPeer(TgObject obj)
 {
     switch (ID(obj)) {
     case Chat:
@@ -115,22 +115,32 @@ TgVariant getPeerIdVariant(TgObject obj)
     }
 }
 
-TgLong getPeerId(TgObject obj)
+TgLong TgClient::getPeerId(TgObject obj)
 {
     return getPeerIdVariant(obj).toLongLong();
 }
 
-bool isChat(TgObject obj)
+bool TgClient::isChat(TgObject obj)
 {
     return commonPeerType(obj) == TLType::Chat;
 }
 
-bool isUser(TgObject obj)
+bool TgClient::isUser(TgObject obj)
 {
-    return commonPeerType(obj) == TLType::User;
+    return _isUser(obj);
 }
 
-TgLong commonPeerType(TgObject obj)
+bool TgClient::_isUser(TgObject obj)
+{
+    return _commonPeerType(obj) == TLType::User;
+}
+
+TgLong TgClient::commonPeerType(TgObject obj)
+{
+    return _commonPeerType(obj);
+}
+
+TgLong TgClient::_commonPeerType(TgObject obj)
 {
     switch (ID(obj)) {
     case InputUserEmpty:
@@ -161,12 +171,12 @@ TgLong commonPeerType(TgObject obj)
     }
 }
 
-bool peersEqual(TgObject peer1, TgObject peer2)
+bool TgClient::peersEqual(TgObject peer1, TgObject peer2)
 {
     return commonPeerType(peer1) == commonPeerType(peer2) && getPeerId(peer1) == getPeerId(peer2);
 }
 
-TgObject getDialogsOffsets(TgObject dialogs)
+TgObject TgClient::getDialogsOffsets(TgObject dialogs)
 {
     TgList dialogsList = dialogs["dialogs"].toList();
     TgList messagesList = dialogs["messages"].toList();
