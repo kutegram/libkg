@@ -57,8 +57,8 @@ public:
     template <WRITE_METHOD W> TgLong sendObject(TgObject i);
     
 public slots:
-    qint32 getObjectId(TgObject var);
-    QByteArray getJpegPayload(QByteArray bytes);
+    static qint32 getObjectId(TgObject var);
+    static QByteArray getJpegPayload(QByteArray bytes);
 
     void start();
     void stop();
