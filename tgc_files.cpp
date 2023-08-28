@@ -265,7 +265,7 @@ void TgClient::handleUploadFile(TgObject response, TgLongVariant messageId)
             downloadNextFilePart();
             return;
         }
-        else emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length);
+        else emit client->fileDownloading(ctx->fileId, ctx->length - ctx->bytesLeft, ctx->length, (ctx->length - ctx->bytesLeft) * 100 / ctx->length);
     }
 
     downloadNextFilePart();

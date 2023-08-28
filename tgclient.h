@@ -132,7 +132,7 @@ signals:
     void authorized(TgLongVariant userId);
     void tfaRequired();
 
-    void fileDownloading(TgLongVariant fileId, TgLongVariant downloadedLength, TgLongVariant totalLength);
+    void fileDownloading(TgLongVariant fileId, TgLongVariant downloadedLength, TgLongVariant totalLength, qint32 downloadProgress);
     void fileDownloaded(TgLongVariant fileId, QString filePath);
     void fileDownloadCanceled(TgLongVariant fileId, QString filePath);
 
