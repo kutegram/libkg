@@ -3,10 +3,13 @@
 #include <QDateTime>
 #include <QtCore>
 #include "mtschema.h"
+#include "debug.h"
 #include <mbedtls/aes.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/sha256.h>
 #include <mbedtls/sha1.h>
+#include <mbedtls/entropy.h>
+#include <mbedtls/ctr_drbg.h>
 
 qint64 randomLong()
 {
@@ -18,6 +21,7 @@ DHKey::DHKey(QString publicKey, qint64 fingerprint, QString exponent) :
     exponent(QByteArray::fromHex(exponent.toLatin1())),
     fingerprint(fingerprint)
 {
+	//TODO: use mbedtls import
     if (!this->publicKey.isEmpty() && this->publicKey.at(0) == 0) {
         this->publicKey.remove(0, 1);
     }
@@ -36,27 +40,56 @@ qint32 randomInt(qint32 lowerThan)
 {
     if (lowerThan < 1)
         return 0;
-    return qAbs(qFromBigEndian<qint32>((uchar*) randomBytes(4).data())) % lowerThan;
+
+    QByteArray array = randomBytes(4);
+    if (array.size() < 4) {
+        return 0;
+    }
+
+    return qAbs(qFromBigEndian<qint32>((uchar*) array.data())) % lowerThan;
 }
 
 QByteArray randomBytes(qint32 size)
 {
-    QByteArray array;
-    array.resize((size / 4 + 1) * 4);
+    mbedtls_entropy_context entropy;
+    mbedtls_entropy_init(&entropy);
 
-    qsrand(QDateTime::currentDateTime().toTime_t());
-    int* data = (int*) array.data();
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_ctr_drbg_init(&ctr_drbg);
 
-    for (qint32 i = 0; i < size / 4; ++i) {
-        data[i] = qrand();
+    qint32 ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
+                                       (const unsigned char *) "kutegram_random_lol_", 20);
+    if (ret != 0)
+    {
+        kgCritical() << "Mbed TLS random error:" << ret;
+        mbedtls_ctr_drbg_free(&ctr_drbg);
+        mbedtls_entropy_free(&entropy);
+
+        return QByteArray();
     }
 
+    QByteArray array;
     array.resize(size);
+
+    ret = mbedtls_ctr_drbg_random(&ctr_drbg, (unsigned char *) array.data(), array.size());
+    if (ret != 0) {
+        kgCritical() << "Mbed TLS random error:" << ret;
+        array.fill(0);
+
+        mbedtls_ctr_drbg_free(&ctr_drbg);
+        mbedtls_entropy_free(&entropy);
+
+        return QByteArray();
+    }
+
+    mbedtls_ctr_drbg_free(&ctr_drbg);
+    mbedtls_entropy_free(&entropy);
 
     return array;
 }
 
 quint64 gcd(quint64 a, quint64 b) {
+	//TODO: use mbedtls RSA
     if (a == 0) {
         return b;
     }
@@ -90,6 +123,7 @@ quint64 gcd(quint64 a, quint64 b) {
 
 quint64 findDivider(quint64 number)
 {
+	//TODO: use mbedtls RSA
     qsrand(QDateTime::currentDateTime().toUTC().toTime_t());
     int it = 0;
     quint64 g = 0;
@@ -185,6 +219,7 @@ QByteArray encryptAES256IGE(QByteArray data, QByteArray iv, QByteArray key)
 
 QByteArray encryptRSA(QByteArray data, QByteArray key, QByteArray exp)
 {
+	//TODO: use mbedtls RSA
     mbedtls_mpi a, e, n, r;
     mbedtls_mpi_init(&a);
     mbedtls_mpi_init(&e);

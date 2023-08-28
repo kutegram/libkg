@@ -31,6 +31,7 @@ public:
 //TODO: send document
 //TODO: send photo
 //TODO: record PCM and convert to ogg vorbis
+//TODO: mutexes for migrations / file operations
 
 class TgClient : public QObject
 {
