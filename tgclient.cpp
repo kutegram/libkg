@@ -367,7 +367,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         break;
     case TLType::UploadFile:
     case TLType::UploadFileCdnRedirect:
-        handleUploadFile(tlDeserialize<&readTLUploadFile>(data).toMap(), messageId);
+        handleDownloadingFile(tlDeserialize<&readTLUploadFile>(data).toMap(), messageId);
         break;
     case TLType::UpdateShort:
     case TLType::Updates:

@@ -87,7 +87,7 @@ public slots:
     TgLongVariant downloadNextFilePart();
     TgLongVariant migrateFileTo(TgLongVariant messageId, TgInt dcId);
     void fileProbablyDownloaded(TgLongVariant messageId);
-    void handleUploadFile(TgObject response, TgLongVariant messageId);
+    void handleDownloadingFile(TgObject response, TgLongVariant messageId);
 
     qint64 exportAuthorization(qint32 dcId);
     qint64 importAuthorization(qint64 id, QByteArray bytes);

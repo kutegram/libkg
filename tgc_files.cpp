@@ -240,7 +240,7 @@ TgLongVariant TgClient::downloadNextFilePart()
     return mid;
 }
 
-void TgClient::handleUploadFile(TgObject response, TgLongVariant messageId)
+void TgClient::handleDownloadingFile(TgObject response, TgLongVariant messageId)
 {
     TgLong fileId = filePackets.take(messageId.toLongLong());
     TgFileCtx *ctx = processedDownloadFiles.value(fileId, NULL);
