@@ -1173,7 +1173,7 @@ void TgTransport::handleVector(QByteArray data, qint64 messageId)
 
     qint64 newUserId = user["id"].toLongLong();
 
-    if (messageId == authCheckMsgId && TgClient::_isUser(user) && newUserId) {
+    if (messageId == authCheckMsgId && TgClient::isUser(user) && newUserId) {
         userId = newUserId;
 
         saveSession();

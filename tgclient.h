@@ -104,17 +104,15 @@ public slots:
     void handleAuthorized(qint64 userId);
     void handleTFARequired();
 
-    TgObject emptyPeer();
-    TgObject selfPeer();
-    TgObject toInputPeer(TgObject obj);
-    TgLongVariant getPeerId(TgObject obj);
-    bool isUser(TgObject obj);
-    static bool _isUser(TgObject obj);
-    bool isChat(TgObject obj);
-    TgObject getDialogsOffsets(TgObject dialogs);
-    TgLongVariant commonPeerType(TgObject obj);
-    static TgLong _commonPeerType(TgObject obj);
-    bool peersEqual(TgObject peer1, TgObject peer2);
+    static TgObject emptyPeer();
+    static TgObject selfPeer();
+    static TgObject toInputPeer(TgObject obj);
+    static TgLongVariant getPeerId(TgObject obj);
+    static bool isUser(TgObject obj);
+    static bool isChat(TgObject obj);
+    static TgObject getDialogsOffsets(TgObject dialogs);
+    static TgLongVariant commonPeerType(TgObject obj);
+    static bool peersEqual(TgObject peer1, TgObject peer2);
 
     TgLongVariant helpGetCountriesList(qint32 hash = 0, QString langCode = "");
     TgLongVariant authSendCode(QString phoneNumber);

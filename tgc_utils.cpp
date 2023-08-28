@@ -127,20 +127,10 @@ bool TgClient::isChat(TgObject obj)
 
 bool TgClient::isUser(TgObject obj)
 {
-    return _isUser(obj);
-}
-
-bool TgClient::_isUser(TgObject obj)
-{
-    return _commonPeerType(obj) == TLType::User;
+    return commonPeerType(obj) == TLType::User;
 }
 
 TgLongVariant TgClient::commonPeerType(TgObject obj)
-{
-    return _commonPeerType(obj);
-}
-
-TgLong TgClient::_commonPeerType(TgObject obj)
 {
     switch (ID(obj)) {
     case InputUserEmpty:
