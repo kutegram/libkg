@@ -9,6 +9,39 @@
 #include <QSettings>
 #include <QCoreApplication>
 
+#ifdef QT_DECLARATIVE_LIB
+#include <QtDeclarative>
+
+void TgClient::registerQML()
+{
+    qmlRegisterType<TgClient>("Kutegram", 1, 0, "TgClient");
+    qmlRegisterType<TgStream>("Kutegram", 1, 0, "TgStream");
+    qmlRegisterType<TgPacket>("Kutegram", 1, 0, "TgPacket");
+    qRegisterMetaType<TelegramObject>("TelegramObject");
+    qRegisterMetaType<TgVariant>("TgVariant");
+    qRegisterMetaType<TgObject>("TgObject");
+    qRegisterMetaType<TgMap>("TgMap");
+    qRegisterMetaType<TgVector>("TgVector");
+    qRegisterMetaType<TgList>("TgList");
+    qRegisterMetaType<TgArray>("TgArray");
+    qRegisterMetaType<TgInt128>("TgInt128");
+    qRegisterMetaType<TgInt256>("TgInt256");
+    qRegisterMetaType<TgInt>("TgInt");
+    qRegisterMetaType<TgInteger>("TgInteger");
+    qRegisterMetaType<TgLong>("TgLong");
+    qRegisterMetaType<TgLongVariant>("TgLongVariant");
+    qRegisterMetaType<TgDouble>("TgDouble");
+    qRegisterMetaType<TgString>("TgString");
+    qRegisterMetaType<TgBool>("TgBool");
+    qRegisterMetaType<TgByteArray>("TgByteArray");
+}
+#else
+void TgClient::registerQML()
+{
+    kgWarning() << "QtDeclarative is not detected. Ignoring.";
+}
+#endif
+
 TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     : QObject(parent)
     , clientSessionName()

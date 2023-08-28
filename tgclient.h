@@ -124,6 +124,8 @@ public slots:
     TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
     TgLong messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, qint64 hash = 0);
 
+    static void registerQML();
+
 signals:
     void connected(bool hasUserId);
     void disconnected(bool hasUserId);
