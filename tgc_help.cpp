@@ -3,7 +3,7 @@
 #include <QStringList>
 #include "tlschema.h"
 
-TgLong TgClient::helpGetCountriesList(qint32 hash, QString langCode)
+TgLongVariant TgClient::helpGetCountriesList(qint32 hash, QString langCode)
 {
     TGOBJECT(TLType::HelpGetCountriesListMethod, method);
 

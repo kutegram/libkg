@@ -2,7 +2,7 @@
 
 #include "tlschema.h"
 
-TgLong TgClient::messagesGetDialogs(qint32 offsetDate, qint32 offsetId, TgObject offsetPeer, qint32 limit, qint32 folderId, bool excludePinned, qint64 hash)
+TgLongVariant TgClient::messagesGetDialogs(qint32 offsetDate, qint32 offsetId, TgObject offsetPeer, qint32 limit, qint32 folderId, bool excludePinned, TgLongVariant hash)
 {
     TGOBJECT(TLType::MessagesGetDialogsMethod, method);
 
@@ -17,12 +17,12 @@ TgLong TgClient::messagesGetDialogs(qint32 offsetDate, qint32 offsetId, TgObject
     return sendObject<&writeTLMethodMessagesGetDialogs>(method);
 }
 
-TgLong TgClient::messagesGetDialogsWithOffsets(TgObject offsets, qint32 limit, qint32 folderId, bool excludePinned, qint64 hash)
+TgLongVariant TgClient::messagesGetDialogsWithOffsets(TgObject offsets, qint32 limit, qint32 folderId, bool excludePinned, TgLongVariant hash)
 {
     return messagesGetDialogs(offsets["offset_date"].toInt(), offsets["offset_id"].toInt(), offsets["offset_peer"].toMap(), limit, folderId, excludePinned, hash);
 }
 
-TgLong TgClient::messagesGetHistory(TgObject inputPeer, qint32 offsetId, qint32 offsetDate, qint32 addOffset, qint32 limit, qint32 maxId, qint32 minId, qint64 hash)
+TgLongVariant TgClient::messagesGetHistory(TgObject inputPeer, qint32 offsetId, qint32 offsetDate, qint32 addOffset, qint32 limit, qint32 maxId, qint32 minId, TgLongVariant hash)
 {
     TGOBJECT(TLType::MessagesGetHistoryMethod, method);
 

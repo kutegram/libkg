@@ -53,7 +53,7 @@ TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
     download = input;
 }
 
-TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileSize, qint32 dcId, TgLong fileId)
+TgLongVariant TgClient::downloadFile(QString filePath, TgObject inputFile, TgLongVariant fileSize, qint32 dcId, TgLongVariant fileId)
 {
     //TODO: file references
     //TODO: CDN DCs
@@ -104,7 +104,7 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
         return 0;
     }
 
-    TgFileCtx *ctx = new TgFileCtx(inputFile, filePath, fileSize);
+    TgFileCtx *ctx = new TgFileCtx(inputFile, filePath, fileSize.toLongLong());
 
     if (!ctx->localFile.open(QFile::WriteOnly)) {
         delete ctx;
@@ -112,7 +112,7 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
     }
 
     if (fileId != 0) {
-        ctx->fileId = fileId;
+        ctx->fileId = fileId.toLongLong();
     }
 
     TgClient* dcClient = getClientForDc(dcId);
@@ -129,9 +129,9 @@ TgLong TgClient::downloadFile(QString filePath, TgObject inputFile, TgLong fileS
     return ctx->fileId;
 }
 
-TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
+TgLongVariant TgClient::migrateFileTo(TgLongVariant messageId, TgInt dcId)
 {
-    TgLong fileId = filePackets.take(messageId);
+    TgLong fileId = filePackets.take(messageId.toLongLong());
     TgFileCtx *ctx = processedDownloadFiles.take(fileId);
     if (ctx == NULL)
         return 0;
@@ -141,7 +141,7 @@ TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
         client = this;
     }
     ctx->localFile.close();
-    TgLong mid = client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId);
+    TgLong mid = client->downloadFile(ctx->localFile.fileName(), ctx->download, ctx->length, dcId, ctx->fileId).toLongLong();
     delete ctx;
 
     currentDownloading = 0;
@@ -149,9 +149,9 @@ TgLong TgClient::migrateFileTo(TgLong messageId, TgInt dcId)
     return mid;
 }
 
-void TgClient::fileProbablyDownloaded(TgLong messageId)
+void TgClient::fileProbablyDownloaded(TgLongVariant messageId)
 {
-    TgLong fileId = filePackets.take(messageId);
+    TgLong fileId = filePackets.take(messageId.toLongLong());
     TgFileCtx *ctx = processedDownloadFiles.take(fileId);
     if (ctx == NULL)
         return;
@@ -168,9 +168,9 @@ void TgClient::fileProbablyDownloaded(TgLong messageId)
     downloadNextFilePart();
 }
 
-void TgClient::cancelDownload(TgLong fileId)
+void TgClient::cancelDownload(TgLongVariant fileId)
 {
-    TgFileCtx *ctx = processedDownloadFiles.take(fileId);
+    TgFileCtx *ctx = processedDownloadFiles.take(fileId.toLongLong());
     if (ctx == NULL)
         return;
 
@@ -187,7 +187,7 @@ void TgClient::cancelDownload(TgLong fileId)
     downloadNextFilePart();
 }
 
-TgLong TgClient::downloadNextFilePart()
+TgLongVariant TgClient::downloadNextFilePart()
 {
     //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(FILE_PART_SIZE, length - offset))
     //TODO: get 2-3 parts in queue
@@ -240,15 +240,15 @@ TgLong TgClient::downloadNextFilePart()
     return mid;
 }
 
-void TgClient::handleUploadFile(TgObject response, TgLong messageId)
+void TgClient::handleUploadFile(TgObject response, TgLongVariant messageId)
 {
-    TgLong fileId = filePackets.take(messageId);
+    TgLong fileId = filePackets.take(messageId.toLongLong());
     TgFileCtx *ctx = processedDownloadFiles.value(fileId, NULL);
     if (ctx != NULL) {
         QByteArray bytes = response["bytes"].toByteArray();
         ctx->localFile.write(bytes);
         ctx->bytesLeft -= bytes.size();
-        ctx->queue.removeOne(messageId);
+        ctx->queue.removeOne(messageId.toLongLong());
 
         TgClient* client = isMain() ? this : static_cast<TgClient*>(parent());
         if (client == 0) {
@@ -271,7 +271,7 @@ void TgClient::handleUploadFile(TgObject response, TgLong messageId)
     downloadNextFilePart();
 }
 
-TgLong TgClient::uploadFile(QString filePath)
+TgLongVariant TgClient::uploadFile(QString filePath)
 {
     TgFileCtx *ctx = new TgFileCtx(filePath);
 
@@ -291,7 +291,7 @@ TgLong TgClient::uploadFile(QString filePath)
     return ctx->fileId;
 }
 
-TgLong TgClient::uploadNextFilePart(TgLong fileId)
+TgLongVariant TgClient::uploadNextFilePart(TgLongVariant fileId)
 {
     //TODO: seek offset and get bytes as part number (offset = partNumber * partSize, length = qMin(FILE_PART_SIZE, length - offset))
     //TODO: send 2-3 parts in queue
@@ -303,7 +303,7 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
         return 0;
     }
 
-    TgFileCtx *ctx = processedFiles.value(fileId, NULL);
+    TgFileCtx *ctx = processedFiles.value(fileId.toLongLong(), NULL);
     if (ctx == NULL)
         return 0;
 
@@ -356,9 +356,9 @@ TgLong TgClient::uploadNextFilePart(TgLong fileId)
     return mid;
 }
 
-void TgClient::cancelUpload(TgLong fileId)
+void TgClient::cancelUpload(TgLongVariant fileId)
 {
-    TgFileCtx *ctx = processedFiles.take(fileId);
+    TgFileCtx *ctx = processedFiles.take(fileId.toLongLong());
     if (ctx == NULL)
         return;
 
@@ -367,9 +367,9 @@ void TgClient::cancelUpload(TgLong fileId)
     delete ctx;
 }
 
-void TgClient::handleUploadingFile(bool response, qint64 messageId)
+void TgClient::handleUploadingFile(bool response, TgLongVariant messageId)
 {
-    TgLong fileId = filePackets.take(messageId);
+    TgLong fileId = filePackets.take(messageId.toLongLong());
 
     if (!response) {
         kgWarning() << "File upload response is false " << messageId;

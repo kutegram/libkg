@@ -71,26 +71,26 @@ public slots:
     TgInt dcId();
     bool hasSession();
     bool hasUserId();
-    TgLong getUserId();
+    TgLongVariant getUserId();
     bool isMain();
     bool isConnected();
     bool isInitialized();
     bool isAuthorized();
 
-    void cancelUpload(TgLong fileId);
-    TgLong uploadFile(QString filePath);
-    TgLong uploadNextFilePart(TgLong fileId);
-    void handleUploadingFile(bool response, TgLong messageId);
+    void cancelUpload(TgLongVariant fileId);
+    TgLongVariant uploadFile(QString filePath);
+    TgLongVariant uploadNextFilePart(TgLongVariant fileId);
+    void handleUploadingFile(bool response, TgLongVariant messageId);
 
-    void cancelDownload(TgLong fileId);
-    TgLong downloadFile(QString filePath, TgObject inputFile, TgLong fileSize = 0, qint32 dcId = 0, TgLong fileId = 0);
-    TgLong downloadNextFilePart();
-    TgLong migrateFileTo(TgLong messageId, TgInt dcId);
-    void fileProbablyDownloaded(TgLong messageId);
-    void handleUploadFile(TgObject response, TgLong messageId);
+    void cancelDownload(TgLongVariant fileId);
+    TgLongVariant downloadFile(QString filePath, TgObject inputFile, TgLongVariant fileSize = 0, TgInt dcId = 0, TgLongVariant fileId = 0);
+    TgLongVariant downloadNextFilePart();
+    TgLongVariant migrateFileTo(TgLongVariant messageId, TgInt dcId);
+    void fileProbablyDownloaded(TgLongVariant messageId);
+    void handleUploadFile(TgObject response, TgLongVariant messageId);
 
-    TgLong exportAuthorization(qint32 dcId);
-    TgLong importAuthorization(qint64 id, QByteArray bytes);
+    qint64 exportAuthorization(qint32 dcId);
+    qint64 importAuthorization(qint64 id, QByteArray bytes);
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleBool(bool response, qint64 messageId);
@@ -107,22 +107,22 @@ public slots:
     TgObject emptyPeer();
     TgObject selfPeer();
     TgObject toInputPeer(TgObject obj);
-    TgLong getPeerId(TgObject obj);
+    TgLongVariant getPeerId(TgObject obj);
     bool isUser(TgObject obj);
     static bool _isUser(TgObject obj);
     bool isChat(TgObject obj);
     TgObject getDialogsOffsets(TgObject dialogs);
-    TgLong commonPeerType(TgObject obj);
+    TgLongVariant commonPeerType(TgObject obj);
     static TgLong _commonPeerType(TgObject obj);
     bool peersEqual(TgObject peer1, TgObject peer2);
 
-    TgLong helpGetCountriesList(qint32 hash = 0, QString langCode = "");
-    TgLong authSendCode(QString phoneNumber);
-    TgLong authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
-    TgLong messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
-    TgLong messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, qint64 hash = 0);
-    TgLong authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
-    TgLong messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, qint64 hash = 0);
+    TgLongVariant helpGetCountriesList(qint32 hash = 0, QString langCode = "");
+    TgLongVariant authSendCode(QString phoneNumber);
+    TgLongVariant authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode);
+    TgLongVariant messagesGetDialogs(qint32 offsetDate = 0, qint32 offsetId = 0, TgObject offsetPeer = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, TgLongVariant hash = 0);
+    TgLongVariant messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, TgLongVariant hash = 0);
+    TgLongVariant authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
+    TgLongVariant messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, TgLongVariant hash = 0);
 
     static void registerQML();
 
@@ -130,29 +130,29 @@ signals:
     void connected(bool hasUserId);
     void disconnected(bool hasUserId);
     void initialized(bool hasUserId);
-    void rpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
-    void authorized(qint64 userId);
+    void rpcError(qint32 errorCode, QString errorMessage, TgLongVariant messageId);
+    void authorized(TgLongVariant userId);
     void tfaRequired();
 
-    void fileDownloading(qint64 fileId, qint64 downloadedLength, qint64 totalLength);
-    void fileDownloaded(qint64 fileId, QString filePath);
-    void fileDownloadCanceled(qint64 fileId, QString filePath);
+    void fileDownloading(TgLongVariant fileId, TgLongVariant downloadedLength, TgLongVariant totalLength);
+    void fileDownloaded(TgLongVariant fileId, QString filePath);
+    void fileDownloadCanceled(TgLongVariant fileId, QString filePath);
 
-    void fileUploading(qint64 fileId, qint64 uploadedLength, qint64 totalLength);
-    void fileUploaded(qint64 fileId, TgObject inputFile);
-    void fileUploadCanceled(qint64 fileId);
+    void fileUploading(TgLongVariant fileId, TgLongVariant uploadedLength, TgLongVariant totalLength);
+    void fileUploaded(TgLongVariant fileId, TgObject inputFile);
+    void fileUploadCanceled(TgLongVariant fileId);
 
-    void messageChanged(qint64 oldMsg, qint64 newMsg);
+    void messageChanged(TgLongVariant oldMsg, TgLongVariant newMsg);
 
     //TODO: rename to objects types
-    void helpGetCountriesListResponse(TgObject data, TgLong messageId);
-    void authSendCodeResponse(TgObject data, TgLong messageId);
-    void authSignInResponse(TgObject data, TgLong messageId);
-    void messagesGetDialogsResponse(TgObject data, TgLong messageId);
-    void messagesGetHistoryResponse(TgObject data, TgLong messageId);
+    void helpGetCountriesListResponse(TgObject data, TgLongVariant messageId);
+    void authSendCodeResponse(TgObject data, TgLongVariant messageId);
+    void authSignInResponse(TgObject data, TgLongVariant messageId);
+    void messagesGetDialogsResponse(TgObject data, TgLongVariant messageId);
+    void messagesGetHistoryResponse(TgObject data, TgLongVariant messageId);
 
-    void boolResponse(bool response, qint64 messageId);
-    void unknownResponse(qint32 conId, QByteArray data, qint64 messageId);
+    void boolResponse(bool response, TgLongVariant messageId);
+    void unknownResponse(qint32 conId, QByteArray data, TgLongVariant messageId);
 };
 
 template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)

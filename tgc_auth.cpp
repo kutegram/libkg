@@ -3,7 +3,7 @@
 #include "apisecrets.h"
 #include "tlschema.h"
 
-TgLong TgClient::authSendCode(QString phoneNumber)
+TgLongVariant TgClient::authSendCode(QString phoneNumber)
 {
     TGOBJECT(TLType::AuthSendCodeMethod, method);
 
@@ -27,7 +27,7 @@ TgLong TgClient::authSendCode(QString phoneNumber)
     return sendObject<&writeTLMethodAuthSendCode>(method);
 }
 
-TgLong TgClient::authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode)
+TgLongVariant TgClient::authSignIn(QString phoneNumber, QString phoneCodeHash, QString phoneCode)
 {
     TGOBJECT(TLType::AuthSignInMethod, method);
 
@@ -38,7 +38,7 @@ TgLong TgClient::authSignIn(QString phoneNumber, QString phoneCodeHash, QString 
     return sendObject<&writeTLMethodAuthSignIn>(method);
 }
 
-TgLong TgClient::authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName)
+TgLongVariant TgClient::authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName)
 {
     TGOBJECT(TLType::AuthSignUpMethod, method);
 

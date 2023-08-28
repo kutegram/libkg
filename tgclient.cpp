@@ -192,7 +192,7 @@ bool TgClient::hasUserId()
     return _transport->hasUserId();
 }
 
-TgLong TgClient::getUserId()
+TgLongVariant TgClient::getUserId()
 {
     return _transport->getUserId();
 }

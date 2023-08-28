@@ -115,7 +115,7 @@ TgVariant getPeerIdVariant(TgObject obj)
     }
 }
 
-TgLong TgClient::getPeerId(TgObject obj)
+TgLongVariant TgClient::getPeerId(TgObject obj)
 {
     return getPeerIdVariant(obj).toLongLong();
 }
@@ -135,7 +135,7 @@ bool TgClient::_isUser(TgObject obj)
     return _commonPeerType(obj) == TLType::User;
 }
 
-TgLong TgClient::commonPeerType(TgObject obj)
+TgLongVariant TgClient::commonPeerType(TgObject obj)
 {
     return _commonPeerType(obj);
 }
