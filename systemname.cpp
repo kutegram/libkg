@@ -7,27 +7,29 @@ QString systemName()
 #elif defined(Q_OS_SYMBIAN)
     switch (QSysInfo::symbianVersion()) {
     case QSysInfo::SV_9_2:
-        return "Symbian OS v9.2";
+        return "Symbian 9.2";
     case QSysInfo::SV_9_3:
-        return "Symbian OS v9.3";
+        return "Symbian 9.3";
     case QSysInfo::SV_9_4:
-        return "Symbian OS v9.4";
+        return "Symbian 9.4";
     case QSysInfo::SV_SF_2:
         return "Symbian^2";
     case QSysInfo::SV_SF_3:
-        return "Symbian^3";
+        return "Symbian Anna";
+    case 70:
+        return "Symbian Belle";
     case QSysInfo::SV_SF_4:
         return "Symbian^4";
     default:
         return "Symbian";
     }
 #elif defined(Q_OS_BLACKBERRY)
-    return "Blackberry OS";
+    return "BlackBerry OS";
 #elif defined(Q_OS_IOS)
     return "iOS";
 #elif defined(Q_OS_MACOS)
     //TODO: QSysInfo version
-    return "macOS";
+    return "Mac OS X";
 #elif defined(Q_OS_WIN)
     switch (QSysInfo::windowsVersion()) {
     case QSysInfo::WV_32s:
