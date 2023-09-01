@@ -27,9 +27,7 @@ public:
     TgObject download;
 };
 
-//TODO: send message
-//TODO: send document
-//TODO: send photo
+//TODO: research behavior of upload / download with disconnecting
 //TODO: record PCM and convert to ogg vorbis
 //TODO: mutexes for migrations / file operations
 

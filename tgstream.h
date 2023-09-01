@@ -84,12 +84,12 @@ void readRawBytes(TelegramStream& stream, QByteArray &i, qint32 count);
 void skipRawBytes(TelegramStream& stream, qint32 count);
 void writeRawBytes(TelegramStream& stream, QByteArray i);
 
-#define TGOBJECT(id, name) \
-    TgObject name;  \
-    name["_"] = id;
-
 #define ID_PROPERTY(name) \
     name["_"]
+
+#define TGOBJECT(id, name) \
+    TgObject name;  \
+    ID_PROPERTY(name) = id;
 
 #define ID(name) \
     ID_PROPERTY(name).toInt()
