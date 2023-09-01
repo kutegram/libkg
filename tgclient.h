@@ -140,7 +140,7 @@ signals:
     void fileDownloaded(TgLongVariant fileId, QString filePath);
     void fileDownloadCanceled(TgLongVariant fileId, QString filePath);
 
-    void fileUploading(TgLongVariant fileId, TgLongVariant uploadedLength, TgLongVariant totalLength);
+    void fileUploading(TgLongVariant fileId, TgLongVariant uploadedLength, TgLongVariant totalLength, qint32 downloadProgress);
     void fileUploaded(TgLongVariant fileId, TgObject inputFile);
     void fileUploadCanceled(TgLongVariant fileId);
 
