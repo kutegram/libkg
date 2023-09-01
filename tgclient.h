@@ -7,7 +7,6 @@
 #include "crypto.h"
 #include <QLinkedList>
 #include <QDir>
-#include <mbedtls/md5.h>
 
 class TgFileCtx
 {
@@ -17,7 +16,6 @@ public:
 
     TgLong fileId;
     QFile localFile;
-    mbedtls_md5_context digest;
     qint64 length;
     qint64 bytesLeft;
     qint32 fileParts;

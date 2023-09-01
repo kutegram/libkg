@@ -328,8 +328,6 @@ void TgClient::handleRpcError(qint32 errorCode, QString errorMessage, qint64 mes
         return;
     }
 
-    kgWarning() << "RPC:" << errorCode << ":" << errorMessage;
-
     emit rpcError(errorCode, errorMessage, messageId);
 }
 

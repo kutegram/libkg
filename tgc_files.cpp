@@ -1,15 +1,14 @@
 #include "tgclient.h"
 
 #include <QtEndian>
-#include "tlschema.h"
 #include <QFileInfo>
+#include "tlschema.h"
 
 #define FILE_PART_SIZE 524288
 
 TgFileCtx::TgFileCtx(QString fileName)
     : fileId()
     , localFile()
-    , digest()
     , length()
     , bytesLeft()
     , fileParts()
@@ -20,8 +19,6 @@ TgFileCtx::TgFileCtx(QString fileName)
 {
     fileId = randomLong();
     localFile.setFileName(fileName);
-    mbedtls_md5_init(&digest);
-    mbedtls_md5_starts(&digest);
     length = localFile.size();
     bytesLeft = length;
     fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
@@ -32,7 +29,6 @@ TgFileCtx::TgFileCtx(QString fileName)
 TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
     : fileId()
     , localFile()
-    , digest()
     , length()
     , bytesLeft()
     , fileParts()
@@ -43,8 +39,6 @@ TgFileCtx::TgFileCtx(TgObject input, QString fileName, TgLong fileSize)
 {
     fileId = randomLong();
     localFile.setFileName(fileName);
-    mbedtls_md5_init(&digest);
-    mbedtls_md5_starts(&digest);
     length = fileSize;
     bytesLeft = length;
     fileParts = (qint32) ((length - 1) / FILE_PART_SIZE) + 1; //512 KiB
@@ -316,13 +310,6 @@ TgLongVariant TgClient::uploadNextFilePart(TgLongVariant fileId)
         inputFile["parts"] = ctx->fileParts;
         inputFile["name"] = QFileInfo(ctx->localFile).fileName();
 
-        if (!ctx->isBig) {
-            QByteArray md5Hash;
-            md5Hash.resize(16);
-            mbedtls_md5_finish(&(ctx->digest), (unsigned char*) md5Hash.data());
-            inputFile["md5_checksum"] = md5Hash;
-        }
-
         processedFiles.remove(ctx->fileId);
         delete ctx;
 
@@ -333,9 +320,6 @@ TgLongVariant TgClient::uploadNextFilePart(TgLongVariant fileId)
 
     QByteArray fileBytes = readFully(ctx->localFile, qMin((qint64) FILE_PART_SIZE, ctx->bytesLeft));
     ctx->bytesLeft -= fileBytes.size();
-
-    if (!ctx->isBig)
-        mbedtls_md5_update(&(ctx->digest), (const unsigned char*) fileBytes.constData(), fileBytes.size());
 
     TGOBJECT(ctx->isBig ? TLType::UploadSaveBigFilePartMethod : TLType::UploadSaveFilePartMethod, saveFile);
     saveFile["file_id"] = ctx->fileId;
