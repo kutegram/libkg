@@ -802,7 +802,7 @@ void TgTransport::initConnection()
     TGOBJECT(TLType::InitConnectionMethod, initConnection);
 
     initConnection["api_id"] = KUTEGRAM_API_ID;
-    initConnection["device_model"] = systemName() + "-based device";
+    initConnection["device_model"] = QString(systemName() + "-based device");
     initConnection["system_version"] = systemName();
     QString appVersion = QCoreApplication::applicationVersion();
     if (appVersion.isEmpty())
