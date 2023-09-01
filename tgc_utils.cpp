@@ -132,16 +132,7 @@ bool TgClient::isUser(TgObject obj)
 
 bool TgClient::isChannel(TgObject obj)
 {
-    switch (ID(obj)) {
-    case Channel:
-    case ChannelForbidden:
-    case PeerChannel:
-    case InputPeerChannel:
-    case InputPeerChannelFromMessage:
-        return true;
-    default:
-        return false;
-    }
+    return obj["broadcast"].toBool();
 }
 
 TgLongVariant TgClient::commonPeerType(TgObject obj)
