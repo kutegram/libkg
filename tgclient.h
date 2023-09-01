@@ -105,8 +105,8 @@ public slots:
     void handleAuthorized(qint64 userId);
     void handleTFARequired();
 
-    static TgObject emptyPeer();
-    static TgObject selfPeer();
+    static TgObject emptyInputPeer();
+    static TgObject selfInputPeer();
     static TgObject toInputPeer(TgObject obj);
     static TgLongVariant getPeerId(TgObject obj);
     static bool isUser(TgObject obj);
@@ -123,6 +123,8 @@ public slots:
     TgLongVariant messagesGetDialogsWithOffsets(TgObject offsets = TgObject(), qint32 limit = 20, qint32 folderId = 0, bool excludePinned = false, TgLongVariant hash = 0);
     TgLongVariant authSignUp(QString phoneNumber, QString phoneCodeHash, QString firstName, QString lastName = "");
     TgLongVariant messagesGetHistory(TgObject inputPeer, qint32 offsetId = 0, qint32 offsetDate = 0, qint32 addOffset = 0, qint32 limit = 20, qint32 maxId = 0, qint32 minId = 0, TgLongVariant hash = 0);
+    TgLongVariant messagesSendMessage(TgObject inputPeer, QString message, TgObject media = TgObject(), TgLongVariant randomId = randomLong());
+    TgLongVariant messagesSendMedia(TgObject inputPeer, TgObject media, QString message = "", TgLongVariant randomId = randomLong());
 
     static void registerQML();
 

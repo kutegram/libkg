@@ -10,7 +10,7 @@ TgLongVariant TgClient::messagesGetDialogs(qint32 offsetDate, qint32 offsetId, T
     method["folder_id"] = folderId == 1 ? 1 : 0;
     method["offset_date"] = offsetDate;
     method["offset_id"] = offsetId;
-    method["offset_peer"] = GETID(offsetPeer) == 0 ? emptyPeer() : offsetPeer;
+    method["offset_peer"] = toInputPeer(offsetPeer);
     method["limit"] = limit;
     method["hash"] = hash;
 
@@ -36,4 +36,25 @@ TgLongVariant TgClient::messagesGetHistory(TgObject inputPeer, qint32 offsetId, 
     method["hash"] = hash;
 
     return sendObject<&writeTLMethodMessagesGetHistory>(method);
+}
+
+TgLongVariant TgClient::messagesSendMessage(TgObject inputPeer, QString message, TgObject media, TgLongVariant randomId)
+{
+    TGOBJECT(GETID(media) != 0 ? TLType::MessagesSendMediaMethod : TLType::MessagesSendMessageMethod, method);
+
+    method["peer"] = toInputPeer(inputPeer);
+    method["message"] = message;
+    method["media"] = media;
+    method["random_id"] = randomId;
+
+    if (GETID(media) != 0) {
+        return sendObject<&writeTLMethodMessagesSendMedia>(method);
+    } else {
+        return sendObject<&writeTLMethodMessagesSendMessage>(method);
+    }
+}
+
+TgLongVariant TgClient::messagesSendMedia(TgObject inputPeer, TgObject media, QString message, TgLongVariant randomId)
+{
+    return messagesSendMessage(inputPeer, message, media, randomId);
 }

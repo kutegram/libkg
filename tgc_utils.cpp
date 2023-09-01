@@ -4,13 +4,13 @@
 
 using namespace TLType;
 
-TgObject TgClient::emptyPeer()
+TgObject TgClient::emptyInputPeer()
 {
     TGOBJECT(InputPeerEmpty, peer);
     return peer;
 }
 
-TgObject TgClient::selfPeer()
+TgObject TgClient::selfInputPeer()
 {
     TGOBJECT(InputPeerSelf, peer);
     return peer;
