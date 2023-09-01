@@ -266,8 +266,8 @@ void TgClient::handleDownloadingFile(TgObject response, TgLongVariant messageId)
             return;
         }
         else  {
-            qint32 processed = ctx->length - ctx->bytesLeft;
-            emit client->fileDownloading(ctx->fileId, processed, ctx->length, processed * 100 / ctx->length);
+            qint64 processed = ctx->length - ctx->bytesLeft;
+            emit client->fileDownloading(ctx->fileId, processed, ctx->length, (qint32) (processed * 100 / ctx->length));
         }
     }
 
@@ -354,8 +354,8 @@ TgLongVariant TgClient::uploadNextFilePart(TgLongVariant fileId)
     ctx->queue << mid;
     filePackets.insert(mid, ctx->fileId);
 
-    qint32 processed = qMin(ctx->length, saveFile["file_part"].toInt() * (qint64) FILE_PART_SIZE);
-    emit fileUploading(saveFile["file_id"].toLongLong(), processed, ctx->length, processed * 100 / ctx->length);
+    qint64 processed = qMin(ctx->length, saveFile["file_part"].toInt() * (qint64) FILE_PART_SIZE);
+    emit fileUploading(saveFile["file_id"].toLongLong(), processed, ctx->length, (qint32) (processed * 100 / ctx->length));
 
     return mid;
 }
