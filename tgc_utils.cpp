@@ -130,6 +130,20 @@ bool TgClient::isUser(TgObject obj)
     return commonPeerType(obj) == TLType::User;
 }
 
+bool TgClient::isChannel(TgObject obj)
+{
+    switch (ID(obj)) {
+    case Channel:
+    case ChannelForbidden:
+    case PeerChannel:
+    case InputPeerChannel:
+    case InputPeerChannelFromMessage:
+        return true;
+    default:
+        return false;
+    }
+}
+
 TgLongVariant TgClient::commonPeerType(TgObject obj)
 {
     switch (ID(obj)) {
