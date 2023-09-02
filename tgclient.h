@@ -95,6 +95,7 @@ public slots:
     void handleMessageChanged(qint64 oldMsg, qint64 newMsg);
 
     void handleConnected();
+    void handleSocketError(qint32 errorCode, QString errorMessage);
     void handleDisconnected();
     void handleInitialized();
     void handleRpcError(qint32 errorCode, QString errorMessage, qint64 messageId);
@@ -126,6 +127,7 @@ public slots:
 
 signals:
     void connected(bool hasUserId);
+    void socketError(qint32 errorCode, QString errorMessage);
     void disconnected(bool hasUserId);
     void initialized(bool hasUserId);
     void rpcError(qint32 errorCode, QString errorMessage, TgLongVariant messageId);

@@ -231,6 +231,11 @@ bool TgClient::isAuthorized()
     return _connected && _initialized && _authorized;
 }
 
+void TgClient::handleSocketError(qint32 errorCode, QString errorMessage)
+{
+    emit socketError(errorCode, errorMessage);
+}
+
 void TgClient::handleDisconnected()
 {
     kgDebug() << "Client disconnected";

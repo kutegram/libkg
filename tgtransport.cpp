@@ -305,7 +305,9 @@ void TgTransport::stop(bool sendMsgsAckBool)
 
 void TgTransport::_error(QAbstractSocket::SocketError socketError)
 {
-    kgDebug() << "Socket errored:" << socketError;
+    kgDebug() << "Socket errored:" << socketError << "/" << _socket->errorString();
+
+    _client->handleSocketError(socketError, _socket->errorString());
 }
 
 void TgTransport::_connected()
