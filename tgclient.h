@@ -25,7 +25,7 @@ public:
     TgObject download;
 };
 
-//TODO: research behavior of upload / download with disconnecting
+//TODO: research behavior of upload / download with disconnecting and session change
 //TODO: record PCM and convert to ogg vorbis
 //TODO: mutexes for migrations / file operations
 

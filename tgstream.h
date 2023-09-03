@@ -97,6 +97,12 @@ void writeRawBytes(TelegramStream& stream, QByteArray i);
 #define GETID(name) \
     ID(name)
 
+#define EMPTY(name) \
+    (ID(name) == 0)
+
+#define EXISTS(name) \
+    (ID(name) != 0)
+
 #define INT32_BYTES 4
 #define INT64_BYTES 8
 #define INT128_BYTES 16
