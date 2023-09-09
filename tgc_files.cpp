@@ -360,7 +360,7 @@ void TgClient::handleUploadingFile(bool response, TgLongVariant messageId)
     TgLong fileId = filePackets.take(messageId.toLongLong());
 
     if (!response) {
-        kgWarning() << "File upload response is false " << messageId;
+        kgWarning() << "File upload response is false " << messageId.toLongLong();
         cancelUpload(fileId);
         return;
     }
