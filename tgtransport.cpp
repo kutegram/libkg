@@ -307,6 +307,8 @@ void TgTransport::_error(QAbstractSocket::SocketError socketError)
 {
     kgDebug() << "Socket errored:" << socketError << "/" << _socket->errorString();
 
+    _disconnected();
+
     _client->handleSocketError(socketError, _socket->errorString());
 }
 
