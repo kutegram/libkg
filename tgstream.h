@@ -141,5 +141,7 @@ template <READ_METHOD R> TgVector tlVDeserialize(QByteArray array)
 }
 
 QByteArray readFully(QIODevice &socket, qint32 length);
+QByteArray qSerialize(QVariant obj);
+QVariant qDeserialize(QByteArray array);
 
 #endif // TELEGRAMSTREAM_H

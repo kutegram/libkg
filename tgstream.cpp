@@ -282,3 +282,21 @@ QByteArray readFully(QIODevice &socket, qint32 length)
 
     return buffer;
 }
+
+QByteArray qSerialize(QVariant obj)
+{
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+    stream << obj;
+
+    return array;
+}
+
+QVariant qDeserialize(QByteArray array)
+{
+    QVariant obj;
+    QDataStream stream(&array, QIODevice::ReadOnly);
+    stream >> obj;
+
+    return obj;
+}
