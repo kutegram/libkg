@@ -350,7 +350,11 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     readInt32(packet, var);
     qint32 conId = var.toInt();
 
+    //TODO: dynamic object schema ID determining for read/write
     switch (conId) {
+    case TLType::Vector:
+        handleVector(data, messageId);
+        break;
     case TLType::HelpCountriesList:
     case TLType::HelpCountriesListNotModified:
         emit helpGetCountriesListResponse(tlDeserialize<&readTLHelpCountriesList>(data).toMap(), messageId);
@@ -395,6 +399,33 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     default:
         kgDebug() << "UNHANDLED object:" << conId;
         emit unknownResponse(conId, data, messageId);
+        break;
+    }
+}
+
+void TgClient::handleVector(QByteArray data, qint64 messageId)
+{
+    TgPacket packet(data);
+    TgVariant var;
+
+    readInt32(packet, var);
+    readInt32(packet, var);
+
+    if (var.toInt() <= 0) {
+        emit unknownResponse(TLType::Vector, data, messageId);
+        return;
+    }
+
+    readInt32(packet, var);
+
+    qint32 conId = var.toInt();
+    switch (conId) {
+    case TLType::DialogFilter:
+        emit messagesGetDialogFiltersResponse(tlVDeserialize<&readTLDialogFilter>(data), messageId);
+        break;
+    default:
+        kgDebug() << "UNHANDLED vector of objects:" << conId;
+        emit unknownResponse(TLType::Vector, data, messageId);
         break;
     }
 }

@@ -58,3 +58,10 @@ TgLongVariant TgClient::messagesSendMedia(TgObject inputPeer, TgObject media, QS
 {
     return messagesSendMessage(inputPeer, message, media, randomId);
 }
+
+TgLongVariant TgClient::messagesGetDialogFilters()
+{
+    TGOBJECT(TLType::MessagesGetDialogFiltersMethod, method);
+
+    return sendObject<&writeTLMethodMessagesGetDialogFilters>(method);
+}

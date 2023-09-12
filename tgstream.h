@@ -49,6 +49,7 @@ typedef QString TgString;
 typedef bool TgBool;
 typedef QByteArray TgByteArray;
 
+//TODO: replace void* with READ_METHOD and WRITE_METHOD respectively
 typedef void (*WRITE_METHOD)(TelegramStream&, QVariant, void*);
 typedef void (*READ_METHOD)(TelegramStream&, QVariant&, void*);
 
@@ -114,19 +115,29 @@ void writeRawBytes(TelegramStream& stream, QByteArray i);
 #define BOOL_TRUE -1720552011
 #define BOOL_FALSE -1132882121
 
-template <WRITE_METHOD W> QByteArray tlSerialize(QVariant obj)
+template <WRITE_METHOD W> QByteArray tlSerialize(QVariant obj, void* callback = 0)
 {
     TgPacket packet;
-    (*W)(packet, obj, 0);
+    (*W)(packet, obj, callback);
     return packet.toByteArray();
 }
 
-template <READ_METHOD R> QVariant tlDeserialize(QByteArray array)
+template <READ_METHOD R> QVariant tlDeserialize(QByteArray array, void* callback = 0)
 {
     TgVariant obj;
     TgPacket packet(array);
-    (*R)(packet, obj, 0);
+    (*R)(packet, obj, callback);
     return obj;
+}
+
+template <WRITE_METHOD W> QByteArray tlVSerialize(TgVector obj)
+{
+    return tlSerialize<&writeVector>(obj, (void*) W);
+}
+
+template <READ_METHOD R> TgVector tlVDeserialize(QByteArray array)
+{
+    return tlDeserialize<&readVector>(array, (void*) R).toList();
 }
 
 QByteArray readFully(QIODevice &socket, qint32 length);

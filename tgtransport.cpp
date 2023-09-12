@@ -1187,7 +1187,7 @@ void TgTransport::handleVector(QByteArray data, qint64 messageId)
 //    else if (GETID(user) != 0 && isUser(user))
 //        kgDebug() << "Got user vector, msgsIds:" << messageId << authCheckMsgId;
 
-    _client->handleObject(data, messageId);
+    _client->handleVector(data, messageId);
 }
 
 void TgTransport::handleAuthorization(QByteArray data, qint64 messageId)
