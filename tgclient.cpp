@@ -423,6 +423,10 @@ void TgClient::handleVector(QByteArray data, qint64 messageId)
     case TLType::DialogFilter:
         emit messagesGetDialogFiltersResponse(tlVDeserialize<&readTLDialogFilter>(data), messageId);
         break;
+    case TLType::User:
+    case TLType::UserEmpty:
+        emit usersGetUsersResponse(tlVDeserialize<&readTLUser>(data), messageId);
+        break;
     default:
         kgDebug() << "UNHANDLED vector of objects:" << conId;
         emit unknownResponse(TLType::Vector, data, messageId);

@@ -1151,6 +1151,7 @@ void TgTransport::checkAuthorization()
 
     kgDebug() << "Checking authorzation";
 
+    //TODO: use TgClient for that or abstract this method somehow
     TGOBJECT(TLType::UsersGetUsersMethod, getUsers);
     TGOBJECT(TLType::InputUserSelf, self);
     TgList ids;

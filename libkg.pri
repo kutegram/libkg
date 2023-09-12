@@ -29,6 +29,7 @@ SOURCES += \
     $$PWD/tgc_help.cpp \
     $$PWD/tgc_messages.cpp \
     $$PWD/tgc_utils.cpp \
-    $$PWD/tgc_files.cpp
+    $$PWD/tgc_files.cpp \
+    $$PWD/tgc_users.cpp
 
 INCLUDEPATH += $$PWD

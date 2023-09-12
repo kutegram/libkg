@@ -91,6 +91,7 @@ public slots:
 
     void handleObject(QByteArray data, qint64 messageId);
     void handleVector(QByteArray data, qint64 messageId);
+
     void handleBool(bool response, qint64 messageId);
 
     void handleMessageChanged(qint64 oldMsg, qint64 newMsg);
@@ -124,6 +125,7 @@ public slots:
     TgLongVariant messagesSendMessage(TgObject inputPeer, QString message, TgObject media = TgObject(), TgLongVariant randomId = randomLong());
     TgLongVariant messagesSendMedia(TgObject inputPeer, TgObject media, QString message = "", TgLongVariant randomId = randomLong());
     TgLongVariant messagesGetDialogFilters();
+    TgLongVariant usersGetUsers(TgVector users = TgList());
 
     static void registerQML();
 
@@ -152,7 +154,9 @@ signals:
     void authSignInResponse(TgObject data, TgLongVariant messageId);
     void messagesGetDialogsResponse(TgObject data, TgLongVariant messageId);
     void messagesGetHistoryResponse(TgObject data, TgLongVariant messageId);
+
     void messagesGetDialogFiltersResponse(TgVector data, TgLongVariant messageId);
+    void usersGetUsersResponse(TgVector data, TgLongVariant messageId);
 
     void boolResponse(bool response, TgLongVariant messageId);
     void unknownResponse(qint32 conId, QByteArray data, TgLongVariant messageId);
