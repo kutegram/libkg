@@ -421,6 +421,8 @@ void TgClient::handleVector(QByteArray data, qint64 messageId)
     qint32 conId = var.toInt();
     switch (conId) {
     case TLType::DialogFilter:
+    case TLType::DialogFilterDefault:
+    case TLType::DialogFilterChatlist:
         emit messagesGetDialogFiltersResponse(tlVDeserialize<&readTLDialogFilter>(data), messageId);
         break;
     case TLType::User:

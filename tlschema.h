@@ -5,7 +5,7 @@
 
 #include "tgstream.h"
 
-#define API_LAYER 152
+#define API_LAYER 158
 
 namespace TLType {
 enum Types
@@ -102,7 +102,7 @@ enum Types
     InputReportReasonPornography = 777640226,
     InputReportReasonChildAbuse = -1376497949,
     InputReportReasonOther = -1041980751,
-    UserFull = -120378643,
+    UserFull = -1813324973,
     Contact = 341499403,
     ImportedContact = -1052885936,
     ContactStatus = 383348795,
@@ -148,7 +148,7 @@ enum Types
     PhotosPhoto = 539045032,
     UploadFile = 157948117,
     DcOption = 414687501,
-    Config = 589653676,
+    Config = -870702050,
     NearestDc = -1910892683,
     HelpAppUpdate = -860107216,
     HelpNoAppUpdate = -1000708810,
@@ -335,7 +335,7 @@ enum Types
     BotInlineMessageMediaAuto = 1984755728,
     BotInlineMessageText = -1937807902,
     BotInlineResult = 295067450,
-    MessagesBotResults = -1803769784,
+    MessagesBotResults = -534646026,
     UpdateBotInlineQuery = 1232025500,
     UpdateBotInlineSend = 317794823,
     InputMessagesFilterVoice = 1358283666,
@@ -357,7 +357,7 @@ enum Types
     KeyboardButtonCallback = 901503851,
     KeyboardButtonRequestPhone = -1318425559,
     KeyboardButtonRequestGeoLocation = -59151553,
-    KeyboardButtonSwitchInline = 90744648,
+    KeyboardButtonSwitchInline = -1816527947,
     ReplyInlineMarkup = 1218642516,
     MessagesBotCallbackAnswer = 911761060,
     UpdateBotCallbackQuery = -1177566067,
@@ -496,7 +496,7 @@ enum Types
     ShippingOption = -1239335713,
     UpdateBotShippingQuery = -1246823043,
     UpdateBotPrecheckoutQuery = -1934976362,
-    InputStickerSetItem = -6249322,
+    InputStickerSetItem = 853188252,
     UpdatePhoneCall = -1425052898,
     InputPhoneCall = 506920429,
     PhoneCallEmpty = 1399245077,
@@ -583,7 +583,7 @@ enum Types
     InputMessagePinned = -2037963464,
     MessageEntityPhone = -1687559349,
     MessageEntityCashtag = 1280209983,
-    MessageActionBotAllowed = -1410748418,
+    MessageActionBotAllowed = -988359047,
     InputDialogPeer = -55902537,
     DialogPeer = -445792507,
     MessagesFoundStickerSetsNotModified = 223655517,
@@ -897,7 +897,7 @@ enum Types
     MessagesChatInviteImporters = -2118733814,
     ChatAdminWithInvites = -219353309,
     MessagesChatAdminsWithInvites = -1231326505,
-    ChannelAdminLogEventActionParticipantJoinByInvite = 1557846647,
+    ChannelAdminLogEventActionParticipantJoinByInvite = -23084712,
     ChannelAdminLogEventActionExportedInviteDelete = 1515256996,
     ChannelAdminLogEventActionExportedInviteRevoke = 1091179342,
     ChannelAdminLogEventActionExportedInviteEdit = -384910503,
@@ -927,7 +927,7 @@ enum Types
     UpdateBotCommands = 1299263278,
     MessageActionSetChatTheme = -1434950843,
     SendMessageChooseStickerAction = -1336228175,
-    SponsoredMessage = 981691896,
+    SponsoredMessage = -64636888,
     MessagesSponsoredMessages = -907141753,
     InputStickerSetAnimatedEmojiAnimations = 215889721,
     SendMessageEmojiInteraction = 630664139,
@@ -961,7 +961,7 @@ enum Types
     MessagesAvailableReactions = 1989032621,
     MessageEntitySpoiler = 852137487,
     ChannelAdminLogEventActionChangeAvailableReactions = -1102180616,
-    MessagePeerReaction = -1319698788,
+    MessagePeerReaction = -1938180548,
     GroupCallStreamChannel = -2132064081,
     PhoneGroupCallStreamChannels = -790330702,
     InputReportReasonIllegalDrugs = 177124030,
@@ -1013,7 +1013,7 @@ enum Types
     StickerSetFullCovered = 1087454222,
     InputStorePaymentPremiumSubscription = -1502273946,
     InputStorePaymentGiftPremium = 1634697192,
-    MessageActionGiftPremium = -1415514682,
+    MessageActionGiftPremium = -935499028,
     PremiumGiftOption = 1958953753,
     InputStickerSetPremiumGifts = -930399486,
     UpdateReadFeaturedEmojiStickers = -78886548,
@@ -1038,7 +1038,7 @@ enum Types
     MessagesReactions = -352454890,
     UpdateRecentReactions = 1870160884,
     UpdateMoveStickerSetToTop = -2030252155,
-    AuthSentCodeTypeEmailCode = 1511364673,
+    AuthSentCodeTypeEmailCode = -196020837,
     AuthSentCodeTypeSetUpEmailRequired = -1521934870,
     EmailVerifyPurposeLoginSetup = 1128644211,
     EmailVerifyPurposeLoginChange = 1383932651,
@@ -1080,7 +1080,6 @@ enum Types
     ExportedContactToken = 1103040667,
     ChannelAdminLogEventActionToggleAntiSpam = 1693675004,
     MessageActionSuggestProfilePhoto = 1474192222,
-    MessageActionAttachMenuBotAllowed = -404267113,
     StickerSetNoCovered = 2008112412,
     UpdateUser = 542282808,
     AuthSentCodeSuccess = 596704836,
@@ -1103,6 +1102,29 @@ enum Types
     AutoSaveException = -2124403385,
     AccountAutoSaveSettings = 1279133341,
     UpdateAutoSaveSettings = -335171433,
+    HelpAppConfigNotModified = 2094949405,
+    HelpAppConfig = -585598930,
+    InputBotAppID = -1457472134,
+    InputBotAppShortName = -1869872121,
+    BotAppNotModified = 1571189943,
+    BotApp = -1778593322,
+    MessagesBotApp = -347034123,
+    AppWebViewResultUrl = 1008422669,
+    InlineBotWebView = -1250781739,
+    ReadParticipantDate = 1246753138,
+    UpdateGroupInvitePrivacyForbidden = -856651050,
+    DialogFilterChatlist = -699792216,
+    InputChatlistDialogFilter = -203367885,
+    ExportedChatlistInvite = 206668204,
+    ChatlistsExportedChatlistInvite = 283567014,
+    ChatlistsExportedInvites = 279670215,
+    ChatlistsChatlistInviteAlready = -91752871,
+    ChatlistsChatlistInvite = 500007837,
+    ChatlistsChatlistUpdates = -1816295539,
+    MessageActionSetChatWallPaper = -1136350937,
+    MessageActionSetSameChatWallPaper = -1065845395,
+    BotsBotInfo = -391678544,
+    InlineQueryPeerTypeBotPM = 238759180,
     InvokeAfterMsgMethod = -878758099,
     InvokeAfterMsgsMethod = 1036301552,
     AuthSendCodeMethod = -1502141361,
@@ -1157,8 +1179,8 @@ enum Types
     MessagesCreateChatMethod = 3450904,
     UpdatesGetStateMethod = -304838614,
     UpdatesGetDifferenceMethod = 630429265,
-    PhotosUpdateProfilePhotoMethod = 473782614,
-    PhotosUploadProfilePhotoMethod = 154966609,
+    PhotosUpdateProfilePhotoMethod = 166207545,
+    PhotosUploadProfilePhotoMethod = 59286453,
     PhotosDeletePhotosMethod = -2016444625,
     UploadSaveFilePartMethod = -1291540959,
     UploadGetFileMethod = -1101843010,
@@ -1244,7 +1266,7 @@ enum Types
     MessagesGetSavedGifsMethod = 1559270965,
     MessagesSaveGifMethod = 846868683,
     MessagesGetInlineBotResultsMethod = 1364105629,
-    MessagesSetInlineBotResultsMethod = -346119674,
+    MessagesSetInlineBotResultsMethod = -1156406247,
     MessagesSendInlineBotResultMethod = -738468661,
     ChannelsExportMessageLinkMethod = -432034325,
     ChannelsToggleSignaturesMethod = 527021574,
@@ -1361,7 +1383,7 @@ enum Types
     MessagesGetDialogUnreadMarksMethod = 585256482,
     ContactsToggleTopPeersMethod = -2062238246,
     MessagesClearAllDraftsMethod = 2119757468,
-    HelpGetAppConfigMethod = -1735311088,
+    HelpGetAppConfigMethod = 1642330196,
     HelpSaveAppLogMethod = 1862465352,
     HelpGetPassportConfigMethod = -966677240,
     LangpackGetLanguageMethod = 1784243458,
@@ -1381,7 +1403,7 @@ enum Types
     MessagesEditChatAboutMethod = -554301545,
     MessagesEditChatDefaultBannedRightsMethod = -1517917375,
     AccountGetWallPaperMethod = -57811990,
-    AccountUploadWallPaperMethod = -578472351,
+    AccountUploadWallPaperMethod = -476410109,
     AccountSaveWallPaperMethod = 1817860919,
     AccountInstallWallPaperMethod = -18000023,
     AccountResetWallPapersMethod = -1153722364,
@@ -1431,7 +1453,7 @@ enum Types
     MessagesUpdateDialogFiltersOrderMethod = -983318044,
     StatsGetBroadcastStatsMethod = -1421720550,
     StatsLoadAsyncGraphMethod = 1646092192,
-    StickersSetStickerSetThumbMethod = -1707717072,
+    StickersSetStickerSetThumbMethod = -1486204014,
     BotsSetBotCommandsMethod = 85399130,
     MessagesGetOldFeaturedStickersMethod = 2127598753,
     HelpGetPromoDataMethod = -1063816159,
@@ -1496,7 +1518,7 @@ enum Types
     MessagesSetChatThemeMethod = -432283329,
     ChannelsViewSponsoredMessageMethod = -1095836780,
     ChannelsGetSponsoredMessagesMethod = -333377601,
-    MessagesGetMessageReadParticipantsMethod = 745510839,
+    MessagesGetMessageReadParticipantsMethod = 834782287,
     MessagesGetSearchResultsCalendarMethod = 1240514025,
     MessagesGetSearchResultsPositionsMethod = 1855292323,
     MessagesHideChatJoinRequestMethod = 2145904661,
@@ -1591,6 +1613,28 @@ enum Types
     AccountGetAutoSaveSettingsMethod = -1379156774,
     AccountSaveAutoSaveSettingsMethod = -694451359,
     AccountDeleteAutoSaveExceptionsMethod = 1404829728,
+    StickersChangeStickerMethod = -179077444,
+    StickersRenameStickerSetMethod = 306912256,
+    StickersDeleteStickerSetMethod = -2022685804,
+    MessagesGetBotAppMethod = 889046467,
+    MessagesRequestAppWebViewMethod = -1940243652,
+    BotsSetBotInfoMethod = 282013987,
+    BotsGetBotInfoMethod = -589753091,
+    AuthResetLoginEmailMethod = 2123760019,
+    ChatlistsExportChatlistInviteMethod = -2072885362,
+    ChatlistsDeleteExportedInviteMethod = 1906072670,
+    ChatlistsEditExportedInviteMethod = 1698543165,
+    ChatlistsGetExportedInvitesMethod = -838608253,
+    ChatlistsCheckChatlistInviteMethod = 1103171583,
+    ChatlistsJoinChatlistInviteMethod = -1498291302,
+    ChatlistsGetChatlistUpdatesMethod = -1992190687,
+    ChatlistsJoinChatlistUpdatesMethod = -527828747,
+    ChatlistsHideChatlistUpdatesMethod = 1726252795,
+    ChatlistsGetLeaveChatlistSuggestionsMethod = -37955820,
+    ChatlistsLeaveChatlistMethod = 1962598714,
+    BotsReorderUsernamesMethod = -1760972350,
+    BotsToggleUsernameMethod = 87861619,
+    MessagesSetChatWallPaperMethod = -1879389471,
 };
 }
 
@@ -2384,6 +2428,34 @@ void readTLAutoSaveException(TelegramStream &stream, QVariant &i, void* callback
 void writeTLAutoSaveException(TelegramStream &stream, QVariant i, void* callback = 0);
 void readTLAccountAutoSaveSettings(TelegramStream &stream, QVariant &i, void* callback = 0);
 void writeTLAccountAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLHelpAppConfig(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLHelpAppConfig(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLInputBotApp(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLInputBotApp(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLBotApp(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLBotApp(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMessagesBotApp(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMessagesBotApp(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLAppWebViewResult(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLAppWebViewResult(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLInlineBotWebView(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLInlineBotWebView(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLReadParticipantDate(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLReadParticipantDate(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLInputChatlist(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLInputChatlist(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLExportedChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLExportedChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLChatlistsExportedChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLChatlistsExportedChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLChatlistsExportedInvites(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLChatlistsExportedInvites(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLChatlistsChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLChatlistsChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLChatlistsChatlistUpdates(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLChatlistsChatlistUpdates(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLBotsBotInfo(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLBotsBotInfo(TelegramStream &stream, QVariant i, void* callback = 0);
 
 template <READ_METHOD R, WRITE_METHOD W> void readTLMethodInvokeAfterMsg(TelegramStream &stream, QVariant &i, void* callback)
 {
@@ -3519,6 +3591,50 @@ void readTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant &i
 void writeTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback = 0);
 void readTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant &i, void* callback = 0);
 void writeTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodStickersChangeSticker(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodStickersChangeSticker(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodStickersRenameStickerSet(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodStickersRenameStickerSet(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodStickersDeleteStickerSet(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodStickersDeleteStickerSet(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsExportChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsExportChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsDeleteExportedInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsDeleteExportedInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsEditExportedInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsEditExportedInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsGetExportedInvites(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsGetExportedInvites(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsCheckChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsCheckChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsJoinChatlistInvite(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsJoinChatlistInvite(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsGetChatlistUpdates(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsGetChatlistUpdates(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsJoinChatlistUpdates(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsJoinChatlistUpdates(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsHideChatlistUpdates(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsHideChatlistUpdates(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsGetLeaveChatlistSuggestions(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsGetLeaveChatlistSuggestions(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodChatlistsLeaveChatlist(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodChatlistsLeaveChatlist(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodBotsToggleUsername(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodBotsToggleUsername(TelegramStream &stream, QVariant i, void* callback = 0);
+void readTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant &i, void* callback = 0);
+void writeTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant i, void* callback = 0);
 
 #endif //TLSCHEMA_H
 
