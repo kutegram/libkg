@@ -2679,8 +2679,8 @@ template <READ_METHOD R, WRITE_METHOD W> void writeTLMethodInitConnection(Telegr
         writeString(stream, obj["system_lang_code"], callback);
         writeString(stream, obj["lang_pack"], callback);
         writeString(stream, obj["lang_code"], callback);
-        if (obj["flags"].toUInt() & 1) writeTLInputClientProxy(stream, obj["proxy"], callback);
-        if (obj["flags"].toUInt() & 2) writeTLJSONValue(stream, obj["params"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputClientProxy(stream, obj["proxy"], callback);
+        if (obj["flags"].toUInt() & 2l) writeTLJSONValue(stream, obj["params"], callback);
         (*W)(stream, obj["query"], callback);
     break;
     }
