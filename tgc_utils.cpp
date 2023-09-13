@@ -132,7 +132,12 @@ bool TgClient::isUser(TgObject obj)
 
 bool TgClient::isChannel(TgObject obj)
 {
-    return obj["broadcast"].toBool();
+    return isChat(obj) && obj["broadcast"].toBool();
+}
+
+bool TgClient::isGroup(TgObject obj)
+{
+    return isChat(obj) && !obj["broadcast"].toBool();
 }
 
 TgLongVariant TgClient::commonPeerType(TgObject obj)

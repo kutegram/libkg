@@ -111,6 +111,7 @@ public slots:
     static bool isUser(TgObject obj);
     static bool isChat(TgObject obj);
     static bool isChannel(TgObject obj);
+    static bool isGroup(TgObject obj);
     static TgObject getDialogsOffsets(TgObject dialogs);
     static TgLongVariant commonPeerType(TgObject obj);
     static bool peersEqual(TgObject peer1, TgObject peer2);
