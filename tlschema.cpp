@@ -450,6 +450,19 @@ void readTLInputMedia(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readString(stream, obj["emoticon"], callback);
     break;
+    case -1979852936:
+        obj["_"] = conId.toInt();
+        readTLInputPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["id"], callback);
+    break;
+    case -1038383031:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["force_large_media"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["force_small_media"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["optional"] = true;
+        readString(stream, obj["url"], callback);
+    break;
     }
     i = obj;
 }
@@ -596,6 +609,20 @@ void writeTLInputMedia(TelegramStream &stream, QVariant i, void* callback)
     case -428884101:
         writeInt32(stream, obj["_"], callback);
         writeString(stream, obj["emoticon"], callback);
+    break;
+    case -1979852936:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+    break;
+    case -1038383031:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["force_large_media"].isNull()) | 
+            (!obj["force_small_media"].isNull() << 1) | 
+            (!obj["optional"].isNull() << 2) | 
+        0), callback);
+        writeString(stream, obj["url"], callback);
     break;
     }
 }
@@ -1003,7 +1030,7 @@ void readTLUser(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readInt64(stream, obj["id"], callback);
     break;
-    case -1885878744:
+    case -346018011:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1024l) obj["self"] = true;
@@ -1026,6 +1053,9 @@ void readTLUser(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 536870912l) obj["attach_menu_enabled"] = true;
         readUInt32(stream, obj["flags2"], callback);
         if (obj["flags2"].toUInt() & 2l) obj["bot_can_edit"] = true;
+        if (obj["flags2"].toUInt() & 4l) obj["close_friend"] = true;
+        if (obj["flags2"].toUInt() & 8l) obj["stories_hidden"] = true;
+        if (obj["flags2"].toUInt() & 16l) obj["stories_unavailable"] = true;
         readInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 1l) readInt64(stream, obj["access_hash"], callback);
         if (obj["flags"].toUInt() & 2l) readString(stream, obj["first_name"], callback);
@@ -1040,6 +1070,9 @@ void readTLUser(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 4194304l) readString(stream, obj["lang_code"], callback);
         if (obj["flags"].toUInt() & 1073741824l) readTLEmojiStatus(stream, obj["emoji_status"], callback);
         if (obj["flags2"].toUInt() & 1l) readVector(stream, obj["usernames"], (void*) &readTLUsername);
+        if (obj["flags2"].toUInt() & 32l) readInt32(stream, obj["stories_max_id"], callback);
+        if (obj["flags2"].toUInt() & 128l) readInt32(stream, obj["color"], callback);
+        if (obj["flags2"].toUInt() & 64l) readInt64(stream, obj["background_emoji_id"], callback);
     break;
     }
     i = obj;
@@ -1053,7 +1086,7 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeInt64(stream, obj["id"], callback);
     break;
-    case -1885878744:
+    case -346018011:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["self"].isNull() << 10) | 
@@ -1089,7 +1122,13 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
         0), callback);
         writeUInt32(stream, obj["flags2"] = (
             (!obj["bot_can_edit"].isNull() << 1) | 
+            (!obj["close_friend"].isNull() << 2) | 
+            (!obj["stories_hidden"].isNull() << 3) | 
+            (!obj["stories_unavailable"].isNull() << 4) | 
             (!obj["usernames"].isNull()) | 
+            (!obj["stories_max_id"].isNull() << 5) | 
+            (!obj["color"].isNull() << 7) | 
+            (!obj["background_emoji_id"].isNull() << 6) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["access_hash"], callback);
@@ -1105,6 +1144,9 @@ void writeTLUser(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 4194304l) writeString(stream, obj["lang_code"], callback);
         if (obj["flags"].toUInt() & 1073741824l) writeTLEmojiStatus(stream, obj["emoji_status"], callback);
         if (obj["flags2"].toUInt() & 1l) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
+        if (obj["flags2"].toUInt() & 32l) writeInt32(stream, obj["stories_max_id"], callback);
+        if (obj["flags2"].toUInt() & 128l) writeInt32(stream, obj["color"], callback);
+        if (obj["flags2"].toUInt() & 64l) writeInt64(stream, obj["background_emoji_id"], callback);
     break;
     }
 }
@@ -1243,7 +1285,7 @@ void readTLChat(TelegramStream &stream, QVariant &i, void* callback)
         readInt64(stream, obj["id"], callback);
         readString(stream, obj["title"], callback);
     break;
-    case -2094689180:
+    case 427944574:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["creator"] = true;
@@ -1267,6 +1309,9 @@ void readTLChat(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 536870912l) obj["join_request"] = true;
         if (obj["flags"].toUInt() & 1073741824l) obj["forum"] = true;
         readUInt32(stream, obj["flags2"], callback);
+        if (obj["flags2"].toUInt() & 2l) obj["stories_hidden"] = true;
+        if (obj["flags2"].toUInt() & 4l) obj["stories_hidden_min"] = true;
+        if (obj["flags2"].toUInt() & 8l) obj["stories_unavailable"] = true;
         readInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 8192l) readInt64(stream, obj["access_hash"], callback);
         readString(stream, obj["title"], callback);
@@ -1279,6 +1324,9 @@ void readTLChat(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 262144l) readTLChatBannedRights(stream, obj["default_banned_rights"], callback);
         if (obj["flags"].toUInt() & 131072l) readInt32(stream, obj["participants_count"], callback);
         if (obj["flags2"].toUInt() & 1l) readVector(stream, obj["usernames"], (void*) &readTLUsername);
+        if (obj["flags2"].toUInt() & 16l) readInt32(stream, obj["stories_max_id"], callback);
+        if (obj["flags2"].toUInt() & 64l) readInt32(stream, obj["color"], callback);
+        if (obj["flags2"].toUInt() & 32l) readInt64(stream, obj["background_emoji_id"], callback);
     break;
     case 399807445:
         obj["_"] = conId.toInt();
@@ -1330,7 +1378,7 @@ void writeTLChat(TelegramStream &stream, QVariant i, void* callback)
         writeInt64(stream, obj["id"], callback);
         writeString(stream, obj["title"], callback);
     break;
-    case -2094689180:
+    case 427944574:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["creator"].isNull()) | 
@@ -1362,7 +1410,13 @@ void writeTLChat(TelegramStream &stream, QVariant i, void* callback)
             (!obj["participants_count"].isNull() << 17) | 
         0), callback);
         writeUInt32(stream, obj["flags2"] = (
+            (!obj["stories_hidden"].isNull() << 1) | 
+            (!obj["stories_hidden_min"].isNull() << 2) | 
+            (!obj["stories_unavailable"].isNull() << 3) | 
             (!obj["usernames"].isNull()) | 
+            (!obj["stories_max_id"].isNull() << 4) | 
+            (!obj["color"].isNull() << 6) | 
+            (!obj["background_emoji_id"].isNull() << 5) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 8192l) writeInt64(stream, obj["access_hash"], callback);
@@ -1376,6 +1430,9 @@ void writeTLChat(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 262144l) writeTLChatBannedRights(stream, obj["default_banned_rights"], callback);
         if (obj["flags"].toUInt() & 131072l) writeInt32(stream, obj["participants_count"], callback);
         if (obj["flags2"].toUInt() & 1l) writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
+        if (obj["flags2"].toUInt() & 16l) writeInt32(stream, obj["stories_max_id"], callback);
+        if (obj["flags2"].toUInt() & 64l) writeInt32(stream, obj["color"], callback);
+        if (obj["flags2"].toUInt() & 32l) writeInt64(stream, obj["background_emoji_id"], callback);
     break;
     case 399807445:
         writeInt32(stream, obj["_"], callback);
@@ -1421,7 +1478,7 @@ void readTLChatFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 131072l) readVector(stream, obj["recent_requesters"], (void*) &readInt64);
         if (obj["flags"].toUInt() & 262144l) readTLChatReactions(stream, obj["available_reactions"], callback);
     break;
-    case -231385849:
+    case 1915758525:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 8l) obj["can_view_participants"] = true;
@@ -1437,6 +1494,7 @@ void readTLChatFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags2"].toUInt() & 2l) obj["antispam"] = true;
         if (obj["flags2"].toUInt() & 4l) obj["participants_hidden"] = true;
         if (obj["flags2"].toUInt() & 8l) obj["translations_disabled"] = true;
+        if (obj["flags2"].toUInt() & 32l) obj["stories_pinned_available"] = true;
         readInt64(stream, obj["id"], callback);
         readString(stream, obj["about"], callback);
         if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["participants_count"], callback);
@@ -1472,6 +1530,7 @@ void readTLChatFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 268435456l) readVector(stream, obj["recent_requesters"], (void*) &readInt64);
         if (obj["flags"].toUInt() & 536870912l) readTLPeer(stream, obj["default_send_as"], callback);
         if (obj["flags"].toUInt() & 1073741824l) readTLChatReactions(stream, obj["available_reactions"], callback);
+        if (obj["flags2"].toUInt() & 16l) readTLPeerStories(stream, obj["stories"], callback);
     break;
     }
     i = obj;
@@ -1517,7 +1576,7 @@ void writeTLChatFull(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 131072l) writeVector(stream, obj["recent_requesters"], (void*) &writeInt64);
         if (obj["flags"].toUInt() & 262144l) writeTLChatReactions(stream, obj["available_reactions"], callback);
     break;
-    case -231385849:
+    case 1915758525:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["can_view_participants"].isNull() << 3) | 
@@ -1560,6 +1619,8 @@ void writeTLChatFull(TelegramStream &stream, QVariant i, void* callback)
             (!obj["antispam"].isNull() << 1) | 
             (!obj["participants_hidden"].isNull() << 2) | 
             (!obj["translations_disabled"].isNull() << 3) | 
+            (!obj["stories_pinned_available"].isNull() << 5) | 
+            (!obj["stories"].isNull() << 4) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
         writeString(stream, obj["about"], callback);
@@ -1596,6 +1657,7 @@ void writeTLChatFull(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 268435456l) writeVector(stream, obj["recent_requesters"], (void*) &writeInt64);
         if (obj["flags"].toUInt() & 536870912l) writeTLPeer(stream, obj["default_send_as"], callback);
         if (obj["flags"].toUInt() & 1073741824l) writeTLChatReactions(stream, obj["available_reactions"], callback);
+        if (obj["flags2"].toUInt() & 16l) writeTLPeerStories(stream, obj["stories"], callback);
     break;
     }
 }
@@ -1758,6 +1820,7 @@ void readTLMessage(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 2097152l) obj["edit_hide"] = true;
         if (obj["flags"].toUInt() & 16777216l) obj["pinned"] = true;
         if (obj["flags"].toUInt() & 67108864l) obj["noforwards"] = true;
+        if (obj["flags"].toUInt() & 134217728l) obj["invert_media"] = true;
         readInt32(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 256l) readTLPeer(stream, obj["from_id"], callback);
         readTLPeer(stream, obj["peer_id"], callback);
@@ -1825,6 +1888,7 @@ void writeTLMessage(TelegramStream &stream, QVariant i, void* callback)
             (!obj["edit_hide"].isNull() << 21) | 
             (!obj["pinned"].isNull() << 24) | 
             (!obj["noforwards"].isNull() << 26) | 
+            (!obj["invert_media"].isNull() << 27) | 
             (!obj["from_id"].isNull() << 8) | 
             (!obj["fwd_from"].isNull() << 2) | 
             (!obj["via_bot_id"].isNull() << 11) | 
@@ -1918,16 +1982,22 @@ void readTLMessageMedia(TelegramStream &stream, QVariant &i, void* callback)
     case -1618676578:
         obj["_"] = conId.toInt();
     break;
-    case -1666158377:
+    case 1291114285:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 8l) obj["nopremium"] = true;
         if (obj["flags"].toUInt() & 16l) obj["spoiler"] = true;
         if (obj["flags"].toUInt() & 1l) readTLDocument(stream, obj["document"], callback);
+        if (obj["flags"].toUInt() & 32l) readTLDocument(stream, obj["alt_document"], callback);
         if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["ttl_seconds"], callback);
     break;
-    case -1557277184:
+    case -571405253:
         obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["force_large_media"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["force_small_media"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["manual"] = true;
+        if (obj["flags"].toUInt() & 16l) obj["safe"] = true;
         readTLWebPage(stream, obj["webpage"], callback);
     break;
     case 784356159:
@@ -1975,6 +2045,24 @@ void readTLMessageMedia(TelegramStream &stream, QVariant &i, void* callback)
         readInt32(stream, obj["value"], callback);
         readString(stream, obj["emoticon"], callback);
     break;
+    case 1758159491:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 2l) obj["via_mention"] = true;
+        readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) readTLStoryItem(stream, obj["story"], callback);
+    break;
+    case 1478887012:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["only_new_subscribers"] = true;
+        readVector(stream, obj["channels"], (void*) &readInt64);
+        if (obj["flags"].toUInt() & 2l) readVector(stream, obj["countries_iso2"], (void*) &readString);
+        readInt32(stream, obj["quantity"], callback);
+        readInt32(stream, obj["months"], callback);
+        readInt32(stream, obj["until_date"], callback);
+    break;
     }
     i = obj;
 }
@@ -2011,19 +2099,27 @@ void writeTLMessageMedia(TelegramStream &stream, QVariant i, void* callback)
     case -1618676578:
         writeInt32(stream, obj["_"], callback);
     break;
-    case -1666158377:
+    case 1291114285:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["nopremium"].isNull() << 3) | 
             (!obj["spoiler"].isNull() << 4) | 
             (!obj["document"].isNull()) | 
+            (!obj["alt_document"].isNull() << 5) | 
             (!obj["ttl_seconds"].isNull() << 2) | 
         0), callback);
         if (obj["flags"].toUInt() & 1l) writeTLDocument(stream, obj["document"], callback);
+        if (obj["flags"].toUInt() & 32l) writeTLDocument(stream, obj["alt_document"], callback);
         if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["ttl_seconds"], callback);
     break;
-    case -1557277184:
+    case -571405253:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["force_large_media"].isNull()) | 
+            (!obj["force_small_media"].isNull() << 1) | 
+            (!obj["manual"].isNull() << 3) | 
+            (!obj["safe"].isNull() << 4) | 
+        0), callback);
         writeTLWebPage(stream, obj["webpage"], callback);
     break;
     case 784356159:
@@ -2077,6 +2173,28 @@ void writeTLMessageMedia(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeInt32(stream, obj["value"], callback);
         writeString(stream, obj["emoticon"], callback);
+    break;
+    case 1758159491:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["via_mention"].isNull() << 1) | 
+            (!obj["story"].isNull()) | 
+        0), callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLStoryItem(stream, obj["story"], callback);
+    break;
+    case 1478887012:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["only_new_subscribers"].isNull()) | 
+            (!obj["countries_iso2"].isNull() << 1) | 
+        0), callback);
+        writeVector(stream, obj["channels"], (void*) &writeInt64);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["countries_iso2"], (void*) &writeString);
+        writeInt32(stream, obj["quantity"], callback);
+        writeInt32(stream, obj["months"], callback);
+        writeInt32(stream, obj["until_date"], callback);
     break;
     }
 }
@@ -2182,6 +2300,7 @@ void readTLMessageAction(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 2l) obj["attach_menu"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["from_request"] = true;
         if (obj["flags"].toUInt() & 1l) readString(stream, obj["domain"], callback);
         if (obj["flags"].toUInt() & 4l) readTLBotApp(stream, obj["app"], callback);
     break;
@@ -2281,6 +2400,18 @@ void readTLMessageAction(TelegramStream &stream, QVariant &i, void* callback)
     case -1065845395:
         obj["_"] = conId.toInt();
         readTLWallPaper(stream, obj["wallpaper"], callback);
+    break;
+    case -758129906:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["via_giveaway"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["unclaimed"] = true;
+        if (obj["flags"].toUInt() & 2l) readTLPeer(stream, obj["boost_peer"], callback);
+        readInt32(stream, obj["months"], callback);
+        readString(stream, obj["slug"], callback);
+    break;
+    case 858499565:
+        obj["_"] = conId.toInt();
     break;
     }
     i = obj;
@@ -2393,6 +2524,7 @@ void writeTLMessageAction(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["attach_menu"].isNull() << 1) | 
+            (!obj["from_request"].isNull() << 3) | 
             (!obj["domain"].isNull()) | 
             (!obj["app"].isNull() << 2) | 
         0), callback);
@@ -2509,6 +2641,20 @@ void writeTLMessageAction(TelegramStream &stream, QVariant i, void* callback)
     case -1065845395:
         writeInt32(stream, obj["_"], callback);
         writeTLWallPaper(stream, obj["wallpaper"], callback);
+    break;
+    case -758129906:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["via_giveaway"].isNull()) | 
+            (!obj["unclaimed"].isNull() << 2) | 
+            (!obj["boost_peer"].isNull() << 1) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 2l) writeTLPeer(stream, obj["boost_peer"], callback);
+        writeInt32(stream, obj["months"], callback);
+        writeString(stream, obj["slug"], callback);
+    break;
+    case 858499565:
+        writeInt32(stream, obj["_"], callback);
     break;
     }
 }
@@ -2956,13 +3102,16 @@ void readTLInputPeerNotifySettings(TelegramStream &stream, QVariant &i, void* ca
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -551616469:
+    case -892638494:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) readBool(stream, obj["show_previews"], callback);
         if (obj["flags"].toUInt() & 2l) readBool(stream, obj["silent"], callback);
         if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["mute_until"], callback);
         if (obj["flags"].toUInt() & 8l) readTLNotificationSound(stream, obj["sound"], callback);
+        if (obj["flags"].toUInt() & 64l) readBool(stream, obj["stories_muted"], callback);
+        if (obj["flags"].toUInt() & 128l) readBool(stream, obj["stories_hide_sender"], callback);
+        if (obj["flags"].toUInt() & 256l) readTLNotificationSound(stream, obj["stories_sound"], callback);
     break;
     }
     i = obj;
@@ -2972,18 +3121,24 @@ void writeTLInputPeerNotifySettings(TelegramStream &stream, QVariant i, void* ca
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -551616469:
+    case -892638494:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["show_previews"].isNull()) | 
             (!obj["silent"].isNull() << 1) | 
             (!obj["mute_until"].isNull() << 2) | 
             (!obj["sound"].isNull() << 3) | 
+            (!obj["stories_muted"].isNull() << 6) | 
+            (!obj["stories_hide_sender"].isNull() << 7) | 
+            (!obj["stories_sound"].isNull() << 8) | 
         0), callback);
         if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["show_previews"], callback);
         if (obj["flags"].toUInt() & 2l) writeBool(stream, obj["silent"], callback);
         if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["mute_until"], callback);
         if (obj["flags"].toUInt() & 8l) writeTLNotificationSound(stream, obj["sound"], callback);
+        if (obj["flags"].toUInt() & 64l) writeBool(stream, obj["stories_muted"], callback);
+        if (obj["flags"].toUInt() & 128l) writeBool(stream, obj["stories_hide_sender"], callback);
+        if (obj["flags"].toUInt() & 256l) writeTLNotificationSound(stream, obj["stories_sound"], callback);
     break;
     }
 }
@@ -2994,7 +3149,7 @@ void readTLPeerNotifySettings(TelegramStream &stream, QVariant &i, void* callbac
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1472527322:
+    case -1721619444:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) readBool(stream, obj["show_previews"], callback);
@@ -3003,6 +3158,11 @@ void readTLPeerNotifySettings(TelegramStream &stream, QVariant &i, void* callbac
         if (obj["flags"].toUInt() & 8l) readTLNotificationSound(stream, obj["ios_sound"], callback);
         if (obj["flags"].toUInt() & 16l) readTLNotificationSound(stream, obj["android_sound"], callback);
         if (obj["flags"].toUInt() & 32l) readTLNotificationSound(stream, obj["other_sound"], callback);
+        if (obj["flags"].toUInt() & 64l) readBool(stream, obj["stories_muted"], callback);
+        if (obj["flags"].toUInt() & 128l) readBool(stream, obj["stories_hide_sender"], callback);
+        if (obj["flags"].toUInt() & 256l) readTLNotificationSound(stream, obj["stories_ios_sound"], callback);
+        if (obj["flags"].toUInt() & 512l) readTLNotificationSound(stream, obj["stories_android_sound"], callback);
+        if (obj["flags"].toUInt() & 1024l) readTLNotificationSound(stream, obj["stories_other_sound"], callback);
     break;
     }
     i = obj;
@@ -3012,7 +3172,7 @@ void writeTLPeerNotifySettings(TelegramStream &stream, QVariant i, void* callbac
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1472527322:
+    case -1721619444:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["show_previews"].isNull()) | 
@@ -3021,6 +3181,11 @@ void writeTLPeerNotifySettings(TelegramStream &stream, QVariant i, void* callbac
             (!obj["ios_sound"].isNull() << 3) | 
             (!obj["android_sound"].isNull() << 4) | 
             (!obj["other_sound"].isNull() << 5) | 
+            (!obj["stories_muted"].isNull() << 6) | 
+            (!obj["stories_hide_sender"].isNull() << 7) | 
+            (!obj["stories_ios_sound"].isNull() << 8) | 
+            (!obj["stories_android_sound"].isNull() << 9) | 
+            (!obj["stories_other_sound"].isNull() << 10) | 
         0), callback);
         if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["show_previews"], callback);
         if (obj["flags"].toUInt() & 2l) writeBool(stream, obj["silent"], callback);
@@ -3028,6 +3193,11 @@ void writeTLPeerNotifySettings(TelegramStream &stream, QVariant i, void* callbac
         if (obj["flags"].toUInt() & 8l) writeTLNotificationSound(stream, obj["ios_sound"], callback);
         if (obj["flags"].toUInt() & 16l) writeTLNotificationSound(stream, obj["android_sound"], callback);
         if (obj["flags"].toUInt() & 32l) writeTLNotificationSound(stream, obj["other_sound"], callback);
+        if (obj["flags"].toUInt() & 64l) writeBool(stream, obj["stories_muted"], callback);
+        if (obj["flags"].toUInt() & 128l) writeBool(stream, obj["stories_hide_sender"], callback);
+        if (obj["flags"].toUInt() & 256l) writeTLNotificationSound(stream, obj["stories_ios_sound"], callback);
+        if (obj["flags"].toUInt() & 512l) writeTLNotificationSound(stream, obj["stories_android_sound"], callback);
+        if (obj["flags"].toUInt() & 1024l) writeTLNotificationSound(stream, obj["stories_other_sound"], callback);
     break;
     }
 }
@@ -3231,7 +3401,7 @@ void readTLUserFull(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1813324973:
+    case -1179571092:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["blocked"] = true;
@@ -3242,6 +3412,8 @@ void readTLUserFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 8192l) obj["video_calls_available"] = true;
         if (obj["flags"].toUInt() & 1048576l) obj["voice_messages_forbidden"] = true;
         if (obj["flags"].toUInt() & 8388608l) obj["translations_disabled"] = true;
+        if (obj["flags"].toUInt() & 67108864l) obj["stories_pinned_available"] = true;
+        if (obj["flags"].toUInt() & 134217728l) obj["blocked_my_stories_from"] = true;
         readInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 2l) readString(stream, obj["about"], callback);
         readTLPeerSettings(stream, obj["settings"], callback);
@@ -3260,6 +3432,7 @@ void readTLUserFull(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 262144l) readTLChatAdminRights(stream, obj["bot_broadcast_admin_rights"], callback);
         if (obj["flags"].toUInt() & 524288l) readVector(stream, obj["premium_gifts"], (void*) &readTLPremiumGiftOption);
         if (obj["flags"].toUInt() & 16777216l) readTLWallPaper(stream, obj["wallpaper"], callback);
+        if (obj["flags"].toUInt() & 33554432l) readTLPeerStories(stream, obj["stories"], callback);
     break;
     }
     i = obj;
@@ -3269,7 +3442,7 @@ void writeTLUserFull(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1813324973:
+    case -1179571092:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["blocked"].isNull()) | 
@@ -3280,6 +3453,8 @@ void writeTLUserFull(TelegramStream &stream, QVariant i, void* callback)
             (!obj["video_calls_available"].isNull() << 13) | 
             (!obj["voice_messages_forbidden"].isNull() << 20) | 
             (!obj["translations_disabled"].isNull() << 23) | 
+            (!obj["stories_pinned_available"].isNull() << 26) | 
+            (!obj["blocked_my_stories_from"].isNull() << 27) | 
             (!obj["about"].isNull() << 1) | 
             (!obj["personal_photo"].isNull() << 21) | 
             (!obj["profile_photo"].isNull() << 2) | 
@@ -3294,6 +3469,7 @@ void writeTLUserFull(TelegramStream &stream, QVariant i, void* callback)
             (!obj["bot_broadcast_admin_rights"].isNull() << 18) | 
             (!obj["premium_gifts"].isNull() << 19) | 
             (!obj["wallpaper"].isNull() << 24) | 
+            (!obj["stories"].isNull() << 25) | 
         0), callback);
         writeInt64(stream, obj["id"], callback);
         if (obj["flags"].toUInt() & 2l) writeString(stream, obj["about"], callback);
@@ -3313,6 +3489,7 @@ void writeTLUserFull(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 262144l) writeTLChatAdminRights(stream, obj["bot_broadcast_admin_rights"], callback);
         if (obj["flags"].toUInt() & 524288l) writeVector(stream, obj["premium_gifts"], (void*) &writeTLPremiumGiftOption);
         if (obj["flags"].toUInt() & 16777216l) writeTLWallPaper(stream, obj["wallpaper"], callback);
+        if (obj["flags"].toUInt() & 33554432l) writeTLPeerStories(stream, obj["stories"], callback);
     break;
     }
 }
@@ -3917,6 +4094,15 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
         readString(stream, obj["last_name"], callback);
         readVector(stream, obj["usernames"], (void*) &readTLUsername);
     break;
+    case -1991136273:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["unconfirmed"] = true;
+        readInt64(stream, obj["hash"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["date"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["device"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["location"], callback);
+    break;
     case 314359194:
         obj["_"] = conId.toInt();
         readTLEncryptedMessage(stream, obj["message"], callback);
@@ -3964,6 +4150,7 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["popup"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["invert_media"] = true;
         if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["inbox_date"], callback);
         readString(stream, obj["type"], callback);
         readString(stream, obj["message"], callback);
@@ -4003,11 +4190,13 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
         readInt32(stream, obj["pts"], callback);
         readInt32(stream, obj["pts_count"], callback);
     break;
-    case 1757493555:
+    case -131960447:
         obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
         readVector(stream, obj["messages"], (void*) &readInt32);
         readInt32(stream, obj["pts"], callback);
         readInt32(stream, obj["pts_count"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["date"], callback);
     break;
     case 277713951:
         obj["_"] = conId.toInt();
@@ -4283,10 +4472,10 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
     case 1448076945:
         obj["_"] = conId.toInt();
     break;
-    case 274961865:
+    case 619974263:
         obj["_"] = conId.toInt();
         readInt64(stream, obj["poll_id"], callback);
-        readInt64(stream, obj["user_id"], callback);
+        readTLPeer(stream, obj["peer"], callback);
         readVector(stream, obj["options"], (void*) &readByteArray);
         readInt32(stream, obj["qts"], callback);
     break;
@@ -4329,10 +4518,12 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
         readInt32(stream, obj["top_msg_id"], callback);
         readInt32(stream, obj["read_max_id"], callback);
     break;
-    case 610945826:
+    case -337610926:
         obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["blocked"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["blocked_my_stories_from"] = true;
         readTLPeer(stream, obj["peer_id"], callback);
-        readBool(stream, obj["blocked"], callback);
     break;
     case -1937192669:
         obj["_"] = conId.toInt();
@@ -4523,6 +4714,31 @@ void readTLUpdate(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readInt64(stream, obj["user_id"], callback);
     break;
+    case 1974712216:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readTLStoryItem(stream, obj["story"], callback);
+    break;
+    case -145845461:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["max_id"], callback);
+    break;
+    case 468923833:
+        obj["_"] = conId.toInt();
+        readInt32(stream, obj["id"], callback);
+        readInt64(stream, obj["random_id"], callback);
+    break;
+    case 738741697:
+        obj["_"] = conId.toInt();
+        readTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    case 2103604867:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["story_id"], callback);
+        readTLReaction(stream, obj["reaction"], callback);
+    break;
     }
     i = obj;
 }
@@ -4575,6 +4791,19 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
         writeString(stream, obj["last_name"], callback);
         writeVector(stream, obj["usernames"], (void*) &writeTLUsername);
     break;
+    case -1991136273:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["unconfirmed"].isNull()) | 
+            (!obj["date"].isNull()) | 
+            (!obj["device"].isNull()) | 
+            (!obj["location"].isNull()) | 
+        0), callback);
+        writeInt64(stream, obj["hash"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["date"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["device"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["location"], callback);
+    break;
     case 314359194:
         writeInt32(stream, obj["_"], callback);
         writeTLEncryptedMessage(stream, obj["message"], callback);
@@ -4622,6 +4851,7 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["popup"].isNull()) | 
+            (!obj["invert_media"].isNull() << 2) | 
             (!obj["inbox_date"].isNull() << 1) | 
         0), callback);
         if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["inbox_date"], callback);
@@ -4665,11 +4895,15 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["pts"], callback);
         writeInt32(stream, obj["pts_count"], callback);
     break;
-    case 1757493555:
+    case -131960447:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["date"].isNull()) | 
+        0), callback);
         writeVector(stream, obj["messages"], (void*) &writeInt32);
         writeInt32(stream, obj["pts"], callback);
         writeInt32(stream, obj["pts_count"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["date"], callback);
     break;
     case 277713951:
         writeInt32(stream, obj["_"], callback);
@@ -4978,10 +5212,10 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
     case 1448076945:
         writeInt32(stream, obj["_"], callback);
     break;
-    case 274961865:
+    case 619974263:
         writeInt32(stream, obj["_"], callback);
         writeInt64(stream, obj["poll_id"], callback);
-        writeInt64(stream, obj["user_id"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
         writeVector(stream, obj["options"], (void*) &writeByteArray);
         writeInt32(stream, obj["qts"], callback);
     break;
@@ -5029,10 +5263,13 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["top_msg_id"], callback);
         writeInt32(stream, obj["read_max_id"], callback);
     break;
-    case 610945826:
+    case -337610926:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["blocked"].isNull()) | 
+            (!obj["blocked_my_stories_from"].isNull() << 1) | 
+        0), callback);
         writeTLPeer(stream, obj["peer_id"], callback);
-        writeBool(stream, obj["blocked"], callback);
     break;
     case -1937192669:
         writeInt32(stream, obj["_"], callback);
@@ -5244,6 +5481,31 @@ void writeTLUpdate(TelegramStream &stream, QVariant i, void* callback)
     case -856651050:
         writeInt32(stream, obj["_"], callback);
         writeInt64(stream, obj["user_id"], callback);
+    break;
+    case 1974712216:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeTLStoryItem(stream, obj["story"], callback);
+    break;
+    case -145845461:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["max_id"], callback);
+    break;
+    case 468923833:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["id"], callback);
+        writeInt64(stream, obj["random_id"], callback);
+    break;
+    case 738741697:
+        writeInt32(stream, obj["_"], callback);
+        writeTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    case 2103604867:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["story_id"], callback);
+        writeTLReaction(stream, obj["reaction"], callback);
     break;
     }
 }
@@ -6655,6 +6917,9 @@ void readTLInputPrivacyKey(TelegramStream &stream, QVariant &i, void* callback)
     case -1360618136:
         obj["_"] = conId.toInt();
     break;
+    case 941870144:
+        obj["_"] = conId.toInt();
+    break;
     }
     i = obj;
 }
@@ -6688,6 +6953,9 @@ void writeTLInputPrivacyKey(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
     break;
     case -1360618136:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    case 941870144:
         writeInt32(stream, obj["_"], callback);
     break;
     }
@@ -6726,6 +6994,9 @@ void readTLPrivacyKey(TelegramStream &stream, QVariant &i, void* callback)
     case 110621716:
         obj["_"] = conId.toInt();
     break;
+    case -1534675103:
+        obj["_"] = conId.toInt();
+    break;
     }
     i = obj;
 }
@@ -6759,6 +7030,9 @@ void writeTLPrivacyKey(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
     break;
     case 110621716:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    case -1534675103:
         writeInt32(stream, obj["_"], callback);
     break;
     }
@@ -6798,6 +7072,9 @@ void readTLInputPrivacyRule(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readVector(stream, obj["chats"], (void*) &readInt64);
     break;
+    case 793067081:
+        obj["_"] = conId.toInt();
+    break;
     }
     i = obj;
 }
@@ -6833,6 +7110,9 @@ void writeTLInputPrivacyRule(TelegramStream &stream, QVariant i, void* callback)
     case -380694650:
         writeInt32(stream, obj["_"], callback);
         writeVector(stream, obj["chats"], (void*) &writeInt64);
+    break;
+    case 793067081:
+        writeInt32(stream, obj["_"], callback);
     break;
     }
 }
@@ -6871,6 +7151,9 @@ void readTLPrivacyRule(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readVector(stream, obj["chats"], (void*) &readInt64);
     break;
+    case -135735141:
+        obj["_"] = conId.toInt();
+    break;
     }
     i = obj;
 }
@@ -6906,6 +7189,9 @@ void writeTLPrivacyRule(TelegramStream &stream, QVariant i, void* callback)
     case 1103656293:
         writeInt32(stream, obj["_"], callback);
         writeVector(stream, obj["chats"], (void*) &writeInt64);
+    break;
+    case -135735141:
+        writeInt32(stream, obj["_"], callback);
     break;
     }
 }
@@ -6986,14 +7272,16 @@ void readTLDocumentAttribute(TelegramStream &stream, QVariant &i, void* callback
         readTLInputStickerSet(stream, obj["stickerset"], callback);
         if (obj["flags"].toUInt() & 1l) readTLMaskCoords(stream, obj["mask_coords"], callback);
     break;
-    case 250621158:
+    case -745541182:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["round_message"] = true;
         if (obj["flags"].toUInt() & 2l) obj["supports_streaming"] = true;
-        readInt32(stream, obj["duration"], callback);
+        if (obj["flags"].toUInt() & 8l) obj["nosound"] = true;
+        readDouble(stream, obj["duration"], callback);
         readInt32(stream, obj["w"], callback);
         readInt32(stream, obj["h"], callback);
+        if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["preload_prefix_size"], callback);
     break;
     case -1739392570:
         obj["_"] = conId.toInt();
@@ -7045,15 +7333,18 @@ void writeTLDocumentAttribute(TelegramStream &stream, QVariant i, void* callback
         writeTLInputStickerSet(stream, obj["stickerset"], callback);
         if (obj["flags"].toUInt() & 1l) writeTLMaskCoords(stream, obj["mask_coords"], callback);
     break;
-    case 250621158:
+    case -745541182:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["round_message"].isNull()) | 
             (!obj["supports_streaming"].isNull() << 1) | 
+            (!obj["nosound"].isNull() << 3) | 
+            (!obj["preload_prefix_size"].isNull() << 2) | 
         0), callback);
-        writeInt32(stream, obj["duration"], callback);
+        writeDouble(stream, obj["duration"], callback);
         writeInt32(stream, obj["w"], callback);
         writeInt32(stream, obj["h"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["preload_prefix_size"], callback);
     break;
     case -1739392570:
         writeInt32(stream, obj["_"], callback);
@@ -7213,18 +7504,23 @@ void readTLWebPage(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -350980120:
+    case 555358088:
         obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
         readInt64(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["url"], callback);
     break;
-    case -981018084:
+    case -1328464313:
         obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
         readInt64(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["url"], callback);
         readInt32(stream, obj["date"], callback);
     break;
     case -392411726:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 8192l) obj["has_large_media"] = true;
         readInt64(stream, obj["id"], callback);
         readString(stream, obj["url"], callback);
         readString(stream, obj["display_url"], callback);
@@ -7257,18 +7553,27 @@ void writeTLWebPage(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -350980120:
+    case 555358088:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["url"].isNull()) | 
+        0), callback);
         writeInt64(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["url"], callback);
     break;
-    case -981018084:
+    case -1328464313:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["url"].isNull()) | 
+        0), callback);
         writeInt64(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["url"], callback);
         writeInt32(stream, obj["date"], callback);
     break;
     case -392411726:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
+            (!obj["has_large_media"].isNull() << 13) | 
             (!obj["type"].isNull()) | 
             (!obj["site_name"].isNull() << 1) | 
             (!obj["title"].isNull() << 2) | 
@@ -7327,6 +7632,7 @@ void readTLAuthorization(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 4l) obj["password_pending"] = true;
         if (obj["flags"].toUInt() & 8l) obj["encrypted_requests_disabled"] = true;
         if (obj["flags"].toUInt() & 16l) obj["call_requests_disabled"] = true;
+        if (obj["flags"].toUInt() & 32l) obj["unconfirmed"] = true;
         readInt64(stream, obj["hash"], callback);
         readString(stream, obj["device_model"], callback);
         readString(stream, obj["platform"], callback);
@@ -7356,6 +7662,7 @@ void writeTLAuthorization(TelegramStream &stream, QVariant i, void* callback)
             (!obj["password_pending"].isNull() << 2) | 
             (!obj["encrypted_requests_disabled"].isNull() << 3) | 
             (!obj["call_requests_disabled"].isNull() << 4) | 
+            (!obj["unconfirmed"].isNull() << 5) | 
         0), callback);
         writeInt64(stream, obj["hash"], callback);
         writeString(stream, obj["device_model"], callback);
@@ -7656,7 +7963,7 @@ void readTLChatInvite(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readTLChat(stream, obj["chat"], callback);
     break;
-    case 806110401:
+    case -840897472:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["channel"] = true;
@@ -7672,6 +7979,7 @@ void readTLChatInvite(TelegramStream &stream, QVariant &i, void* callback)
         readTLPhoto(stream, obj["photo"], callback);
         readInt32(stream, obj["participants_count"], callback);
         if (obj["flags"].toUInt() & 16l) readVector(stream, obj["participants"], (void*) &readTLUser);
+        readInt32(stream, obj["color"], callback);
     break;
     case 1634294960:
         obj["_"] = conId.toInt();
@@ -7690,7 +7998,7 @@ void writeTLChatInvite(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeTLChat(stream, obj["chat"], callback);
     break;
-    case 806110401:
+    case -840897472:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["channel"].isNull()) | 
@@ -7709,6 +8017,7 @@ void writeTLChatInvite(TelegramStream &stream, QVariant i, void* callback)
         writeTLPhoto(stream, obj["photo"], callback);
         writeInt32(stream, obj["participants_count"], callback);
         if (obj["flags"].toUInt() & 16l) writeVector(stream, obj["participants"], (void*) &writeTLUser);
+        writeInt32(stream, obj["color"], callback);
     break;
     case 1634294960:
         writeInt32(stream, obj["_"], callback);
@@ -7818,6 +8127,7 @@ void readTLStickerSet(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 32l) obj["animated"] = true;
         if (obj["flags"].toUInt() & 64l) obj["videos"] = true;
         if (obj["flags"].toUInt() & 128l) obj["emojis"] = true;
+        if (obj["flags"].toUInt() & 512l) obj["text_color"] = true;
         if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["installed_date"], callback);
         readInt64(stream, obj["id"], callback);
         readInt64(stream, obj["access_hash"], callback);
@@ -7847,6 +8157,7 @@ void writeTLStickerSet(TelegramStream &stream, QVariant i, void* callback)
             (!obj["animated"].isNull() << 5) | 
             (!obj["videos"].isNull() << 6) | 
             (!obj["emojis"].isNull() << 7) | 
+            (!obj["text_color"].isNull() << 9) | 
             (!obj["installed_date"].isNull()) | 
             (!obj["thumbs"].isNull() << 4) | 
             (!obj["thumb_dc_id"].isNull() << 4) | 
@@ -8374,11 +8685,6 @@ void readTLMessageEntity(TelegramStream &stream, QVariant &i, void* callback)
         readInt32(stream, obj["offset"], callback);
         readInt32(stream, obj["length"], callback);
     break;
-    case 34469328:
-        obj["_"] = conId.toInt();
-        readInt32(stream, obj["offset"], callback);
-        readInt32(stream, obj["length"], callback);
-    break;
     case 1981704948:
         obj["_"] = conId.toInt();
         readInt32(stream, obj["offset"], callback);
@@ -8394,6 +8700,11 @@ void readTLMessageEntity(TelegramStream &stream, QVariant &i, void* callback)
         readInt32(stream, obj["offset"], callback);
         readInt32(stream, obj["length"], callback);
         readInt64(stream, obj["document_id"], callback);
+    break;
+    case 34469328:
+        obj["_"] = conId.toInt();
+        readInt32(stream, obj["offset"], callback);
+        readInt32(stream, obj["length"], callback);
     break;
     }
     i = obj;
@@ -8492,11 +8803,6 @@ void writeTLMessageEntity(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["offset"], callback);
         writeInt32(stream, obj["length"], callback);
     break;
-    case 34469328:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["offset"], callback);
-        writeInt32(stream, obj["length"], callback);
-    break;
     case 1981704948:
         writeInt32(stream, obj["_"], callback);
         writeInt32(stream, obj["offset"], callback);
@@ -8512,6 +8818,11 @@ void writeTLMessageEntity(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["offset"], callback);
         writeInt32(stream, obj["length"], callback);
         writeInt64(stream, obj["document_id"], callback);
+    break;
+    case 34469328:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["offset"], callback);
+        writeInt32(stream, obj["length"], callback);
     break;
     }
 }
@@ -9073,6 +9384,7 @@ void readTLInputBotInlineMessage(TelegramStream &stream, QVariant &i, void* call
     case 864077702:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
@@ -9081,6 +9393,7 @@ void readTLInputBotInlineMessage(TelegramStream &stream, QVariant &i, void* call
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["no_webpage"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
@@ -9131,6 +9444,18 @@ void readTLInputBotInlineMessage(TelegramStream &stream, QVariant &i, void* call
         readTLDataJSON(stream, obj["provider_data"], callback);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
     break;
+    case -1109605104:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
+        if (obj["flags"].toUInt() & 16l) obj["force_large_media"] = true;
+        if (obj["flags"].toUInt() & 32l) obj["force_small_media"] = true;
+        if (obj["flags"].toUInt() & 64l) obj["optional"] = true;
+        readString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
+        readString(stream, obj["url"], callback);
+        if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
+    break;
     }
     i = obj;
 }
@@ -9142,6 +9467,7 @@ void writeTLInputBotInlineMessage(TelegramStream &stream, QVariant i, void* call
     case 864077702:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
+            (!obj["invert_media"].isNull() << 3) | 
             (!obj["entities"].isNull() << 1) | 
             (!obj["reply_markup"].isNull() << 2) | 
         0), callback);
@@ -9153,6 +9479,7 @@ void writeTLInputBotInlineMessage(TelegramStream &stream, QVariant i, void* call
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["no_webpage"].isNull()) | 
+            (!obj["invert_media"].isNull() << 3) | 
             (!obj["entities"].isNull() << 1) | 
             (!obj["reply_markup"].isNull() << 2) | 
         0), callback);
@@ -9218,6 +9545,21 @@ void writeTLInputBotInlineMessage(TelegramStream &stream, QVariant i, void* call
         writeByteArray(stream, obj["payload"], callback);
         writeString(stream, obj["provider"], callback);
         writeTLDataJSON(stream, obj["provider_data"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
+    break;
+    case -1109605104:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["invert_media"].isNull() << 3) | 
+            (!obj["force_large_media"].isNull() << 4) | 
+            (!obj["force_small_media"].isNull() << 5) | 
+            (!obj["optional"].isNull() << 6) | 
+            (!obj["entities"].isNull() << 1) | 
+            (!obj["reply_markup"].isNull() << 2) | 
+        0), callback);
+        writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        writeString(stream, obj["url"], callback);
         if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
     break;
     }
@@ -9328,6 +9670,7 @@ void readTLBotInlineMessage(TelegramStream &stream, QVariant &i, void* callback)
     case 1984755728:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
@@ -9336,6 +9679,7 @@ void readTLBotInlineMessage(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["no_webpage"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
@@ -9381,6 +9725,19 @@ void readTLBotInlineMessage(TelegramStream &stream, QVariant &i, void* callback)
         readInt64(stream, obj["total_amount"], callback);
         if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
     break;
+    case -2137335386:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 8l) obj["invert_media"] = true;
+        if (obj["flags"].toUInt() & 16l) obj["force_large_media"] = true;
+        if (obj["flags"].toUInt() & 32l) obj["force_small_media"] = true;
+        if (obj["flags"].toUInt() & 128l) obj["manual"] = true;
+        if (obj["flags"].toUInt() & 256l) obj["safe"] = true;
+        readString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
+        readString(stream, obj["url"], callback);
+        if (obj["flags"].toUInt() & 4l) readTLReplyMarkup(stream, obj["reply_markup"], callback);
+    break;
     }
     i = obj;
 }
@@ -9392,6 +9749,7 @@ void writeTLBotInlineMessage(TelegramStream &stream, QVariant i, void* callback)
     case 1984755728:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
+            (!obj["invert_media"].isNull() << 3) | 
             (!obj["entities"].isNull() << 1) | 
             (!obj["reply_markup"].isNull() << 2) | 
         0), callback);
@@ -9403,6 +9761,7 @@ void writeTLBotInlineMessage(TelegramStream &stream, QVariant i, void* callback)
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["no_webpage"].isNull()) | 
+            (!obj["invert_media"].isNull() << 3) | 
             (!obj["entities"].isNull() << 1) | 
             (!obj["reply_markup"].isNull() << 2) | 
         0), callback);
@@ -9461,6 +9820,22 @@ void writeTLBotInlineMessage(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 1l) writeTLWebDocument(stream, obj["photo"], callback);
         writeString(stream, obj["currency"], callback);
         writeInt64(stream, obj["total_amount"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
+    break;
+    case -2137335386:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["invert_media"].isNull() << 3) | 
+            (!obj["force_large_media"].isNull() << 4) | 
+            (!obj["force_small_media"].isNull() << 5) | 
+            (!obj["manual"].isNull() << 7) | 
+            (!obj["safe"].isNull() << 8) | 
+            (!obj["entities"].isNull() << 1) | 
+            (!obj["reply_markup"].isNull() << 2) | 
+        0), callback);
+        writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        writeString(stream, obj["url"], callback);
         if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
     break;
     }
@@ -10179,13 +10554,15 @@ void readTLDraftMessage(TelegramStream &stream, QVariant &i, void* callback)
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["date"], callback);
     break;
-    case -40996577:
+    case 1070397423:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 2l) obj["no_webpage"] = true;
-        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 64l) obj["invert_media"] = true;
+        if (obj["flags"].toUInt() & 16l) readTLInputReplyTo(stream, obj["reply_to"], callback);
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 8l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
+        if (obj["flags"].toUInt() & 32l) readTLInputMedia(stream, obj["media"], callback);
         readInt32(stream, obj["date"], callback);
     break;
     }
@@ -10203,16 +10580,19 @@ void writeTLDraftMessage(TelegramStream &stream, QVariant i, void* callback)
         0), callback);
         if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["date"], callback);
     break;
-    case -40996577:
+    case 1070397423:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["no_webpage"].isNull() << 1) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
+            (!obj["invert_media"].isNull() << 6) | 
+            (!obj["reply_to"].isNull() << 4) | 
             (!obj["entities"].isNull() << 3) | 
+            (!obj["media"].isNull() << 5) | 
         0), callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 16l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
         writeString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        if (obj["flags"].toUInt() & 32l) writeTLInputMedia(stream, obj["media"], callback);
         writeInt32(stream, obj["date"], callback);
     break;
     }
@@ -11209,7 +11589,7 @@ void readTLInvoice(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1048946971:
+    case 1572428309:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["test"] = true;
@@ -11225,7 +11605,7 @@ void readTLInvoice(TelegramStream &stream, QVariant &i, void* callback)
         readVector(stream, obj["prices"], (void*) &readTLLabeledPrice);
         if (obj["flags"].toUInt() & 256l) readInt64(stream, obj["max_tip_amount"], callback);
         if (obj["flags"].toUInt() & 256l) readVector(stream, obj["suggested_tip_amounts"], (void*) &readInt64);
-        if (obj["flags"].toUInt() & 512l) readString(stream, obj["recurring_terms_url"], callback);
+        if (obj["flags"].toUInt() & 1024l) readString(stream, obj["terms_url"], callback);
     break;
     }
     i = obj;
@@ -11235,7 +11615,7 @@ void writeTLInvoice(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1048946971:
+    case 1572428309:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["test"].isNull()) | 
@@ -11249,13 +11629,13 @@ void writeTLInvoice(TelegramStream &stream, QVariant i, void* callback)
             (!obj["recurring"].isNull() << 9) | 
             (!obj["max_tip_amount"].isNull() << 8) | 
             (!obj["suggested_tip_amounts"].isNull() << 8) | 
-            (!obj["recurring_terms_url"].isNull() << 9) | 
+            (!obj["terms_url"].isNull() << 10) | 
         0), callback);
         writeString(stream, obj["currency"], callback);
         writeVector(stream, obj["prices"], (void*) &writeTLLabeledPrice);
         if (obj["flags"].toUInt() & 256l) writeInt64(stream, obj["max_tip_amount"], callback);
         if (obj["flags"].toUInt() & 256l) writeVector(stream, obj["suggested_tip_amounts"], (void*) &writeInt64);
-        if (obj["flags"].toUInt() & 512l) writeString(stream, obj["recurring_terms_url"], callback);
+        if (obj["flags"].toUInt() & 1024l) writeString(stream, obj["terms_url"], callback);
     break;
     }
 }
@@ -12665,6 +13045,16 @@ void readTLChannelAdminLogEventAction(TelegramStream &stream, QVariant &i, void*
         obj["_"] = conId.toInt();
         readBool(stream, obj["new_value"], callback);
     break;
+    case 1009460347:
+        obj["_"] = conId.toInt();
+        readInt32(stream, obj["prev_value"], callback);
+        readInt32(stream, obj["new_value"], callback);
+    break;
+    case 1147126836:
+        obj["_"] = conId.toInt();
+        readInt64(stream, obj["prev_value"], callback);
+        readInt64(stream, obj["new_value"], callback);
+    break;
     }
     i = obj;
 }
@@ -12868,6 +13258,16 @@ void writeTLChannelAdminLogEventAction(TelegramStream &stream, QVariant i, void*
     case 1693675004:
         writeInt32(stream, obj["_"], callback);
         writeBool(stream, obj["new_value"], callback);
+    break;
+    case 1009460347:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["prev_value"], callback);
+        writeInt32(stream, obj["new_value"], callback);
+    break;
+    case 1147126836:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["prev_value"], callback);
+        writeInt64(stream, obj["new_value"], callback);
     break;
     }
 }
@@ -14943,13 +15343,13 @@ void readTLPollResults(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -591909213:
+    case 2061444128:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["min"] = true;
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["results"], (void*) &readTLPollAnswerVoters);
         if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["total_voters"], callback);
-        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["recent_voters"], (void*) &readInt64);
+        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["recent_voters"], (void*) &readTLPeer);
         if (obj["flags"].toUInt() & 16l) readString(stream, obj["solution"], callback);
         if (obj["flags"].toUInt() & 16l) readVector(stream, obj["solution_entities"], (void*) &readTLMessageEntity);
     break;
@@ -14961,7 +15361,7 @@ void writeTLPollResults(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -591909213:
+    case 2061444128:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["min"].isNull()) | 
@@ -14973,7 +15373,7 @@ void writeTLPollResults(TelegramStream &stream, QVariant i, void* callback)
         0), callback);
         if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["results"], (void*) &writeTLPollAnswerVoters);
         if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["total_voters"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["recent_voters"], (void*) &writeInt64);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["recent_voters"], (void*) &writeTLPeer);
         if (obj["flags"].toUInt() & 16l) writeString(stream, obj["solution"], callback);
         if (obj["flags"].toUInt() & 16l) writeVector(stream, obj["solution_entities"], (void*) &writeTLMessageEntity);
     break;
@@ -15051,6 +15451,9 @@ void readTLChatAdminRights(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 2048l) obj["manage_call"] = true;
         if (obj["flags"].toUInt() & 4096l) obj["other"] = true;
         if (obj["flags"].toUInt() & 8192l) obj["manage_topics"] = true;
+        if (obj["flags"].toUInt() & 16384l) obj["post_stories"] = true;
+        if (obj["flags"].toUInt() & 32768l) obj["edit_stories"] = true;
+        if (obj["flags"].toUInt() & 65536l) obj["delete_stories"] = true;
     break;
     }
     i = obj;
@@ -15075,6 +15478,9 @@ void writeTLChatAdminRights(TelegramStream &stream, QVariant i, void* callback)
             (!obj["manage_call"].isNull() << 11) | 
             (!obj["other"].isNull() << 12) | 
             (!obj["manage_topics"].isNull() << 13) | 
+            (!obj["post_stories"].isNull() << 14) | 
+            (!obj["edit_stories"].isNull() << 15) | 
+            (!obj["delete_stories"].isNull() << 16) | 
         0), callback);
     break;
     }
@@ -15323,17 +15729,20 @@ void readTLAutoDownloadSettings(TelegramStream &stream, QVariant &i, void* callb
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1896171181:
+    case -1163561432:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["disabled"] = true;
         if (obj["flags"].toUInt() & 2l) obj["video_preload_large"] = true;
         if (obj["flags"].toUInt() & 4l) obj["audio_preload_next"] = true;
         if (obj["flags"].toUInt() & 8l) obj["phonecalls_less_data"] = true;
+        if (obj["flags"].toUInt() & 16l) obj["stories_preload"] = true;
         readInt32(stream, obj["photo_size_max"], callback);
         readInt64(stream, obj["video_size_max"], callback);
         readInt64(stream, obj["file_size_max"], callback);
         readInt32(stream, obj["video_upload_maxbitrate"], callback);
+        readInt32(stream, obj["small_queue_active_operations_max"], callback);
+        readInt32(stream, obj["large_queue_active_operations_max"], callback);
     break;
     }
     i = obj;
@@ -15343,18 +15752,21 @@ void writeTLAutoDownloadSettings(TelegramStream &stream, QVariant i, void* callb
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1896171181:
+    case -1163561432:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["disabled"].isNull()) | 
             (!obj["video_preload_large"].isNull() << 1) | 
             (!obj["audio_preload_next"].isNull() << 2) | 
             (!obj["phonecalls_less_data"].isNull() << 3) | 
+            (!obj["stories_preload"].isNull() << 4) | 
         0), callback);
         writeInt32(stream, obj["photo_size_max"], callback);
         writeInt64(stream, obj["video_size_max"], callback);
         writeInt64(stream, obj["file_size_max"], callback);
         writeInt32(stream, obj["video_upload_maxbitrate"], callback);
+        writeInt32(stream, obj["small_queue_active_operations_max"], callback);
+        writeInt32(stream, obj["large_queue_active_operations_max"], callback);
     break;
     }
 }
@@ -16144,6 +16556,13 @@ void readTLWebPageAttribute(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 1l) readVector(stream, obj["documents"], (void*) &readTLDocument);
         if (obj["flags"].toUInt() & 2l) readTLThemeSettings(stream, obj["settings"], callback);
     break;
+    case 781501415:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) readTLStoryItem(stream, obj["story"], callback);
+    break;
     }
     i = obj;
 }
@@ -16161,56 +16580,14 @@ void writeTLWebPageAttribute(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["documents"], (void*) &writeTLDocument);
         if (obj["flags"].toUInt() & 2l) writeTLThemeSettings(stream, obj["settings"], callback);
     break;
-    }
-}
-
-void readTLMessageUserVote(TelegramStream &stream, QVariant &i, void* callback)
-{
-    TelegramObject obj;
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 886196148:
-        obj["_"] = conId.toInt();
-        readInt64(stream, obj["user_id"], callback);
-        readByteArray(stream, obj["option"], callback);
-        readInt32(stream, obj["date"], callback);
-    break;
-    case 1017491692:
-        obj["_"] = conId.toInt();
-        readInt64(stream, obj["user_id"], callback);
-        readInt32(stream, obj["date"], callback);
-    break;
-    case -1973033641:
-        obj["_"] = conId.toInt();
-        readInt64(stream, obj["user_id"], callback);
-        readVector(stream, obj["options"], (void*) &readByteArray);
-        readInt32(stream, obj["date"], callback);
-    break;
-    }
-    i = obj;
-}
-
-void writeTLMessageUserVote(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 886196148:
+    case 781501415:
         writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["user_id"], callback);
-        writeByteArray(stream, obj["option"], callback);
-        writeInt32(stream, obj["date"], callback);
-    break;
-    case 1017491692:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["user_id"], callback);
-        writeInt32(stream, obj["date"], callback);
-    break;
-    case -1973033641:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["user_id"], callback);
-        writeVector(stream, obj["options"], (void*) &writeByteArray);
-        writeInt32(stream, obj["date"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["story"].isNull()) | 
+        0), callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLStoryItem(stream, obj["story"], callback);
     break;
     }
 }
@@ -16221,11 +16598,12 @@ void readTLMessagesVotesList(TelegramStream &stream, QVariant &i, void* callback
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 136574537:
+    case 1218005070:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         readInt32(stream, obj["count"], callback);
-        readVector(stream, obj["votes"], (void*) &readTLMessageUserVote);
+        readVector(stream, obj["votes"], (void*) &readTLMessagePeerVote);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
         readVector(stream, obj["users"], (void*) &readTLUser);
         if (obj["flags"].toUInt() & 1l) readString(stream, obj["next_offset"], callback);
     break;
@@ -16237,13 +16615,14 @@ void writeTLMessagesVotesList(TelegramStream &stream, QVariant i, void* callback
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 136574537:
+    case 1218005070:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["next_offset"].isNull()) | 
         0), callback);
         writeInt32(stream, obj["count"], callback);
-        writeVector(stream, obj["votes"], (void*) &writeTLMessageUserVote);
+        writeVector(stream, obj["votes"], (void*) &writeTLMessagePeerVote);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
         writeVector(stream, obj["users"], (void*) &writeTLUser);
         if (obj["flags"].toUInt() & 1l) writeString(stream, obj["next_offset"], callback);
     break;
@@ -16883,10 +17262,12 @@ void readTLGlobalPrivacySettings(TelegramStream &stream, QVariant &i, void* call
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1096616924:
+    case 1934380235:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
-        if (obj["flags"].toUInt() & 1l) readBool(stream, obj["archive_and_mute_new_noncontact_peers"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["archive_and_mute_new_noncontact_peers"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["keep_archived_unmuted"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["keep_archived_folders"] = true;
     break;
     }
     i = obj;
@@ -16896,12 +17277,13 @@ void writeTLGlobalPrivacySettings(TelegramStream &stream, QVariant i, void* call
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1096616924:
+    case 1934380235:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["archive_and_mute_new_noncontact_peers"].isNull()) | 
+            (!obj["keep_archived_unmuted"].isNull() << 1) | 
+            (!obj["keep_archived_folders"].isNull() << 2) | 
         0), callback);
-        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["archive_and_mute_new_noncontact_peers"], callback);
     break;
     }
 }
@@ -17123,14 +17505,24 @@ void readTLMessageReplyHeader(TelegramStream &stream, QVariant &i, void* callbac
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1495959709:
+    case 1860946621:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 4l) obj["reply_to_scheduled"] = true;
         if (obj["flags"].toUInt() & 8l) obj["forum_topic"] = true;
-        readInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 512l) obj["quote"] = true;
+        if (obj["flags"].toUInt() & 16l) readInt32(stream, obj["reply_to_msg_id"], callback);
         if (obj["flags"].toUInt() & 1l) readTLPeer(stream, obj["reply_to_peer_id"], callback);
+        if (obj["flags"].toUInt() & 32l) readTLMessageFwdHeader(stream, obj["reply_from"], callback);
+        if (obj["flags"].toUInt() & 256l) readTLMessageMedia(stream, obj["reply_media"], callback);
         if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["reply_to_top_id"], callback);
+        if (obj["flags"].toUInt() & 64l) readString(stream, obj["quote_text"], callback);
+        if (obj["flags"].toUInt() & 128l) readVector(stream, obj["quote_entities"], (void*) &readTLMessageEntity);
+    break;
+    case -1667711039:
+        obj["_"] = conId.toInt();
+        readInt64(stream, obj["user_id"], callback);
+        readInt32(stream, obj["story_id"], callback);
     break;
     }
     i = obj;
@@ -17140,17 +17532,32 @@ void writeTLMessageReplyHeader(TelegramStream &stream, QVariant i, void* callbac
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1495959709:
+    case 1860946621:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["reply_to_scheduled"].isNull() << 2) | 
             (!obj["forum_topic"].isNull() << 3) | 
+            (!obj["quote"].isNull() << 9) | 
+            (!obj["reply_to_msg_id"].isNull() << 4) | 
             (!obj["reply_to_peer_id"].isNull()) | 
+            (!obj["reply_from"].isNull() << 5) | 
+            (!obj["reply_media"].isNull() << 8) | 
             (!obj["reply_to_top_id"].isNull() << 1) | 
+            (!obj["quote_text"].isNull() << 6) | 
+            (!obj["quote_entities"].isNull() << 7) | 
         0), callback);
-        writeInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 16l) writeInt32(stream, obj["reply_to_msg_id"], callback);
         if (obj["flags"].toUInt() & 1l) writeTLPeer(stream, obj["reply_to_peer_id"], callback);
+        if (obj["flags"].toUInt() & 32l) writeTLMessageFwdHeader(stream, obj["reply_from"], callback);
+        if (obj["flags"].toUInt() & 256l) writeTLMessageMedia(stream, obj["reply_media"], callback);
         if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["reply_to_top_id"], callback);
+        if (obj["flags"].toUInt() & 64l) writeString(stream, obj["quote_text"], callback);
+        if (obj["flags"].toUInt() & 128l) writeVector(stream, obj["quote_entities"], (void*) &writeTLMessageEntity);
+    break;
+    case -1667711039:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["story_id"], callback);
     break;
     }
 }
@@ -18108,7 +18515,7 @@ void readTLSponsoredMessage(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -64636888:
+    case -626000021:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 32l) obj["recommended"] = true;
@@ -18119,6 +18526,7 @@ void readTLSponsoredMessage(TelegramStream &stream, QVariant &i, void* callback)
         if (obj["flags"].toUInt() & 16l) readString(stream, obj["chat_invite_hash"], callback);
         if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["channel_post"], callback);
         if (obj["flags"].toUInt() & 1l) readString(stream, obj["start_param"], callback);
+        if (obj["flags"].toUInt() & 512l) readTLSponsoredWebPage(stream, obj["webpage"], callback);
         readString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
         if (obj["flags"].toUInt() & 128l) readString(stream, obj["sponsor_info"], callback);
@@ -18132,7 +18540,7 @@ void writeTLSponsoredMessage(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -64636888:
+    case -626000021:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["recommended"].isNull() << 5) | 
@@ -18142,6 +18550,7 @@ void writeTLSponsoredMessage(TelegramStream &stream, QVariant i, void* callback)
             (!obj["chat_invite_hash"].isNull() << 4) | 
             (!obj["channel_post"].isNull() << 2) | 
             (!obj["start_param"].isNull()) | 
+            (!obj["webpage"].isNull() << 9) | 
             (!obj["entities"].isNull() << 1) | 
             (!obj["sponsor_info"].isNull() << 7) | 
             (!obj["additional_info"].isNull() << 8) | 
@@ -18152,6 +18561,7 @@ void writeTLSponsoredMessage(TelegramStream &stream, QVariant i, void* callback)
         if (obj["flags"].toUInt() & 16l) writeString(stream, obj["chat_invite_hash"], callback);
         if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["channel_post"], callback);
         if (obj["flags"].toUInt() & 1l) writeString(stream, obj["start_param"], callback);
+        if (obj["flags"].toUInt() & 512l) writeTLSponsoredWebPage(stream, obj["webpage"], callback);
         writeString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
         if (obj["flags"].toUInt() & 128l) writeString(stream, obj["sponsor_info"], callback);
@@ -18822,15 +19232,18 @@ void readTLAttachMenuBot(TelegramStream &stream, QVariant &i, void* callback)
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -928371502:
+    case -653423106:
         obj["_"] = conId.toInt();
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["inactive"] = true;
         if (obj["flags"].toUInt() & 2l) obj["has_settings"] = true;
         if (obj["flags"].toUInt() & 4l) obj["request_write_access"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["show_in_attach_menu"] = true;
+        if (obj["flags"].toUInt() & 16l) obj["show_in_side_menu"] = true;
+        if (obj["flags"].toUInt() & 32l) obj["side_menu_disclaimer_needed"] = true;
         readInt64(stream, obj["bot_id"], callback);
         readString(stream, obj["short_name"], callback);
-        readVector(stream, obj["peer_types"], (void*) &readTLAttachMenuPeerType);
+        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["peer_types"], (void*) &readTLAttachMenuPeerType);
         readVector(stream, obj["icons"], (void*) &readTLAttachMenuBotIcon);
     break;
     }
@@ -18841,16 +19254,20 @@ void writeTLAttachMenuBot(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -928371502:
+    case -653423106:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["inactive"].isNull()) | 
             (!obj["has_settings"].isNull() << 1) | 
             (!obj["request_write_access"].isNull() << 2) | 
+            (!obj["show_in_attach_menu"].isNull() << 3) | 
+            (!obj["show_in_side_menu"].isNull() << 4) | 
+            (!obj["side_menu_disclaimer_needed"].isNull() << 5) | 
+            (!obj["peer_types"].isNull() << 3) | 
         0), callback);
         writeInt64(stream, obj["bot_id"], callback);
         writeString(stream, obj["short_name"], callback);
-        writeVector(stream, obj["peer_types"], (void*) &writeTLAttachMenuPeerType);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["peer_types"], (void*) &writeTLAttachMenuPeerType);
         writeVector(stream, obj["icons"], (void*) &writeTLAttachMenuBotIcon);
     break;
     }
@@ -19211,6 +19628,11 @@ void readTLInputInvoice(TelegramStream &stream, QVariant &i, void* callback)
         obj["_"] = conId.toInt();
         readString(stream, obj["slug"], callback);
     break;
+    case -1734841331:
+        obj["_"] = conId.toInt();
+        readTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
+        readTLPremiumGiftCodeOption(stream, obj["option"], callback);
+    break;
     }
     i = obj;
 }
@@ -19227,6 +19649,11 @@ void writeTLInputInvoice(TelegramStream &stream, QVariant i, void* callback)
     case -1020867857:
         writeInt32(stream, obj["_"], callback);
         writeString(stream, obj["slug"], callback);
+    break;
+    case -1734841331:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
+        writeTLPremiumGiftCodeOption(stream, obj["option"], callback);
     break;
     }
 }
@@ -19341,6 +19768,26 @@ void readTLInputStorePaymentPurpose(TelegramStream &stream, QVariant &i, void* c
         readString(stream, obj["currency"], callback);
         readInt64(stream, obj["amount"], callback);
     break;
+    case -1551868097:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readVector(stream, obj["users"], (void*) &readTLInputUser);
+        if (obj["flags"].toUInt() & 1l) readTLInputPeer(stream, obj["boost_peer"], callback);
+        readString(stream, obj["currency"], callback);
+        readInt64(stream, obj["amount"], callback);
+    break;
+    case 2090038758:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["only_new_subscribers"] = true;
+        readTLInputPeer(stream, obj["boost_peer"], callback);
+        if (obj["flags"].toUInt() & 2l) readVector(stream, obj["additional_peers"], (void*) &readTLInputPeer);
+        if (obj["flags"].toUInt() & 4l) readVector(stream, obj["countries_iso2"], (void*) &readString);
+        readInt64(stream, obj["random_id"], callback);
+        readInt32(stream, obj["until_date"], callback);
+        readString(stream, obj["currency"], callback);
+        readInt64(stream, obj["amount"], callback);
+    break;
     }
     i = obj;
 }
@@ -19359,6 +19806,31 @@ void writeTLInputStorePaymentPurpose(TelegramStream &stream, QVariant i, void* c
     case 1634697192:
         writeInt32(stream, obj["_"], callback);
         writeTLInputUser(stream, obj["user_id"], callback);
+        writeString(stream, obj["currency"], callback);
+        writeInt64(stream, obj["amount"], callback);
+    break;
+    case -1551868097:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["boost_peer"].isNull()) | 
+        0), callback);
+        writeVector(stream, obj["users"], (void*) &writeTLInputUser);
+        if (obj["flags"].toUInt() & 1l) writeTLInputPeer(stream, obj["boost_peer"], callback);
+        writeString(stream, obj["currency"], callback);
+        writeInt64(stream, obj["amount"], callback);
+    break;
+    case 2090038758:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["only_new_subscribers"].isNull()) | 
+            (!obj["additional_peers"].isNull() << 1) | 
+            (!obj["countries_iso2"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["boost_peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["additional_peers"], (void*) &writeTLInputPeer);
+        if (obj["flags"].toUInt() & 4l) writeVector(stream, obj["countries_iso2"], (void*) &writeString);
+        writeInt64(stream, obj["random_id"], callback);
+        writeInt32(stream, obj["until_date"], callback);
         writeString(stream, obj["currency"], callback);
         writeInt64(stream, obj["amount"], callback);
     break;
@@ -20526,6 +20998,7 @@ void readTLMessagesBotApp(TelegramStream &stream, QVariant &i, void* callback)
         readUInt32(stream, obj["flags"], callback);
         if (obj["flags"].toUInt() & 1l) obj["inactive"] = true;
         if (obj["flags"].toUInt() & 2l) obj["request_write_access"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["has_settings"] = true;
         readTLBotApp(stream, obj["app"], callback);
     break;
     }
@@ -20541,6 +21014,7 @@ void writeTLMessagesBotApp(TelegramStream &stream, QVariant i, void* callback)
         writeUInt32(stream, obj["flags"] = (
             (!obj["inactive"].isNull()) | 
             (!obj["request_write_access"].isNull() << 1) | 
+            (!obj["has_settings"].isNull() << 2) | 
         0), callback);
         writeTLBotApp(stream, obj["app"], callback);
     break;
@@ -20850,6 +21324,1105 @@ void writeTLBotsBotInfo(TelegramStream &stream, QVariant i, void* callback)
     }
 }
 
+void readTLMessagePeerVote(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1228133028:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readByteArray(stream, obj["option"], callback);
+        readInt32(stream, obj["date"], callback);
+    break;
+    case 1959634180:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["date"], callback);
+    break;
+    case 1177089766:
+        obj["_"] = conId.toInt();
+        readTLPeer(stream, obj["peer"], callback);
+        readVector(stream, obj["options"], (void*) &readByteArray);
+        readInt32(stream, obj["date"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLMessagePeerVote(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1228133028:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeByteArray(stream, obj["option"], callback);
+        writeInt32(stream, obj["date"], callback);
+    break;
+    case 1959634180:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["date"], callback);
+    break;
+    case 1177089766:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["options"], (void*) &writeByteArray);
+        writeInt32(stream, obj["date"], callback);
+    break;
+    }
+}
+
+void readTLSponsoredWebPage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1035529315:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readString(stream, obj["url"], callback);
+        readString(stream, obj["site_name"], callback);
+        if (obj["flags"].toUInt() & 1l) readTLPhoto(stream, obj["photo"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLSponsoredWebPage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1035529315:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["photo"].isNull()) | 
+        0), callback);
+        writeString(stream, obj["url"], callback);
+        writeString(stream, obj["site_name"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLPhoto(stream, obj["photo"], callback);
+    break;
+    }
+}
+
+void readTLStoryViews(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1923523370:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 2l) obj["has_viewers"] = true;
+        readInt32(stream, obj["views_count"], callback);
+        if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["forwards_count"], callback);
+        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["reactions"], (void*) &readTLReactionCount);
+        if (obj["flags"].toUInt() & 16l) readInt32(stream, obj["reactions_count"], callback);
+        if (obj["flags"].toUInt() & 1l) readVector(stream, obj["recent_viewers"], (void*) &readInt64);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoryViews(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1923523370:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["has_viewers"].isNull() << 1) | 
+            (!obj["forwards_count"].isNull() << 2) | 
+            (!obj["reactions"].isNull() << 3) | 
+            (!obj["reactions_count"].isNull() << 4) | 
+            (!obj["recent_viewers"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["views_count"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["forwards_count"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["reactions"], (void*) &writeTLReactionCount);
+        if (obj["flags"].toUInt() & 16l) writeInt32(stream, obj["reactions_count"], callback);
+        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["recent_viewers"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLStoryItem(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1374088783:
+        obj["_"] = conId.toInt();
+        readInt32(stream, obj["id"], callback);
+    break;
+    case -5388013:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 256l) obj["close_friends"] = true;
+        readInt32(stream, obj["id"], callback);
+        readInt32(stream, obj["date"], callback);
+        readInt32(stream, obj["expire_date"], callback);
+    break;
+    case 1153718222:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 32l) obj["pinned"] = true;
+        if (obj["flags"].toUInt() & 128l) obj["public"] = true;
+        if (obj["flags"].toUInt() & 256l) obj["close_friends"] = true;
+        if (obj["flags"].toUInt() & 512l) obj["min"] = true;
+        if (obj["flags"].toUInt() & 1024l) obj["noforwards"] = true;
+        if (obj["flags"].toUInt() & 2048l) obj["edited"] = true;
+        if (obj["flags"].toUInt() & 4096l) obj["contacts"] = true;
+        if (obj["flags"].toUInt() & 8192l) obj["selected_contacts"] = true;
+        if (obj["flags"].toUInt() & 65536l) obj["out"] = true;
+        readInt32(stream, obj["id"], callback);
+        readInt32(stream, obj["date"], callback);
+        readInt32(stream, obj["expire_date"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["caption"], callback);
+        if (obj["flags"].toUInt() & 2l) readVector(stream, obj["entities"], (void*) &readTLMessageEntity);
+        readTLMessageMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 16384l) readVector(stream, obj["media_areas"], (void*) &readTLMediaArea);
+        if (obj["flags"].toUInt() & 4l) readVector(stream, obj["privacy"], (void*) &readTLPrivacyRule);
+        if (obj["flags"].toUInt() & 8l) readTLStoryViews(stream, obj["views"], callback);
+        if (obj["flags"].toUInt() & 32768l) readTLReaction(stream, obj["sent_reaction"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoryItem(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1374088783:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["id"], callback);
+    break;
+    case -5388013:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["close_friends"].isNull() << 8) | 
+        0), callback);
+        writeInt32(stream, obj["id"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["expire_date"], callback);
+    break;
+    case 1153718222:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["pinned"].isNull() << 5) | 
+            (!obj["public"].isNull() << 7) | 
+            (!obj["close_friends"].isNull() << 8) | 
+            (!obj["min"].isNull() << 9) | 
+            (!obj["noforwards"].isNull() << 10) | 
+            (!obj["edited"].isNull() << 11) | 
+            (!obj["contacts"].isNull() << 12) | 
+            (!obj["selected_contacts"].isNull() << 13) | 
+            (!obj["out"].isNull() << 16) | 
+            (!obj["caption"].isNull()) | 
+            (!obj["entities"].isNull() << 1) | 
+            (!obj["media_areas"].isNull() << 14) | 
+            (!obj["privacy"].isNull() << 2) | 
+            (!obj["views"].isNull() << 3) | 
+            (!obj["sent_reaction"].isNull() << 15) | 
+        0), callback);
+        writeInt32(stream, obj["id"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["expire_date"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["caption"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        writeTLMessageMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 16384l) writeVector(stream, obj["media_areas"], (void*) &writeTLMediaArea);
+        if (obj["flags"].toUInt() & 4l) writeVector(stream, obj["privacy"], (void*) &writeTLPrivacyRule);
+        if (obj["flags"].toUInt() & 8l) writeTLStoryViews(stream, obj["views"], callback);
+        if (obj["flags"].toUInt() & 32768l) writeTLReaction(stream, obj["sent_reaction"], callback);
+    break;
+    }
+}
+
+void readTLStoriesAllStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 291044926:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readString(stream, obj["state"], callback);
+        readTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    case 1862033025:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["has_more"] = true;
+        readInt32(stream, obj["count"], callback);
+        readString(stream, obj["state"], callback);
+        readVector(stream, obj["peer_stories"], (void*) &readTLPeerStories);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+        readTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesAllStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 291044926:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+        0), callback);
+        writeString(stream, obj["state"], callback);
+        writeTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    case 1862033025:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["has_more"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["count"], callback);
+        writeString(stream, obj["state"], callback);
+        writeVector(stream, obj["peer_stories"], (void*) &writeTLPeerStories);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+        writeTLStoriesStealthMode(stream, obj["stealth_mode"], callback);
+    break;
+    }
+}
+
+void readTLStoriesStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1574486984:
+        obj["_"] = conId.toInt();
+        readInt32(stream, obj["count"], callback);
+        readVector(stream, obj["stories"], (void*) &readTLStoryItem);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1574486984:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["count"], callback);
+        writeVector(stream, obj["stories"], (void*) &writeTLStoryItem);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLStoryView(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1329730875:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["blocked"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["blocked_my_stories_from"] = true;
+        readInt64(stream, obj["user_id"], callback);
+        readInt32(stream, obj["date"], callback);
+        if (obj["flags"].toUInt() & 4l) readTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoryView(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1329730875:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["blocked"].isNull()) | 
+            (!obj["blocked_my_stories_from"].isNull() << 1) | 
+            (!obj["reaction"].isNull() << 2) | 
+        0), callback);
+        writeInt64(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["date"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+}
+
+void readTLStoriesStoryViewsList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1189722604:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readInt32(stream, obj["count"], callback);
+        readInt32(stream, obj["reactions_count"], callback);
+        readVector(stream, obj["views"], (void*) &readTLStoryView);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["next_offset"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesStoryViewsList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1189722604:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["next_offset"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["count"], callback);
+        writeInt32(stream, obj["reactions_count"], callback);
+        writeVector(stream, obj["views"], (void*) &writeTLStoryView);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["next_offset"], callback);
+    break;
+    }
+}
+
+void readTLStoriesStoryViews(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -560009955:
+        obj["_"] = conId.toInt();
+        readVector(stream, obj["views"], (void*) &readTLStoryViews);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesStoryViews(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -560009955:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["views"], (void*) &writeTLStoryViews);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLInputReplyTo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 121554949:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["top_msg_id"], callback);
+        if (obj["flags"].toUInt() & 2l) readTLInputPeer(stream, obj["reply_to_peer_id"], callback);
+        if (obj["flags"].toUInt() & 4l) readString(stream, obj["quote_text"], callback);
+        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["quote_entities"], (void*) &readTLMessageEntity);
+    break;
+    case 363917955:
+        obj["_"] = conId.toInt();
+        readTLInputUser(stream, obj["user_id"], callback);
+        readInt32(stream, obj["story_id"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLInputReplyTo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 121554949:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+            (!obj["reply_to_peer_id"].isNull() << 1) | 
+            (!obj["quote_text"].isNull() << 2) | 
+            (!obj["quote_entities"].isNull() << 3) | 
+        0), callback);
+        writeInt32(stream, obj["reply_to_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputPeer(stream, obj["reply_to_peer_id"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["quote_text"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["quote_entities"], (void*) &writeTLMessageEntity);
+    break;
+    case 363917955:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["story_id"], callback);
+    break;
+    }
+}
+
+void readTLExportedStoryLink(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1070138683:
+        obj["_"] = conId.toInt();
+        readString(stream, obj["link"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLExportedStoryLink(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1070138683:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["link"], callback);
+    break;
+    }
+}
+
+void readTLStoriesStealthMode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1898850301:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["active_until_date"], callback);
+        if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["cooldown_until_date"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesStealthMode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1898850301:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["active_until_date"].isNull()) | 
+            (!obj["cooldown_until_date"].isNull() << 1) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["active_until_date"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["cooldown_until_date"], callback);
+    break;
+    }
+}
+
+void readTLMediaAreaCoordinates(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 64088654:
+        obj["_"] = conId.toInt();
+        readDouble(stream, obj["x"], callback);
+        readDouble(stream, obj["y"], callback);
+        readDouble(stream, obj["w"], callback);
+        readDouble(stream, obj["h"], callback);
+        readDouble(stream, obj["rotation"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLMediaAreaCoordinates(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 64088654:
+        writeInt32(stream, obj["_"], callback);
+        writeDouble(stream, obj["x"], callback);
+        writeDouble(stream, obj["y"], callback);
+        writeDouble(stream, obj["w"], callback);
+        writeDouble(stream, obj["h"], callback);
+        writeDouble(stream, obj["rotation"], callback);
+    break;
+    }
+}
+
+void readTLMediaArea(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1098720356:
+        obj["_"] = conId.toInt();
+        readTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        readTLGeoPoint(stream, obj["geo"], callback);
+        readString(stream, obj["title"], callback);
+        readString(stream, obj["address"], callback);
+        readString(stream, obj["provider"], callback);
+        readString(stream, obj["venue_id"], callback);
+        readString(stream, obj["venue_type"], callback);
+    break;
+    case -1300094593:
+        obj["_"] = conId.toInt();
+        readTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        readInt64(stream, obj["query_id"], callback);
+        readString(stream, obj["result_id"], callback);
+    break;
+    case -544523486:
+        obj["_"] = conId.toInt();
+        readTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        readTLGeoPoint(stream, obj["geo"], callback);
+    break;
+    case 340088945:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["dark"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["flipped"] = true;
+        readTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        readTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLMediaArea(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1098720356:
+        writeInt32(stream, obj["_"], callback);
+        writeTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        writeTLGeoPoint(stream, obj["geo"], callback);
+        writeString(stream, obj["title"], callback);
+        writeString(stream, obj["address"], callback);
+        writeString(stream, obj["provider"], callback);
+        writeString(stream, obj["venue_id"], callback);
+        writeString(stream, obj["venue_type"], callback);
+    break;
+    case -1300094593:
+        writeInt32(stream, obj["_"], callback);
+        writeTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        writeInt64(stream, obj["query_id"], callback);
+        writeString(stream, obj["result_id"], callback);
+    break;
+    case -544523486:
+        writeInt32(stream, obj["_"], callback);
+        writeTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        writeTLGeoPoint(stream, obj["geo"], callback);
+    break;
+    case 340088945:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["dark"].isNull()) | 
+            (!obj["flipped"].isNull() << 1) | 
+        0), callback);
+        writeTLMediaAreaCoordinates(stream, obj["coordinates"], callback);
+        writeTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+}
+
+void readTLPeerStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1707742823:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readTLPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["max_read_id"], callback);
+        readVector(stream, obj["stories"], (void*) &readTLStoryItem);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPeerStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1707742823:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["max_read_id"].isNull()) | 
+        0), callback);
+        writeTLPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["max_read_id"], callback);
+        writeVector(stream, obj["stories"], (void*) &writeTLStoryItem);
+    break;
+    }
+}
+
+void readTLStoriesPeerStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -890861720:
+        obj["_"] = conId.toInt();
+        readTLPeerStories(stream, obj["stories"], callback);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLStoriesPeerStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -890861720:
+        writeInt32(stream, obj["_"], callback);
+        writeTLPeerStories(stream, obj["stories"], callback);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLMessagesWebPage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -44166467:
+        obj["_"] = conId.toInt();
+        readTLWebPage(stream, obj["webpage"], callback);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLMessagesWebPage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -44166467:
+        writeInt32(stream, obj["_"], callback);
+        writeTLWebPage(stream, obj["webpage"], callback);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLPremiumGiftCodeOption(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 629052971:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readInt32(stream, obj["users"], callback);
+        readInt32(stream, obj["months"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["store_product"], callback);
+        if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["store_quantity"], callback);
+        readString(stream, obj["currency"], callback);
+        readInt64(stream, obj["amount"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPremiumGiftCodeOption(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 629052971:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["store_product"].isNull()) | 
+            (!obj["store_quantity"].isNull() << 1) | 
+        0), callback);
+        writeInt32(stream, obj["users"], callback);
+        writeInt32(stream, obj["months"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["store_product"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["store_quantity"], callback);
+        writeString(stream, obj["currency"], callback);
+        writeInt64(stream, obj["amount"], callback);
+    break;
+    }
+}
+
+void readTLPaymentsCheckedGiftCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1222446760:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 4l) obj["via_giveaway"] = true;
+        readTLPeer(stream, obj["from_id"], callback);
+        if (obj["flags"].toUInt() & 8l) readInt32(stream, obj["giveaway_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt64(stream, obj["to_id"], callback);
+        readInt32(stream, obj["date"], callback);
+        readInt32(stream, obj["months"], callback);
+        if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["used_date"], callback);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPaymentsCheckedGiftCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1222446760:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["via_giveaway"].isNull() << 2) | 
+            (!obj["giveaway_msg_id"].isNull() << 3) | 
+            (!obj["to_id"].isNull()) | 
+            (!obj["used_date"].isNull() << 1) | 
+        0), callback);
+        writeTLPeer(stream, obj["from_id"], callback);
+        if (obj["flags"].toUInt() & 8l) writeInt32(stream, obj["giveaway_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["to_id"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["months"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["used_date"], callback);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLPaymentsGiveawayInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1130879648:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["participating"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["preparing_results"] = true;
+        readInt32(stream, obj["start_date"], callback);
+        if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["joined_too_early_date"], callback);
+        if (obj["flags"].toUInt() & 4l) readInt64(stream, obj["admin_disallowed_chat_id"], callback);
+        if (obj["flags"].toUInt() & 16l) readString(stream, obj["disallowed_country"], callback);
+    break;
+    case 13456752:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 1l) obj["winner"] = true;
+        if (obj["flags"].toUInt() & 2l) obj["refunded"] = true;
+        readInt32(stream, obj["start_date"], callback);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["gift_code_slug"], callback);
+        readInt32(stream, obj["finish_date"], callback);
+        readInt32(stream, obj["winners_count"], callback);
+        readInt32(stream, obj["activated_count"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPaymentsGiveawayInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1130879648:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["participating"].isNull()) | 
+            (!obj["preparing_results"].isNull() << 3) | 
+            (!obj["joined_too_early_date"].isNull() << 1) | 
+            (!obj["admin_disallowed_chat_id"].isNull() << 2) | 
+            (!obj["disallowed_country"].isNull() << 4) | 
+        0), callback);
+        writeInt32(stream, obj["start_date"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["joined_too_early_date"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt64(stream, obj["admin_disallowed_chat_id"], callback);
+        if (obj["flags"].toUInt() & 16l) writeString(stream, obj["disallowed_country"], callback);
+    break;
+    case 13456752:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["winner"].isNull()) | 
+            (!obj["refunded"].isNull() << 1) | 
+            (!obj["gift_code_slug"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["start_date"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["gift_code_slug"], callback);
+        writeInt32(stream, obj["finish_date"], callback);
+        writeInt32(stream, obj["winners_count"], callback);
+        writeInt32(stream, obj["activated_count"], callback);
+    break;
+    }
+}
+
+void readTLPrepaidGiveaway(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1303143084:
+        obj["_"] = conId.toInt();
+        readInt64(stream, obj["id"], callback);
+        readInt32(stream, obj["months"], callback);
+        readInt32(stream, obj["quantity"], callback);
+        readInt32(stream, obj["date"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPrepaidGiveaway(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1303143084:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["id"], callback);
+        writeInt32(stream, obj["months"], callback);
+        writeInt32(stream, obj["quantity"], callback);
+        writeInt32(stream, obj["date"], callback);
+    break;
+    }
+}
+
+void readTLBoost(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 706514033:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 2l) obj["gift"] = true;
+        if (obj["flags"].toUInt() & 4l) obj["giveaway"] = true;
+        if (obj["flags"].toUInt() & 8l) obj["unclaimed"] = true;
+        readString(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt64(stream, obj["user_id"], callback);
+        if (obj["flags"].toUInt() & 4l) readInt32(stream, obj["giveaway_msg_id"], callback);
+        readInt32(stream, obj["date"], callback);
+        readInt32(stream, obj["expires"], callback);
+        if (obj["flags"].toUInt() & 16l) readString(stream, obj["used_gift_slug"], callback);
+        if (obj["flags"].toUInt() & 32l) readInt32(stream, obj["multiplier"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLBoost(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 706514033:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["gift"].isNull() << 1) | 
+            (!obj["giveaway"].isNull() << 2) | 
+            (!obj["unclaimed"].isNull() << 3) | 
+            (!obj["user_id"].isNull()) | 
+            (!obj["giveaway_msg_id"].isNull() << 2) | 
+            (!obj["used_gift_slug"].isNull() << 4) | 
+            (!obj["multiplier"].isNull() << 5) | 
+        0), callback);
+        writeString(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["user_id"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["giveaway_msg_id"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["expires"], callback);
+        if (obj["flags"].toUInt() & 16l) writeString(stream, obj["used_gift_slug"], callback);
+        if (obj["flags"].toUInt() & 32l) writeInt32(stream, obj["multiplier"], callback);
+    break;
+    }
+}
+
+void readTLPremiumBoostsList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2030542532:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readInt32(stream, obj["count"], callback);
+        readVector(stream, obj["boosts"], (void*) &readTLBoost);
+        if (obj["flags"].toUInt() & 1l) readString(stream, obj["next_offset"], callback);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPremiumBoostsList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2030542532:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["next_offset"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["count"], callback);
+        writeVector(stream, obj["boosts"], (void*) &writeTLBoost);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["next_offset"], callback);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLMyBoost(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1001897636:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        readInt32(stream, obj["slot"], callback);
+        if (obj["flags"].toUInt() & 1l) readTLPeer(stream, obj["peer"], callback);
+        readInt32(stream, obj["date"], callback);
+        readInt32(stream, obj["expires"], callback);
+        if (obj["flags"].toUInt() & 2l) readInt32(stream, obj["cooldown_until_date"], callback);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLMyBoost(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1001897636:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["peer"].isNull()) | 
+            (!obj["cooldown_until_date"].isNull() << 1) | 
+        0), callback);
+        writeInt32(stream, obj["slot"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["expires"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["cooldown_until_date"], callback);
+    break;
+    }
+}
+
+void readTLPremiumMyBoosts(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1696454430:
+        obj["_"] = conId.toInt();
+        readVector(stream, obj["my_boosts"], (void*) &readTLMyBoost);
+        readVector(stream, obj["chats"], (void*) &readTLChat);
+        readVector(stream, obj["users"], (void*) &readTLUser);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPremiumMyBoosts(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1696454430:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["my_boosts"], (void*) &writeTLMyBoost);
+        writeVector(stream, obj["chats"], (void*) &writeTLChat);
+        writeVector(stream, obj["users"], (void*) &writeTLUser);
+    break;
+    }
+}
+
+void readTLPremiumBoostsStatus(TelegramStream &stream, QVariant &i, void* callback)
+{
+    TelegramObject obj;
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1230586490:
+        obj["_"] = conId.toInt();
+        readUInt32(stream, obj["flags"], callback);
+        if (obj["flags"].toUInt() & 4l) obj["my_boost"] = true;
+        readInt32(stream, obj["level"], callback);
+        readInt32(stream, obj["current_level_boosts"], callback);
+        readInt32(stream, obj["boosts"], callback);
+        if (obj["flags"].toUInt() & 16l) readInt32(stream, obj["gift_boosts"], callback);
+        if (obj["flags"].toUInt() & 1l) readInt32(stream, obj["next_level_boosts"], callback);
+        if (obj["flags"].toUInt() & 2l) readTLStatsPercentValue(stream, obj["premium_audience"], callback);
+        readString(stream, obj["boost_url"], callback);
+        if (obj["flags"].toUInt() & 8l) readVector(stream, obj["prepaid_giveaways"], (void*) &readTLPrepaidGiveaway);
+        if (obj["flags"].toUInt() & 4l) readVector(stream, obj["my_boost_slots"], (void*) &readInt32);
+    break;
+    }
+    i = obj;
+}
+
+void writeTLPremiumBoostsStatus(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1230586490:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["my_boost"].isNull() << 2) | 
+            (!obj["gift_boosts"].isNull() << 4) | 
+            (!obj["next_level_boosts"].isNull()) | 
+            (!obj["premium_audience"].isNull() << 1) | 
+            (!obj["prepaid_giveaways"].isNull() << 3) | 
+            (!obj["my_boost_slots"].isNull() << 2) | 
+        0), callback);
+        writeInt32(stream, obj["level"], callback);
+        writeInt32(stream, obj["current_level_boosts"], callback);
+        writeInt32(stream, obj["boosts"], callback);
+        if (obj["flags"].toUInt() & 16l) writeInt32(stream, obj["gift_boosts"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["next_level_boosts"], callback);
+        if (obj["flags"].toUInt() & 2l) writeTLStatsPercentValue(stream, obj["premium_audience"], callback);
+        writeString(stream, obj["boost_url"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["prepaid_giveaways"], (void*) &writeTLPrepaidGiveaway);
+        if (obj["flags"].toUInt() & 4l) writeVector(stream, obj["my_boost_slots"], (void*) &writeInt32);
+    break;
+    }
+}
+
 void readTLMethodAuthSendCode(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -21037,6 +22610,334 @@ void writeTLMethodAuthBindTempAuthKey(TelegramStream &stream, QVariant i, void* 
         writeInt64(stream, obj["nonce"], callback);
         writeInt32(stream, obj["expires_at"], callback);
         writeByteArray(stream, obj["encrypted_message"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthImportBotAuthorization(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1738800940:
+        readTLAuthAuthorization(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthImportBotAuthorization(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1738800940:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["flags"], callback);
+        writeInt32(stream, obj["api_id"], callback);
+        writeString(stream, obj["api_hash"], callback);
+        writeString(stream, obj["bot_auth_token"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthCheckPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -779399914:
+        readTLAuthAuthorization(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthCheckPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -779399914:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthRequestPasswordRecovery(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -661144474:
+        readTLAuthPasswordRecovery(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthRequestPasswordRecovery(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -661144474:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthRecoverPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 923364464:
+        readTLAuthAuthorization(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthRecoverPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 923364464:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["new_settings"].isNull()) | 
+        0), callback);
+        writeString(stream, obj["code"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLAccountPasswordInputSettings(stream, obj["new_settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthResendCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1056025023:
+        readTLAuthSentCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthResendCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1056025023:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthCancelCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 520357240:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthCancelCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 520357240:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthDropTempAuthKeys(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1907842680:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthDropTempAuthKeys(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1907842680:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["except_auth_keys"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodAuthExportLoginToken(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1210022402:
+        readTLAuthLoginToken(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthExportLoginToken(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1210022402:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["api_id"], callback);
+        writeString(stream, obj["api_hash"], callback);
+        writeVector(stream, obj["except_ids"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodAuthImportLoginToken(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1783866140:
+        readTLAuthLoginToken(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthImportLoginToken(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1783866140:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["token"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthAcceptLoginToken(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -392909491:
+        readTLAuthorization(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthAcceptLoginToken(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -392909491:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["token"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthCheckRecoveryPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 221691769:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthCheckRecoveryPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 221691769:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["code"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthImportWebTokenAuthorization(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 767062953:
+        readTLAuthAuthorization(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthImportWebTokenAuthorization(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 767062953:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["api_id"], callback);
+        writeString(stream, obj["api_hash"], callback);
+        writeString(stream, obj["web_auth_token"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthRequestFirebaseSms(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1991881904:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthRequestFirebaseSms(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1991881904:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["safety_net_token"].isNull()) | 
+            (!obj["ios_push_secret"].isNull() << 1) | 
+        0), callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["safety_net_token"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["ios_push_secret"], callback);
+    break;
+    }
+}
+
+void readTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2123760019:
+        readTLAuthSentCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2123760019:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
     break;
     }
 }
@@ -21257,6 +23158,1884 @@ void writeTLMethodAccountReportPeer(TelegramStream &stream, QVariant i, void* ca
     }
 }
 
+void readTLMethodAccountCheckUsername(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 655677548:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountCheckUsername(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 655677548:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["username"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdateUsername(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1040964988:
+        readTLUser(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdateUsername(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1040964988:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["username"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetPrivacy(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -623130288:
+        readTLAccountPrivacyRules(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetPrivacy(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -623130288:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPrivacyKey(stream, obj["key"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetPrivacy(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -906486552:
+        readTLAccountPrivacyRules(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetPrivacy(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -906486552:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPrivacyKey(stream, obj["key"], callback);
+        writeVector(stream, obj["rules"], (void*) &writeTLInputPrivacyRule);
+    break;
+    }
+}
+
+void readTLMethodAccountDeleteAccount(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1564422284:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountDeleteAccount(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1564422284:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["password"].isNull()) | 
+        0), callback);
+        writeString(stream, obj["reason"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAccountTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 150761757:
+        readTLAccountDaysTTL(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAccountTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 150761757:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetAccountTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 608323678:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetAccountTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 608323678:
+        writeInt32(stream, obj["_"], callback);
+        writeTLAccountDaysTTL(stream, obj["ttl"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSendChangePhoneCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2108208411:
+        readTLAuthSentCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSendChangePhoneCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2108208411:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeTLCodeSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountChangePhone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1891839707:
+        readTLUser(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountChangePhone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1891839707:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+        writeString(stream, obj["phone_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdateDeviceLocked(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 954152242:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdateDeviceLocked(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 954152242:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["period"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -484392616:
+        readTLAccountAuthorizations(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAuthorizations(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -484392616:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResetAuthorization(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -545786948:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResetAuthorization(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -545786948:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1418342645:
+        readTLAccountPassword(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1418342645:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetPasswordSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1663767815:
+        readTLAccountPasswordSettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetPasswordSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1663767815:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdatePasswordSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1516564433:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdatePasswordSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1516564433:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+        writeTLAccountPasswordInputSettings(stream, obj["new_settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSendConfirmPhoneCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 457157256:
+        readTLAuthSentCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSendConfirmPhoneCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 457157256:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["hash"], callback);
+        writeTLCodeSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountConfirmPhone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1596029123:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountConfirmPhone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1596029123:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+        writeString(stream, obj["phone_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetTmpPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1151208273:
+        readTLAccountTmpPassword(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetTmpPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1151208273:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+        writeInt32(stream, obj["period"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetWebAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 405695855:
+        readTLAccountWebAuthorizations(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetWebAuthorizations(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 405695855:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResetWebAuthorization(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 755087855:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResetWebAuthorization(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 755087855:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResetWebAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1747789204:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResetWebAuthorizations(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1747789204:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAllSecureValues(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1299661699:
+        readVector(stream, i, (void*) &readTLSecureValue);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAllSecureValues(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1299661699:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetSecureValue(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1936088002:
+        readVector(stream, i, (void*) &readTLSecureValue);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetSecureValue(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1936088002:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["types"], (void*) &writeTLSecureValueType);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveSecureValue(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1986010339:
+        readTLSecureValue(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveSecureValue(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1986010339:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputSecureValue(stream, obj["value"], callback);
+        writeInt64(stream, obj["secure_secret_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountDeleteSecureValue(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1199522741:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountDeleteSecureValue(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1199522741:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["types"], (void*) &writeTLSecureValueType);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAuthorizationForm(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1456907910:
+        readTLAccountAuthorizationForm(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAuthorizationForm(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1456907910:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["bot_id"], callback);
+        writeString(stream, obj["scope"], callback);
+        writeString(stream, obj["public_key"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountAcceptAuthorization(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -202552205:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountAcceptAuthorization(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -202552205:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["bot_id"], callback);
+        writeString(stream, obj["scope"], callback);
+        writeString(stream, obj["public_key"], callback);
+        writeVector(stream, obj["value_hashes"], (void*) &writeTLSecureValueHash);
+        writeTLSecureCredentialsEncrypted(stream, obj["credentials"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSendVerifyPhoneCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1516022023:
+        readTLAuthSentCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSendVerifyPhoneCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1516022023:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeTLCodeSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountVerifyPhone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1305716726:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountVerifyPhone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1305716726:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone_number"], callback);
+        writeString(stream, obj["phone_code_hash"], callback);
+        writeString(stream, obj["phone_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSendVerifyEmailCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1730136133:
+        readTLAccountSentEmailCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSendVerifyEmailCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1730136133:
+        writeInt32(stream, obj["_"], callback);
+        writeTLEmailVerifyPurpose(stream, obj["purpose"], callback);
+        writeString(stream, obj["email"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountVerifyEmail(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 53322959:
+        readTLAccountEmailVerified(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountVerifyEmail(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 53322959:
+        writeInt32(stream, obj["_"], callback);
+        writeTLEmailVerifyPurpose(stream, obj["purpose"], callback);
+        writeTLEmailVerification(stream, obj["verification"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountInitTakeoutSession(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1896617296:
+        readTLAccountTakeout(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountInitTakeoutSession(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1896617296:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["contacts"].isNull()) | 
+            (!obj["message_users"].isNull() << 1) | 
+            (!obj["message_chats"].isNull() << 2) | 
+            (!obj["message_megagroups"].isNull() << 3) | 
+            (!obj["message_channels"].isNull() << 4) | 
+            (!obj["files"].isNull() << 5) | 
+            (!obj["file_max_size"].isNull() << 5) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 32l) writeInt64(stream, obj["file_max_size"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountFinishTakeoutSession(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 489050862:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountFinishTakeoutSession(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 489050862:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["success"].isNull()) | 
+        0), callback);
+    break;
+    }
+}
+
+void readTLMethodAccountConfirmPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1881204448:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountConfirmPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1881204448:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["code"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResendPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2055154197:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResendPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2055154197:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountCancelPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1043606090:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountCancelPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1043606090:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetContactSignUpNotification(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1626880216:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetContactSignUpNotification(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1626880216:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetContactSignUpNotification(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -806076575:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetContactSignUpNotification(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -806076575:
+        writeInt32(stream, obj["_"], callback);
+        writeBool(stream, obj["silent"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetNotifyExceptions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1398240377:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetNotifyExceptions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1398240377:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["compare_sound"].isNull() << 1) | 
+            (!obj["compare_stories"].isNull() << 2) | 
+            (!obj["peer"].isNull()) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputNotifyPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetWallPaper(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -57811990:
+        readTLWallPaper(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetWallPaper(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -57811990:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUploadWallPaper(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -476410109:
+        readTLWallPaper(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUploadWallPaper(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -476410109:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["for_chat"].isNull()) | 
+        0), callback);
+        writeTLInputFile(stream, obj["file"], callback);
+        writeString(stream, obj["mime_type"], callback);
+        writeTLWallPaperSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveWallPaper(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1817860919:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveWallPaper(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1817860919:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
+        writeBool(stream, obj["unsave"], callback);
+        writeTLWallPaperSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountInstallWallPaper(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -18000023:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountInstallWallPaper(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -18000023:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
+        writeTLWallPaperSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResetWallPapers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1153722364:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResetWallPapers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1153722364:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAutoDownloadSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1457130303:
+        readTLAccountAutoDownloadSettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAutoDownloadSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1457130303:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveAutoDownloadSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1995661875:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveAutoDownloadSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1995661875:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["low"].isNull()) | 
+            (!obj["high"].isNull() << 1) | 
+        0), callback);
+        writeTLAutoDownloadSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUploadTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 473805619:
+        readTLDocument(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUploadTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 473805619:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["thumb"].isNull()) | 
+        0), callback);
+        writeTLInputFile(stream, obj["file"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["thumb"], callback);
+        writeString(stream, obj["file_name"], callback);
+        writeString(stream, obj["mime_type"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountCreateTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1697530880:
+        readTLTheme(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountCreateTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1697530880:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["document"].isNull() << 2) | 
+            (!obj["settings"].isNull() << 3) | 
+        0), callback);
+        writeString(stream, obj["slug"], callback);
+        writeString(stream, obj["title"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["document"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["settings"], (void*) &writeTLInputThemeSettings);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdateTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 737414348:
+        readTLTheme(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdateTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 737414348:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["slug"].isNull()) | 
+            (!obj["title"].isNull() << 1) | 
+            (!obj["document"].isNull() << 2) | 
+            (!obj["settings"].isNull() << 3) | 
+        0), callback);
+        writeString(stream, obj["format"], callback);
+        writeTLInputTheme(stream, obj["theme"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["slug"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["title"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["document"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["settings"], (void*) &writeTLInputThemeSettings);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -229175188:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -229175188:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputTheme(stream, obj["theme"], callback);
+        writeBool(stream, obj["unsave"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountInstallTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -953697477:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountInstallTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -953697477:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["dark"].isNull()) | 
+            (!obj["theme"].isNull() << 1) | 
+            (!obj["format"].isNull() << 2) | 
+            (!obj["base_theme"].isNull() << 3) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputTheme(stream, obj["theme"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["format"], callback);
+        if (obj["flags"].toUInt() & 8l) writeTLBaseTheme(stream, obj["base_theme"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 978872812:
+        readTLTheme(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 978872812:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["format"], callback);
+        writeTLInputTheme(stream, obj["theme"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetThemes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1913054296:
+        readTLAccountThemes(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetThemes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1913054296:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["format"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetContentSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1250643605:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetContentSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1250643605:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["sensitive_enabled"].isNull()) | 
+        0), callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetContentSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1952756306:
+        readTLAccountContentSettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetContentSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1952756306:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetMultiWallPapers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1705865692:
+        readVector(stream, i, (void*) &readTLWallPaper);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetMultiWallPapers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1705865692:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["wallpapers"], (void*) &writeTLInputWallPaper);
+    break;
+    }
+}
+
+void readTLMethodAccountGetGlobalPrivacySettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -349483786:
+        readTLGlobalPrivacySettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetGlobalPrivacySettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -349483786:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetGlobalPrivacySettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 517647042:
+        readTLGlobalPrivacySettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetGlobalPrivacySettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 517647042:
+        writeInt32(stream, obj["_"], callback);
+        writeTLGlobalPrivacySettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountReportProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -91437323:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountReportProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -91437323:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputPhoto(stream, obj["photo_id"], callback);
+        writeTLReportReason(stream, obj["reason"], callback);
+        writeString(stream, obj["message"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountResetPassword(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1828139493:
+        readTLAccountResetPasswordResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountResetPassword(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1828139493:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountDeclinePasswordReset(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1284770294:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountDeclinePasswordReset(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1284770294:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetChatThemes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -700916087:
+        readTLAccountThemes(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetChatThemes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -700916087:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSetAuthorizationTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1081501024:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSetAuthorizationTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1081501024:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["authorization_ttl_days"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountChangeAuthorizationSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1089766498:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountChangeAuthorizationSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1089766498:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["confirmed"].isNull() << 3) | 
+            (!obj["encrypted_requests_disabled"].isNull()) | 
+            (!obj["call_requests_disabled"].isNull() << 1) | 
+        0), callback);
+        writeInt64(stream, obj["hash"], callback);
+        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["encrypted_requests_disabled"], callback);
+        if (obj["flags"].toUInt() & 2l) writeBool(stream, obj["call_requests_disabled"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetSavedRingtones(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -510647672:
+        readTLAccountSavedRingtones(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetSavedRingtones(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -510647672:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveRingtone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1038768899:
+        readTLAccountSavedRingtone(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveRingtone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1038768899:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputDocument(stream, obj["id"], callback);
+        writeBool(stream, obj["unsave"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUploadRingtone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2095414366:
+        readTLDocument(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUploadRingtone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2095414366:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputFile(stream, obj["file"], callback);
+        writeString(stream, obj["file_name"], callback);
+        writeString(stream, obj["mime_type"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdateEmojiStatus(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -70001045:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdateEmojiStatus(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -70001045:
+        writeInt32(stream, obj["_"], callback);
+        writeTLEmojiStatus(stream, obj["emoji_status"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetDefaultEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -696962170:
+        readTLAccountEmojiStatuses(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetDefaultEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -696962170:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetRecentEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 257392901:
+        readTLAccountEmojiStatuses(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetRecentEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 257392901:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountClearRecentEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 404757166:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountClearRecentEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 404757166:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountReorderUsernames(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -279966037:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountReorderUsernames(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -279966037:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["order"], (void*) &writeString);
+    break;
+    }
+}
+
+void readTLMethodAccountToggleUsername(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1490465654:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountToggleUsername(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1490465654:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["username"], callback);
+        writeBool(stream, obj["active"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetDefaultProfilePhotoEmojis(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -495647960:
+        readTLEmojiList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetDefaultProfilePhotoEmojis(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -495647960:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetDefaultGroupPhotoEmojis(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1856479058:
+        readTLEmojiList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetDefaultGroupPhotoEmojis(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1856479058:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetAutoSaveSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1379156774:
+        readTLAccountAutoSaveSettings(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1379156774:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -694451359:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -694451359:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["users"].isNull()) | 
+            (!obj["chats"].isNull() << 1) | 
+            (!obj["broadcasts"].isNull() << 2) | 
+            (!obj["peer"].isNull() << 3) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 8l) writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLAutoSaveSettings(stream, obj["settings"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1404829728:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1404829728:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountInvalidateSignInCodes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -896866118:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountInvalidateSignInCodes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -896866118:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["codes"], (void*) &writeString);
+    break;
+    }
+}
+
+void readTLMethodAccountUpdateColor(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1610494909:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountUpdateColor(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1610494909:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["background_emoji_id"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["color"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["background_emoji_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodAccountGetDefaultBackgroundEmojis(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1509246514:
+        readTLEmojiList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodAccountGetDefaultBackgroundEmojis(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1509246514:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
 void readTLMethodUsersGetUsers(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -21297,6 +25076,29 @@ void writeTLMethodUsersGetFullUser(TelegramStream &stream, QVariant i, void* cal
     case -1240508136:
         writeInt32(stream, obj["_"], callback);
         writeTLInputUser(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodUsersSetSecureValueErrors(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1865902923:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUsersSetSecureValueErrors(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1865902923:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["id"], callback);
+        writeVector(stream, obj["errors"], (void*) &writeTLSecureValueError);
     break;
     }
 }
@@ -21437,7 +25239,7 @@ void readTLMethodContactsBlock(TelegramStream &stream, QVariant &i, void* callba
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1758204945:
+    case 774801204:
         readBool(stream, i, callback);
     break;
     }
@@ -21447,8 +25249,11 @@ void writeTLMethodContactsBlock(TelegramStream &stream, QVariant i, void* callba
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1758204945:
+    case 774801204:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["my_stories_from"].isNull()) | 
+        0), callback);
         writeTLInputPeer(stream, obj["id"], callback);
     break;
     }
@@ -21459,7 +25264,7 @@ void readTLMethodContactsUnblock(TelegramStream &stream, QVariant &i, void* call
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1096393392:
+    case -1252994264:
         readBool(stream, i, callback);
     break;
     }
@@ -21469,8 +25274,11 @@ void writeTLMethodContactsUnblock(TelegramStream &stream, QVariant i, void* call
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1096393392:
+    case -1252994264:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["my_stories_from"].isNull()) | 
+        0), callback);
         writeTLInputPeer(stream, obj["id"], callback);
     break;
     }
@@ -21481,7 +25289,7 @@ void readTLMethodContactsGetBlocked(TelegramStream &stream, QVariant &i, void* c
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -176409329:
+    case -1702457472:
         readTLContactsBlocked(stream, i, callback);
     break;
     }
@@ -21491,9 +25299,395 @@ void writeTLMethodContactsGetBlocked(TelegramStream &stream, QVariant i, void* c
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -176409329:
+    case -1702457472:
         writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["my_stories_from"].isNull()) | 
+        0), callback);
         writeInt32(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsSearch(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 301470424:
+        readTLContactsFound(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsSearch(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 301470424:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["q"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsResolveUsername(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -113456221:
+        readTLContactsResolvedPeer(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsResolveUsername(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -113456221:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["username"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsGetTopPeers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1758168906:
+        readTLContactsTopPeers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsGetTopPeers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1758168906:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["correspondents"].isNull()) | 
+            (!obj["bots_pm"].isNull() << 1) | 
+            (!obj["bots_inline"].isNull() << 2) | 
+            (!obj["phone_calls"].isNull() << 3) | 
+            (!obj["forward_users"].isNull() << 4) | 
+            (!obj["forward_chats"].isNull() << 5) | 
+            (!obj["groups"].isNull() << 10) | 
+            (!obj["channels"].isNull() << 15) | 
+        0), callback);
+        writeInt32(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsResetTopPeerRating(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 451113900:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsResetTopPeerRating(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 451113900:
+        writeInt32(stream, obj["_"], callback);
+        writeTLTopPeerCategory(stream, obj["category"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsResetSaved(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2020263951:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsResetSaved(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2020263951:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsGetSaved(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2098076769:
+        readVector(stream, i, (void*) &readTLSavedContact);
+    break;
+    }
+}
+
+void writeTLMethodContactsGetSaved(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2098076769:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsToggleTopPeers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2062238246:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsToggleTopPeers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2062238246:
+        writeInt32(stream, obj["_"], callback);
+        writeBool(stream, obj["enabled"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsAddContact(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -386636848:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsAddContact(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -386636848:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["add_phone_privacy_exception"].isNull()) | 
+        0), callback);
+        writeTLInputUser(stream, obj["id"], callback);
+        writeString(stream, obj["first_name"], callback);
+        writeString(stream, obj["last_name"], callback);
+        writeString(stream, obj["phone"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsAcceptContact(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -130964977:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsAcceptContact(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -130964977:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsGetLocated(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -750207932:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsGetLocated(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -750207932:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["background"].isNull() << 1) | 
+            (!obj["self_expires"].isNull()) | 
+        0), callback);
+        writeTLInputGeoPoint(stream, obj["geo_point"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["self_expires"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsBlockFromReplies(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 698914348:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsBlockFromReplies(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 698914348:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["delete_message"].isNull()) | 
+            (!obj["delete_history"].isNull() << 1) | 
+            (!obj["report_spam"].isNull() << 2) | 
+        0), callback);
+        writeInt32(stream, obj["msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsResolvePhone(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1963375804:
+        readTLContactsResolvedPeer(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsResolvePhone(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1963375804:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["phone"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsExportContactToken(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -127582169:
+        readTLExportedContactToken(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsExportContactToken(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -127582169:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsImportContactToken(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 318789512:
+        readTLUser(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsImportContactToken(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 318789512:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["token"], callback);
+    break;
+    }
+}
+
+void readTLMethodContactsEditCloseFriends(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1167653392:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsEditCloseFriends(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1167653392:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodContactsSetBlocked(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1798939530:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodContactsSetBlocked(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1798939530:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["my_stories_from"].isNull()) | 
+        0), callback);
+        writeVector(stream, obj["id"], (void*) &writeTLInputPeer);
         writeInt32(stream, obj["limit"], callback);
     break;
     }
@@ -21752,7 +25946,7 @@ void readTLMethodMessagesSendMessage(TelegramStream &stream, QVariant &i, void* 
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 482476935:
+    case 671943023:
         readTLUpdates(stream, i, callback);
     break;
     }
@@ -21762,7 +25956,7 @@ void writeTLMethodMessagesSendMessage(TelegramStream &stream, QVariant i, void* 
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 482476935:
+    case 671943023:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["no_webpage"].isNull() << 1) | 
@@ -21771,16 +25965,15 @@ void writeTLMethodMessagesSendMessage(TelegramStream &stream, QVariant i, void* 
             (!obj["clear_draft"].isNull() << 7) | 
             (!obj["noforwards"].isNull() << 14) | 
             (!obj["update_stickersets_order"].isNull() << 15) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
+            (!obj["invert_media"].isNull() << 16) | 
+            (!obj["reply_to"].isNull()) | 
             (!obj["reply_markup"].isNull() << 2) | 
             (!obj["entities"].isNull() << 3) | 
             (!obj["schedule_date"].isNull() << 10) | 
             (!obj["send_as"].isNull() << 13) | 
         0), callback);
         writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
         writeString(stream, obj["message"], callback);
         writeInt64(stream, obj["random_id"], callback);
         if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
@@ -21796,7 +25989,7 @@ void readTLMethodMessagesSendMedia(TelegramStream &stream, QVariant &i, void* ca
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1967638886:
+    case 1926021693:
         readTLUpdates(stream, i, callback);
     break;
     }
@@ -21806,7 +25999,7 @@ void writeTLMethodMessagesSendMedia(TelegramStream &stream, QVariant i, void* ca
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1967638886:
+    case 1926021693:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
             (!obj["silent"].isNull() << 5) | 
@@ -21814,16 +26007,15 @@ void writeTLMethodMessagesSendMedia(TelegramStream &stream, QVariant i, void* ca
             (!obj["clear_draft"].isNull() << 7) | 
             (!obj["noforwards"].isNull() << 14) | 
             (!obj["update_stickersets_order"].isNull() << 15) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
+            (!obj["invert_media"].isNull() << 16) | 
+            (!obj["reply_to"].isNull()) | 
             (!obj["reply_markup"].isNull() << 2) | 
             (!obj["entities"].isNull() << 3) | 
             (!obj["schedule_date"].isNull() << 10) | 
             (!obj["send_as"].isNull() << 13) | 
         0), callback);
         writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
         writeTLInputMedia(stream, obj["media"], callback);
         writeString(stream, obj["message"], callback);
         writeInt64(stream, obj["random_id"], callback);
@@ -22110,300 +26302,6 @@ void writeTLMethodMessagesCreateChat(TelegramStream &stream, QVariant i, void* c
     }
 }
 
-void readTLMethodUpdatesGetState(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -304838614:
-        readTLUpdatesState(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUpdatesGetState(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -304838614:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodUpdatesGetDifference(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 630429265:
-        readTLUpdatesDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUpdatesGetDifference(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 630429265:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["pts_total_limit"].isNull()) | 
-        0), callback);
-        writeInt32(stream, obj["pts"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["pts_total_limit"], callback);
-        writeInt32(stream, obj["date"], callback);
-        writeInt32(stream, obj["qts"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhotosUpdateProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 166207545:
-        readTLPhotosPhoto(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhotosUpdateProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 166207545:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["fallback"].isNull()) | 
-            (!obj["bot"].isNull() << 1) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputUser(stream, obj["bot"], callback);
-        writeTLInputPhoto(stream, obj["id"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhotosUploadProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 59286453:
-        readTLPhotosPhoto(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhotosUploadProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 59286453:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["fallback"].isNull() << 3) | 
-            (!obj["bot"].isNull() << 5) | 
-            (!obj["file"].isNull()) | 
-            (!obj["video"].isNull() << 1) | 
-            (!obj["video_start_ts"].isNull() << 2) | 
-            (!obj["video_emoji_markup"].isNull() << 4) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 32l) writeTLInputUser(stream, obj["bot"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["file"], callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputFile(stream, obj["video"], callback);
-        if (obj["flags"].toUInt() & 4l) writeDouble(stream, obj["video_start_ts"], callback);
-        if (obj["flags"].toUInt() & 16l) writeTLVideoSize(stream, obj["video_emoji_markup"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhotosDeletePhotos(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2016444625:
-        readVector(stream, i, (void*) &readInt64);
-    break;
-    }
-}
-
-void writeTLMethodPhotosDeletePhotos(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2016444625:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["id"], (void*) &writeTLInputPhoto);
-    break;
-    }
-}
-
-void readTLMethodUploadSaveFilePart(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1291540959:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUploadSaveFilePart(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1291540959:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["file_id"], callback);
-        writeInt32(stream, obj["file_part"], callback);
-        writeByteArray(stream, obj["bytes"], callback);
-    break;
-    }
-}
-
-void readTLMethodUploadGetFile(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1101843010:
-        readTLUploadFile(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUploadGetFile(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1101843010:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["precise"].isNull()) | 
-            (!obj["cdn_supported"].isNull() << 1) | 
-        0), callback);
-        writeTLInputFileLocation(stream, obj["location"], callback);
-        writeInt64(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetConfig(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -990308245:
-        readTLConfig(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetConfig(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -990308245:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetNearestDc(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 531836966:
-        readTLNearestDc(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetNearestDc(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 531836966:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetAppUpdate(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1378703997:
-        readTLHelpAppUpdate(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetAppUpdate(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1378703997:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["source"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetInviteText(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1295590211:
-        readTLHelpInviteText(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetInviteText(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1295590211:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhotosGetUserPhotos(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1848823128:
-        readTLPhotosPhotos(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhotosGetUserPhotos(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1848823128:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeInt32(stream, obj["offset"], callback);
-        writeInt64(stream, obj["max_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
 void readTLMethodMessagesGetDhConfig(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -22669,52 +26567,6 @@ void writeTLMethodMessagesReportEncryptedSpam(TelegramStream &stream, QVariant i
     }
 }
 
-void readTLMethodUploadSaveBigFilePart(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -562337987:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUploadSaveBigFilePart(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -562337987:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["file_id"], callback);
-        writeInt32(stream, obj["file_part"], callback);
-        writeInt32(stream, obj["file_total_parts"], callback);
-        writeByteArray(stream, obj["bytes"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetSupport(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1663104819:
-        readTLHelpSupport(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetSupport(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1663104819:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
 void readTLMethodMessagesReadMessageContents(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -22733,256 +26585,6 @@ void writeTLMethodMessagesReadMessageContents(TelegramStream &stream, QVariant i
     case 916930423:
         writeInt32(stream, obj["_"], callback);
         writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodAccountCheckUsername(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 655677548:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountCheckUsername(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 655677548:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["username"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountUpdateUsername(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1040964988:
-        readTLUser(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUpdateUsername(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1040964988:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["username"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsSearch(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 301470424:
-        readTLContactsFound(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsSearch(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 301470424:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["q"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetPrivacy(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -623130288:
-        readTLAccountPrivacyRules(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetPrivacy(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -623130288:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPrivacyKey(stream, obj["key"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetPrivacy(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -906486552:
-        readTLAccountPrivacyRules(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetPrivacy(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -906486552:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPrivacyKey(stream, obj["key"], callback);
-        writeVector(stream, obj["rules"], (void*) &writeTLInputPrivacyRule);
-    break;
-    }
-}
-
-void readTLMethodAccountDeleteAccount(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1564422284:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountDeleteAccount(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1564422284:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["password"].isNull()) | 
-        0), callback);
-        writeString(stream, obj["reason"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetAccountTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 150761757:
-        readTLAccountDaysTTL(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetAccountTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 150761757:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetAccountTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 608323678:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetAccountTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 608323678:
-        writeInt32(stream, obj["_"], callback);
-        writeTLAccountDaysTTL(stream, obj["ttl"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsResolveUsername(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -113456221:
-        readTLContactsResolvedPeer(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsResolveUsername(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -113456221:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["username"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSendChangePhoneCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2108208411:
-        readTLAuthSentCode(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSendChangePhoneCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2108208411:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeTLCodeSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountChangePhone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1891839707:
-        readTLUser(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountChangePhone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1891839707:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-        writeString(stream, obj["phone_code"], callback);
     break;
     }
 }
@@ -23032,53 +26634,6 @@ void writeTLMethodMessagesGetAllStickers(TelegramStream &stream, QVariant i, voi
     }
 }
 
-void readTLMethodAccountUpdateDeviceLocked(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 954152242:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUpdateDeviceLocked(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 954152242:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["period"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthImportBotAuthorization(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1738800940:
-        readTLAuthAuthorization(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthImportBotAuthorization(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1738800940:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["flags"], callback);
-        writeInt32(stream, obj["api_id"], callback);
-        writeString(stream, obj["api_hash"], callback);
-        writeString(stream, obj["bot_auth_token"], callback);
-    break;
-    }
-}
-
 void readTLMethodMessagesGetWebPagePreview(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -23101,184 +26656,6 @@ void writeTLMethodMessagesGetWebPagePreview(TelegramStream &stream, QVariant i, 
         0), callback);
         writeString(stream, obj["message"], callback);
         if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
-    break;
-    }
-}
-
-void readTLMethodAccountGetAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -484392616:
-        readTLAccountAuthorizations(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetAuthorizations(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -484392616:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResetAuthorization(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -545786948:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResetAuthorization(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -545786948:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1418342645:
-        readTLAccountPassword(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1418342645:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetPasswordSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1663767815:
-        readTLAccountPasswordSettings(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetPasswordSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1663767815:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountUpdatePasswordSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1516564433:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUpdatePasswordSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1516564433:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-        writeTLAccountPasswordInputSettings(stream, obj["new_settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthCheckPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -779399914:
-        readTLAuthAuthorization(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthCheckPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -779399914:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthRequestPasswordRecovery(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -661144474:
-        readTLAuthPasswordRecovery(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthRequestPasswordRecovery(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -661144474:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthRecoverPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 923364464:
-        readTLAuthAuthorization(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthRecoverPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 923364464:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["new_settings"].isNull()) | 
-        0), callback);
-        writeString(stream, obj["code"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLAccountPasswordInputSettings(stream, obj["new_settings"], callback);
     break;
     }
 }
@@ -23452,6 +26829,4125 @@ void writeTLMethodMessagesStartBot(TelegramStream &stream, QVariant i, void* cal
     }
 }
 
+void readTLMethodMessagesGetMessagesViews(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1468322785:
+        readTLMessagesMessageViews(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMessagesViews(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1468322785:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+        writeBool(stream, obj["increment"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditChatAdmin(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1470377534:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditChatAdmin(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1470377534:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["chat_id"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeBool(stream, obj["is_admin"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesMigrateChat(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1568189671:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesMigrateChat(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1568189671:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["chat_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSearchGlobal(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1271290010:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSearchGlobal(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1271290010:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["folder_id"].isNull()) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["folder_id"], callback);
+        writeString(stream, obj["q"], callback);
+        writeTLMessagesFilter(stream, obj["filter"], callback);
+        writeInt32(stream, obj["min_date"], callback);
+        writeInt32(stream, obj["max_date"], callback);
+        writeInt32(stream, obj["offset_rate"], callback);
+        writeTLInputPeer(stream, obj["offset_peer"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReorderStickerSets(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2016638777:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReorderStickerSets(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2016638777:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["masks"].isNull()) | 
+            (!obj["emojis"].isNull() << 1) | 
+        0), callback);
+        writeVector(stream, obj["order"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetDocumentByHash(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1309538785:
+        readTLDocument(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetDocumentByHash(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1309538785:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["sha256"], callback);
+        writeInt64(stream, obj["size"], callback);
+        writeString(stream, obj["mime_type"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSavedGifs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1559270965:
+        readTLMessagesSavedGifs(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSavedGifs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1559270965:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSaveGif(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 846868683:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSaveGif(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 846868683:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputDocument(stream, obj["id"], callback);
+        writeBool(stream, obj["unsave"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetInlineBotResults(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1364105629:
+        readTLMessagesBotResults(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetInlineBotResults(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1364105629:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["geo_point"].isNull()) | 
+        0), callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputGeoPoint(stream, obj["geo_point"], callback);
+        writeString(stream, obj["query"], callback);
+        writeString(stream, obj["offset"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetInlineBotResults(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1156406247:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetInlineBotResults(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1156406247:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["gallery"].isNull()) | 
+            (!obj["private"].isNull() << 1) | 
+            (!obj["next_offset"].isNull() << 2) | 
+            (!obj["switch_pm"].isNull() << 3) | 
+            (!obj["switch_webview"].isNull() << 4) | 
+        0), callback);
+        writeInt64(stream, obj["query_id"], callback);
+        writeVector(stream, obj["results"], (void*) &writeTLInputBotInlineResult);
+        writeInt32(stream, obj["cache_time"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["next_offset"], callback);
+        if (obj["flags"].toUInt() & 8l) writeTLInlineBotSwitchPM(stream, obj["switch_pm"], callback);
+        if (obj["flags"].toUInt() & 16l) writeTLInlineBotWebView(stream, obj["switch_webview"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendInlineBotResult(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -138647366:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendInlineBotResult(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -138647366:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["silent"].isNull() << 5) | 
+            (!obj["background"].isNull() << 6) | 
+            (!obj["clear_draft"].isNull() << 7) | 
+            (!obj["hide_via"].isNull() << 11) | 
+            (!obj["reply_to"].isNull()) | 
+            (!obj["schedule_date"].isNull() << 10) | 
+            (!obj["send_as"].isNull() << 13) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        writeInt64(stream, obj["random_id"], callback);
+        writeInt64(stream, obj["query_id"], callback);
+        writeString(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1024l) writeInt32(stream, obj["schedule_date"], callback);
+        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetMessageEditData(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -39416522:
+        readTLMessagesMessageEditData(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMessageEditData(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -39416522:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1224152952:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1224152952:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["no_webpage"].isNull() << 1) | 
+            (!obj["invert_media"].isNull() << 16) | 
+            (!obj["message"].isNull() << 11) | 
+            (!obj["media"].isNull() << 14) | 
+            (!obj["reply_markup"].isNull() << 2) | 
+            (!obj["entities"].isNull() << 3) | 
+            (!obj["schedule_date"].isNull() << 15) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 2048l) writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 16384l) writeTLInputMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        if (obj["flags"].toUInt() & 32768l) writeInt32(stream, obj["schedule_date"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditInlineBotMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2091549254:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditInlineBotMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2091549254:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["no_webpage"].isNull() << 1) | 
+            (!obj["invert_media"].isNull() << 16) | 
+            (!obj["message"].isNull() << 11) | 
+            (!obj["media"].isNull() << 14) | 
+            (!obj["reply_markup"].isNull() << 2) | 
+            (!obj["entities"].isNull() << 3) | 
+        0), callback);
+        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 2048l) writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 16384l) writeTLInputMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetBotCallbackAnswer(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1824339449:
+        readTLMessagesBotCallbackAnswer(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetBotCallbackAnswer(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1824339449:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["game"].isNull() << 1) | 
+            (!obj["data"].isNull()) | 
+            (!obj["password"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeByteArray(stream, obj["data"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetBotCallbackAnswer(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -712043766:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetBotCallbackAnswer(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -712043766:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["alert"].isNull() << 1) | 
+            (!obj["message"].isNull()) | 
+            (!obj["url"].isNull() << 2) | 
+        0), callback);
+        writeInt64(stream, obj["query_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
+        writeInt32(stream, obj["cache_time"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetPeerDialogs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -462373635:
+        readTLMessagesPeerDialogs(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetPeerDialogs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -462373635:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["peers"], (void*) &writeTLInputDialogPeer);
+    break;
+    }
+}
+
+void readTLMethodMessagesSaveDraft(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2146678790:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSaveDraft(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2146678790:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["no_webpage"].isNull() << 1) | 
+            (!obj["invert_media"].isNull() << 6) | 
+            (!obj["reply_to"].isNull() << 4) | 
+            (!obj["entities"].isNull() << 3) | 
+            (!obj["media"].isNull() << 5) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 16l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["message"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        if (obj["flags"].toUInt() & 32l) writeTLInputMedia(stream, obj["media"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAllDrafts(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1782549861:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAllDrafts(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1782549861:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1685588756:
+        readTLMessagesFeaturedStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1685588756:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReadFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1527873830:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReadFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1527873830:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetRecentStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1649852357:
+        readTLMessagesRecentStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetRecentStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1649852357:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["attached"].isNull()) | 
+        0), callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSaveRecentSticker(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 958863608:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSaveRecentSticker(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 958863608:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["attached"].isNull()) | 
+        0), callback);
+        writeTLInputDocument(stream, obj["id"], callback);
+        writeBool(stream, obj["unsave"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesClearRecentStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1986437075:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesClearRecentStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1986437075:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["attached"].isNull()) | 
+        0), callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetArchivedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1475442322:
+        readTLMessagesArchivedStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetArchivedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1475442322:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["masks"].isNull()) | 
+            (!obj["emojis"].isNull() << 1) | 
+        0), callback);
+        writeInt64(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetMaskStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1678738104:
+        readTLMessagesAllStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMaskStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1678738104:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAttachedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -866424884:
+        readVector(stream, i, (void*) &readTLStickerSetCovered);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAttachedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -866424884:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputStickeredMedia(stream, obj["media"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetGameScore(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1896289088:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetGameScore(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1896289088:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["edit_message"].isNull()) | 
+            (!obj["force"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["score"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetInlineGameScore(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 363700068:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetInlineGameScore(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 363700068:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["edit_message"].isNull()) | 
+            (!obj["force"].isNull() << 1) | 
+        0), callback);
+        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["score"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetGameHighScores(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -400399203:
+        readTLMessagesHighScores(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetGameHighScores(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -400399203:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetInlineGameHighScores(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 258170395:
+        readTLMessagesHighScores(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetInlineGameHighScores(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 258170395:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetCommonChats(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -468934396:
+        readTLMessagesChats(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetCommonChats(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -468934396:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt64(stream, obj["max_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetWebPage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1919511901:
+        readTLMessagesWebPage(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetWebPage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1919511901:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["url"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesToggleDialogPin(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1489903017:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesToggleDialogPin(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1489903017:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["pinned"].isNull()) | 
+        0), callback);
+        writeTLInputDialogPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReorderPinnedDialogs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 991616823:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReorderPinnedDialogs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 991616823:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["force"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["folder_id"], callback);
+        writeVector(stream, obj["order"], (void*) &writeTLInputDialogPeer);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetPinnedDialogs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -692498958:
+        readTLMessagesPeerDialogs(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetPinnedDialogs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -692498958:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["folder_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetBotShippingResults(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -436833542:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetBotShippingResults(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -436833542:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["error"].isNull()) | 
+            (!obj["shipping_options"].isNull() << 1) | 
+        0), callback);
+        writeInt64(stream, obj["query_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["error"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["shipping_options"], (void*) &writeTLShippingOption);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetBotPrecheckoutResults(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 163765653:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetBotPrecheckoutResults(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 163765653:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["success"].isNull() << 1) | 
+            (!obj["error"].isNull()) | 
+        0), callback);
+        writeInt64(stream, obj["query_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["error"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUploadMedia(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1369162417:
+        readTLMessageMedia(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUploadMedia(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1369162417:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputMedia(stream, obj["media"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendScreenshotNotification(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1589618665:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendScreenshotNotification(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1589618665:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        writeInt64(stream, obj["random_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetFavedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 82946729:
+        readTLMessagesFavedStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetFavedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 82946729:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesFaveSticker(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1174420133:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesFaveSticker(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1174420133:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputDocument(stream, obj["id"], callback);
+        writeBool(stream, obj["unfave"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetUnreadMentions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -251140208:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetUnreadMentions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -251140208:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["add_offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt32(stream, obj["max_id"], callback);
+        writeInt32(stream, obj["min_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReadMentions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 921026381:
+        readTLMessagesAffectedHistory(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReadMentions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 921026381:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetRecentLocations(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1881817312:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetRecentLocations(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1881817312:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendMultiMedia(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1164872071:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendMultiMedia(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1164872071:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["silent"].isNull() << 5) | 
+            (!obj["background"].isNull() << 6) | 
+            (!obj["clear_draft"].isNull() << 7) | 
+            (!obj["noforwards"].isNull() << 14) | 
+            (!obj["update_stickersets_order"].isNull() << 15) | 
+            (!obj["invert_media"].isNull() << 16) | 
+            (!obj["reply_to"].isNull()) | 
+            (!obj["schedule_date"].isNull() << 10) | 
+            (!obj["send_as"].isNull() << 13) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        writeVector(stream, obj["multi_media"], (void*) &writeTLInputSingleMedia);
+        if (obj["flags"].toUInt() & 1024l) writeInt32(stream, obj["schedule_date"], callback);
+        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUploadEncryptedFile(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1347929239:
+        readTLEncryptedFile(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUploadEncryptedFile(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1347929239:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputEncryptedChat(stream, obj["peer"], callback);
+        writeTLInputEncryptedFile(stream, obj["file"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSearchStickerSets(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 896555914:
+        readTLMessagesFoundStickerSets(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSearchStickerSets(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 896555914:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["exclude_featured"].isNull()) | 
+        0), callback);
+        writeString(stream, obj["q"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSplitRanges(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 486505992:
+        readVector(stream, i, (void*) &readTLMessageRange);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSplitRanges(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 486505992:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesMarkDialogUnread(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1031349873:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesMarkDialogUnread(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1031349873:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["unread"].isNull()) | 
+        0), callback);
+        writeTLInputDialogPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetDialogUnreadMarks(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 585256482:
+        readVector(stream, i, (void*) &readTLDialogPeer);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetDialogUnreadMarks(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 585256482:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesClearAllDrafts(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2119757468:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesClearAllDrafts(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2119757468:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUpdatePinnedMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -760547348:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUpdatePinnedMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -760547348:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["silent"].isNull()) | 
+            (!obj["unpin"].isNull() << 1) | 
+            (!obj["pm_oneside"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendVote(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 283795844:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendVote(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 283795844:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeVector(stream, obj["options"], (void*) &writeByteArray);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetPollResults(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1941660731:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetPollResults(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1941660731:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetOnlines(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1848369232:
+        readTLChatOnlines(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetOnlines(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1848369232:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditChatAbout(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -554301545:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditChatAbout(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -554301545:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["about"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditChatDefaultBannedRights(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1517917375:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditChatDefaultBannedRights(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1517917375:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLChatBannedRights(stream, obj["banned_rights"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiKeywords(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 899735650:
+        readTLEmojiKeywordsDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiKeywords(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 899735650:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiKeywordsDifference(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 352892591:
+        readTLEmojiKeywordsDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiKeywordsDifference(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 352892591:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        writeInt32(stream, obj["from_version"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiKeywordsLanguages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1318675378:
+        readVector(stream, i, (void*) &readTLEmojiLanguage);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiKeywordsLanguages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1318675378:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["lang_codes"], (void*) &writeString);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiURL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -709817306:
+        readTLEmojiURL(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiURL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -709817306:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSearchCounters(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 11435201:
+        readVector(stream, i, (void*) &readTLMessagesSearchCounter);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSearchCounters(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 11435201:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+        writeVector(stream, obj["filters"], (void*) &writeTLMessagesFilter);
+    break;
+    }
+}
+
+void readTLMethodMessagesRequestUrlAuth(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 428848198:
+        readTLUrlAuthResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesRequestUrlAuth(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 428848198:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["peer"].isNull() << 1) | 
+            (!obj["msg_id"].isNull() << 1) | 
+            (!obj["button_id"].isNull() << 1) | 
+            (!obj["url"].isNull() << 2) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["msg_id"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["button_id"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesAcceptUrlAuth(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1322487515:
+        readTLUrlAuthResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesAcceptUrlAuth(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1322487515:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["write_allowed"].isNull()) | 
+            (!obj["peer"].isNull() << 1) | 
+            (!obj["msg_id"].isNull() << 1) | 
+            (!obj["button_id"].isNull() << 1) | 
+            (!obj["url"].isNull() << 2) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["msg_id"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["button_id"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesHidePeerSettingsBar(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1336717624:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesHidePeerSettingsBar(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1336717624:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetScheduledHistory(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -183077365:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetScheduledHistory(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -183077365:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1111817116:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1111817116:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1120369398:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1120369398:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesDeleteScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1504586518:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesDeleteScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1504586518:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetPollVotes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1200736242:
+        readTLMessagesVotesList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetPollVotes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1200736242:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["option"].isNull()) | 
+            (!obj["offset"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeByteArray(stream, obj["option"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesToggleStickerSets(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1257951254:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesToggleStickerSets(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1257951254:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["uninstall"].isNull()) | 
+            (!obj["archive"].isNull() << 1) | 
+            (!obj["unarchive"].isNull() << 2) | 
+        0), callback);
+        writeVector(stream, obj["stickersets"], (void*) &writeTLInputStickerSet);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetDialogFilters(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -241247891:
+        readVector(stream, i, (void*) &readTLDialogFilter);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetDialogFilters(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -241247891:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSuggestedDialogFilters(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1566780372:
+        readVector(stream, i, (void*) &readTLDialogFilterSuggested);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSuggestedDialogFilters(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1566780372:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUpdateDialogFilter(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 450142282:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUpdateDialogFilter(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 450142282:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["filter"].isNull()) | 
+        0), callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLDialogFilter(stream, obj["filter"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUpdateDialogFiltersOrder(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -983318044:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUpdateDialogFiltersOrder(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -983318044:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["order"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetOldFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2127598753:
+        readTLMessagesFeaturedStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetOldFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2127598753:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetReplies(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 584962828:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetReplies(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 584962828:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["offset_date"], callback);
+        writeInt32(stream, obj["add_offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt32(stream, obj["max_id"], callback);
+        writeInt32(stream, obj["min_id"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetDiscussionMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1147761405:
+        readTLMessagesDiscussionMessage(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetDiscussionMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1147761405:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReadDiscussion(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -147740172:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReadDiscussion(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -147740172:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeInt32(stream, obj["read_max_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUnpinAllMessages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -299714136:
+        readTLMessagesAffectedHistory(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUnpinAllMessages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -299714136:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesDeleteChat(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1540419152:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesDeleteChat(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1540419152:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["chat_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesDeletePhoneCallHistory(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -104078327:
+        readTLMessagesAffectedFoundMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesDeletePhoneCallHistory(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -104078327:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["revoke"].isNull()) | 
+        0), callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesCheckHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1140726259:
+        readTLMessagesHistoryImportParsed(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesCheckHistoryImport(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1140726259:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["import_head"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesInitHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 873008187:
+        readTLMessagesHistoryImport(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesInitHistoryImport(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 873008187:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputFile(stream, obj["file"], callback);
+        writeInt32(stream, obj["media_count"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesUploadImportedMedia(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 713433234:
+        readTLMessageMedia(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesUploadImportedMedia(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 713433234:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt64(stream, obj["import_id"], callback);
+        writeString(stream, obj["file_name"], callback);
+        writeTLInputMedia(stream, obj["media"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesStartHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1271008444:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesStartHistoryImport(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1271008444:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt64(stream, obj["import_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetExportedChatInvites(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1565154314:
+        readTLMessagesExportedChatInvites(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetExportedChatInvites(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1565154314:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["revoked"].isNull() << 3) | 
+            (!obj["offset_date"].isNull() << 2) | 
+            (!obj["offset_link"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputUser(stream, obj["admin_id"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["offset_date"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["offset_link"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1937010524:
+        readTLMessagesExportedChatInvite(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1937010524:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["link"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesEditExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1110823051:
+        readTLMessagesExportedChatInvite(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesEditExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1110823051:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["revoked"].isNull() << 2) | 
+            (!obj["expire_date"].isNull()) | 
+            (!obj["usage_limit"].isNull() << 1) | 
+            (!obj["request_needed"].isNull() << 3) | 
+            (!obj["title"].isNull() << 4) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["link"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["expire_date"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["usage_limit"], callback);
+        if (obj["flags"].toUInt() & 8l) writeBool(stream, obj["request_needed"], callback);
+        if (obj["flags"].toUInt() & 16l) writeString(stream, obj["title"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesDeleteRevokedExportedChatInvites(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1452833749:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesDeleteRevokedExportedChatInvites(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1452833749:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputUser(stream, obj["admin_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesDeleteExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -731601877:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesDeleteExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -731601877:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["link"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAdminsWithInvites(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 958457583:
+        readTLMessagesChatAdminsWithInvites(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAdminsWithInvites(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 958457583:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetChatInviteImporters(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -553329330:
+        readTLMessagesChatInviteImporters(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetChatInviteImporters(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -553329330:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["requested"].isNull()) | 
+            (!obj["link"].isNull() << 1) | 
+            (!obj["q"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["link"], callback);
+        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["q"], callback);
+        writeInt32(stream, obj["offset_date"], callback);
+        writeTLInputUser(stream, obj["offset_user"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1207017500:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1207017500:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["period"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesCheckHistoryImportPeer(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1573261059:
+        readTLMessagesCheckedHistoryImportPeer(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesCheckHistoryImportPeer(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1573261059:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetChatTheme(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -432283329:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetChatTheme(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -432283329:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["emoticon"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetMessageReadParticipants(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 834782287:
+        readVector(stream, i, (void*) &readTLReadParticipantDate);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMessageReadParticipants(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 834782287:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSearchResultsCalendar(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1240514025:
+        readTLMessagesSearchResultsCalendar(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSearchResultsCalendar(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1240514025:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLMessagesFilter(stream, obj["filter"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["offset_date"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetSearchResultsPositions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1855292323:
+        readTLMessagesSearchResultsPositions(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetSearchResultsPositions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1855292323:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLMessagesFilter(stream, obj["filter"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesHideChatJoinRequest(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2145904661:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesHideChatJoinRequest(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2145904661:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["approved"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesHideAllChatJoinRequests(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -528091926:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesHideAllChatJoinRequests(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -528091926:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["approved"].isNull()) | 
+            (!obj["link"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["link"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesToggleNoForwards(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1323389022:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesToggleNoForwards(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1323389022:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeBool(stream, obj["enabled"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSaveDefaultSendAs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -855777386:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSaveDefaultSendAs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -855777386:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputPeer(stream, obj["send_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendReaction(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -754091820:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendReaction(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -754091820:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["big"].isNull() << 1) | 
+            (!obj["add_to_recent"].isNull() << 2) | 
+            (!obj["reaction"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["reaction"], (void*) &writeTLReaction);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetMessagesReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1950707482:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMessagesReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1950707482:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetMessageReactionsList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1176190792:
+        readTLMessagesMessageReactionsList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetMessageReactionsList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1176190792:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["reaction"].isNull()) | 
+            (!obj["offset"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLReaction(stream, obj["reaction"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetChatAvailableReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -21928079:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetChatAvailableReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -21928079:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLChatReactions(stream, obj["available_reactions"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAvailableReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 417243308:
+        readTLMessagesAvailableReactions(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAvailableReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 417243308:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetDefaultReaction(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1330094102:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetDefaultReaction(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1330094102:
+        writeInt32(stream, obj["_"], callback);
+        writeTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesTranslateText(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1662529584:
+        readTLMessagesTranslatedText(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesTranslateText(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1662529584:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["peer"].isNull()) | 
+            (!obj["id"].isNull()) | 
+            (!obj["text"].isNull() << 1) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["id"], (void*) &writeInt32);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["text"], (void*) &writeTLTextWithEntities);
+        writeString(stream, obj["to_lang"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetUnreadReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 841173339:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetUnreadReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 841173339:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["add_offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt32(stream, obj["max_id"], callback);
+        writeInt32(stream, obj["min_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReadReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1420459918:
+        readTLMessagesAffectedHistory(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReadReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1420459918:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["top_msg_id"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSearchSentMedia(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 276705696:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSearchSentMedia(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 276705696:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["q"], callback);
+        writeTLMessagesFilter(stream, obj["filter"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAttachMenuBots(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 385663691:
+        readTLAttachMenuBots(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAttachMenuBots(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 385663691:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetAttachMenuBot(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1998676370:
+        readTLAttachMenuBotsBot(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetAttachMenuBot(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1998676370:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesToggleBotInAttachMenu(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1777704297:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesToggleBotInAttachMenu(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1777704297:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["write_allowed"].isNull()) | 
+        0), callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeBool(stream, obj["enabled"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesRequestWebView(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 647873217:
+        readTLWebViewResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesRequestWebView(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 647873217:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["from_bot_menu"].isNull() << 4) | 
+            (!obj["silent"].isNull() << 5) | 
+            (!obj["url"].isNull() << 1) | 
+            (!obj["start_param"].isNull() << 3) | 
+            (!obj["theme_params"].isNull() << 2) | 
+            (!obj["reply_to"].isNull()) | 
+            (!obj["send_as"].isNull() << 13) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["url"], callback);
+        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["start_param"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLDataJSON(stream, obj["theme_params"], callback);
+        writeString(stream, obj["platform"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesProlongWebView(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1328014717:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesProlongWebView(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1328014717:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["silent"].isNull() << 5) | 
+            (!obj["reply_to"].isNull()) | 
+            (!obj["send_as"].isNull() << 13) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeInt64(stream, obj["query_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputReplyTo(stream, obj["reply_to"], callback);
+        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesRequestSimpleWebView(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 440815626:
+        readTLSimpleWebViewResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesRequestSimpleWebView(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 440815626:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["from_switch_webview"].isNull() << 1) | 
+            (!obj["from_side_menu"].isNull() << 2) | 
+            (!obj["url"].isNull() << 3) | 
+            (!obj["start_param"].isNull() << 4) | 
+            (!obj["theme_params"].isNull()) | 
+        0), callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["url"], callback);
+        if (obj["flags"].toUInt() & 16l) writeString(stream, obj["start_param"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLDataJSON(stream, obj["theme_params"], callback);
+        writeString(stream, obj["platform"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendWebViewResultMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 172168437:
+        readTLWebViewMessageSent(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendWebViewResultMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 172168437:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["bot_query_id"], callback);
+        writeTLInputBotInlineResult(stream, obj["result"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendWebViewData(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -603831608:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendWebViewData(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -603831608:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeInt64(stream, obj["random_id"], callback);
+        writeString(stream, obj["button_text"], callback);
+        writeString(stream, obj["data"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesTranscribeAudio(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 647928393:
+        readTLMessagesTranscribedAudio(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesTranscribeAudio(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 647928393:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesRateTranscribedAudio(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2132608815:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesRateTranscribedAudio(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2132608815:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeInt64(stream, obj["transcription_id"], callback);
+        writeBool(stream, obj["good"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetCustomEmojiDocuments(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -643100844:
+        readVector(stream, i, (void*) &readTLDocument);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetCustomEmojiDocuments(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -643100844:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["document_id"], (void*) &writeInt64);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -67329649:
+        readTLMessagesAllStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -67329649:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetFeaturedEmojiStickers(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 248473398:
+        readTLMessagesFeaturedStickers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetFeaturedEmojiStickers(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 248473398:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesReportReaction(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1063567478:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesReportReaction(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1063567478:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        writeTLInputPeer(stream, obj["reaction_peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetTopReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1149164102:
+        readTLMessagesReactions(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetTopReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1149164102:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetRecentReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 960896434:
+        readTLMessagesReactions(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetRecentReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 960896434:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["limit"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesClearRecentReactions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1644236876:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesClearRecentReactions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1644236876:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetExtendedMedia(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2064119788:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetExtendedMedia(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2064119788:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetDefaultHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1632299963:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetDefaultHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1632299963:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["period"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetDefaultHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1703637384:
+        readTLDefaultHistoryTTL(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetDefaultHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1703637384:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSendBotRequestedPeer(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -29831141:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSendBotRequestedPeer(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -29831141:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeInt32(stream, obj["button_id"], callback);
+        writeTLInputPeer(stream, obj["requested_peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiGroups(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1955122779:
+        readTLMessagesEmojiGroups(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiGroups(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1955122779:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiStatusGroups(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 785209037:
+        readTLMessagesEmojiGroups(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiStatusGroups(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 785209037:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetEmojiProfilePhotoGroups(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 564480243:
+        readTLMessagesEmojiGroups(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetEmojiProfilePhotoGroups(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 564480243:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSearchCustomEmoji(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 739360983:
+        readTLEmojiList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSearchCustomEmoji(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 739360983:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["emoticon"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesTogglePeerTranslations(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -461589127:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesTogglePeerTranslations(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -461589127:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["disabled"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 889046467:
+        readTLMessagesBotApp(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 889046467:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputBotApp(stream, obj["app"], callback);
+        writeInt64(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1940243652:
+        readTLAppWebViewResult(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1940243652:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["write_allowed"].isNull()) | 
+            (!obj["start_param"].isNull() << 1) | 
+            (!obj["theme_params"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputBotApp(stream, obj["app"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["start_param"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLDataJSON(stream, obj["theme_params"], callback);
+        writeString(stream, obj["platform"], callback);
+    break;
+    }
+}
+
+void readTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1879389471:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1879389471:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["wallpaper"].isNull()) | 
+            (!obj["settings"].isNull() << 2) | 
+            (!obj["id"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputWallPaper(stream, obj["wallpaper"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLWallPaperSettings(stream, obj["settings"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodUpdatesGetState(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -304838614:
+        readTLUpdatesState(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUpdatesGetState(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -304838614:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodUpdatesGetDifference(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 432207715:
+        readTLUpdatesDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUpdatesGetDifference(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 432207715:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["pts_limit"].isNull() << 1) | 
+            (!obj["pts_total_limit"].isNull()) | 
+            (!obj["qts_limit"].isNull() << 2) | 
+        0), callback);
+        writeInt32(stream, obj["pts"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["pts_limit"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["pts_total_limit"], callback);
+        writeInt32(stream, obj["date"], callback);
+        writeInt32(stream, obj["qts"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["qts_limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodUpdatesGetChannelDifference(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 51854712:
+        readTLUpdatesChannelDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUpdatesGetChannelDifference(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 51854712:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["force"].isNull()) | 
+        0), callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+        writeTLChannelMessagesFilter(stream, obj["filter"], callback);
+        writeInt32(stream, obj["pts"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhotosUpdateProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 166207545:
+        readTLPhotosPhoto(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhotosUpdateProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 166207545:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["fallback"].isNull()) | 
+            (!obj["bot"].isNull() << 1) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputUser(stream, obj["bot"], callback);
+        writeTLInputPhoto(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhotosUploadProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 59286453:
+        readTLPhotosPhoto(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhotosUploadProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 59286453:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["fallback"].isNull() << 3) | 
+            (!obj["bot"].isNull() << 5) | 
+            (!obj["file"].isNull()) | 
+            (!obj["video"].isNull() << 1) | 
+            (!obj["video_start_ts"].isNull() << 2) | 
+            (!obj["video_emoji_markup"].isNull() << 4) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 32l) writeTLInputUser(stream, obj["bot"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["file"], callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputFile(stream, obj["video"], callback);
+        if (obj["flags"].toUInt() & 4l) writeDouble(stream, obj["video_start_ts"], callback);
+        if (obj["flags"].toUInt() & 16l) writeTLVideoSize(stream, obj["video_emoji_markup"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhotosDeletePhotos(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2016444625:
+        readVector(stream, i, (void*) &readInt64);
+    break;
+    }
+}
+
+void writeTLMethodPhotosDeletePhotos(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2016444625:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["id"], (void*) &writeTLInputPhoto);
+    break;
+    }
+}
+
+void readTLMethodPhotosGetUserPhotos(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1848823128:
+        readTLPhotosPhotos(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhotosGetUserPhotos(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1848823128:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["offset"], callback);
+        writeInt64(stream, obj["max_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhotosUploadContactProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -515093903:
+        readTLPhotosPhoto(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhotosUploadContactProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -515093903:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["suggest"].isNull() << 3) | 
+            (!obj["save"].isNull() << 4) | 
+            (!obj["file"].isNull()) | 
+            (!obj["video"].isNull() << 1) | 
+            (!obj["video_start_ts"].isNull() << 2) | 
+            (!obj["video_emoji_markup"].isNull() << 5) | 
+        0), callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["file"], callback);
+        if (obj["flags"].toUInt() & 2l) writeTLInputFile(stream, obj["video"], callback);
+        if (obj["flags"].toUInt() & 4l) writeDouble(stream, obj["video_start_ts"], callback);
+        if (obj["flags"].toUInt() & 32l) writeTLVideoSize(stream, obj["video_emoji_markup"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadSaveFilePart(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1291540959:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUploadSaveFilePart(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1291540959:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["file_id"], callback);
+        writeInt32(stream, obj["file_part"], callback);
+        writeByteArray(stream, obj["bytes"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadGetFile(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1101843010:
+        readTLUploadFile(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUploadGetFile(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1101843010:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["precise"].isNull()) | 
+            (!obj["cdn_supported"].isNull() << 1) | 
+        0), callback);
+        writeTLInputFileLocation(stream, obj["location"], callback);
+        writeInt64(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadSaveBigFilePart(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -562337987:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUploadSaveBigFilePart(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -562337987:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["file_id"], callback);
+        writeInt32(stream, obj["file_part"], callback);
+        writeInt32(stream, obj["file_total_parts"], callback);
+        writeByteArray(stream, obj["bytes"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadGetWebFile(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 619086221:
+        readTLUploadWebFile(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUploadGetWebFile(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 619086221:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputWebFileLocation(stream, obj["location"], callback);
+        writeInt32(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadGetCdnFile(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 962554330:
+        readTLUploadCdnFile(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodUploadGetCdnFile(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 962554330:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["file_token"], callback);
+        writeInt64(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadReuploadCdnFile(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1691921240:
+        readVector(stream, i, (void*) &readTLFileHash);
+    break;
+    }
+}
+
+void writeTLMethodUploadReuploadCdnFile(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1691921240:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["file_token"], callback);
+        writeByteArray(stream, obj["request_token"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadGetCdnFileHashes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1847836879:
+        readVector(stream, i, (void*) &readTLFileHash);
+    break;
+    }
+}
+
+void writeTLMethodUploadGetCdnFileHashes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1847836879:
+        writeInt32(stream, obj["_"], callback);
+        writeByteArray(stream, obj["file_token"], callback);
+        writeInt64(stream, obj["offset"], callback);
+    break;
+    }
+}
+
+void readTLMethodUploadGetFileHashes(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1856595926:
+        readVector(stream, i, (void*) &readTLFileHash);
+    break;
+    }
+}
+
+void writeTLMethodUploadGetFileHashes(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1856595926:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputFileLocation(stream, obj["location"], callback);
+        writeInt64(stream, obj["offset"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetConfig(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -990308245:
+        readTLConfig(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetConfig(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -990308245:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetNearestDc(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 531836966:
+        readTLNearestDc(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetNearestDc(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 531836966:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetAppUpdate(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1378703997:
+        readTLHelpAppUpdate(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetAppUpdate(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1378703997:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["source"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetInviteText(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1295590211:
+        readTLHelpInviteText(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetInviteText(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1295590211:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetSupport(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1663104819:
+        readTLHelpSupport(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetSupport(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1663104819:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
 void readTLMethodHelpGetAppChangelog(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -23474,26 +30970,376 @@ void writeTLMethodHelpGetAppChangelog(TelegramStream &stream, QVariant i, void* 
     }
 }
 
-void readTLMethodMessagesGetMessagesViews(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodHelpSetBotUpdatesStatus(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1468322785:
-        readTLMessagesMessageViews(stream, i, callback);
+    case -333262899:
+        readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesGetMessagesViews(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodHelpSetBotUpdatesStatus(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1468322785:
+    case -333262899:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["pending_updates_count"], callback);
+        writeString(stream, obj["message"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetCdnConfig(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1375900482:
+        readTLCdnConfig(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetCdnConfig(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1375900482:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetRecentMeUrls(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1036054804:
+        readTLHelpRecentMeUrls(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetRecentMeUrls(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1036054804:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["referer"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetTermsOfServiceUpdate(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 749019089:
+        readTLHelpTermsOfServiceUpdate(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetTermsOfServiceUpdate(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 749019089:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpAcceptTermsOfService(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -294455398:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpAcceptTermsOfService(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -294455398:
+        writeInt32(stream, obj["_"], callback);
+        writeTLDataJSON(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetDeepLinkInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1072547679:
+        readTLHelpDeepLinkInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetDeepLinkInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1072547679:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["path"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetAppConfig(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1642330196:
+        readTLHelpAppConfig(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetAppConfig(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1642330196:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpSaveAppLog(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1862465352:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpSaveAppLog(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1862465352:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["events"], (void*) &writeTLInputAppEvent);
+    break;
+    }
+}
+
+void readTLMethodHelpGetPassportConfig(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -966677240:
+        readTLHelpPassportConfig(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetPassportConfig(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -966677240:
+        writeInt32(stream, obj["_"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetSupportName(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -748624084:
+        readTLHelpSupportName(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetSupportName(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -748624084:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetUserInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 59377875:
+        readTLHelpUserInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetUserInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 59377875:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpEditUserInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1723407216:
+        readTLHelpUserInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpEditUserInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1723407216:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeString(stream, obj["message"], callback);
+        writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+    break;
+    }
+}
+
+void readTLMethodHelpGetPromoData(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1063816159:
+        readTLHelpPromoData(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetPromoData(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1063816159:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpHidePromoData(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 505748629:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpHidePromoData(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 505748629:
         writeInt32(stream, obj["_"], callback);
         writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-        writeBool(stream, obj["increment"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpDismissSuggestion(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -183649631:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpDismissSuggestion(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -183649631:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["suggestion"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetCountriesList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1935116200:
+        readTLHelpCountriesList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetCountriesList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1935116200:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        writeInt32(stream, obj["hash"], callback);
+    break;
+    }
+}
+
+void readTLMethodHelpGetPremiumPromo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1206152236:
+        readTLHelpPremiumPromo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodHelpGetPremiumPromo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1206152236:
+        writeInt32(stream, obj["_"], callback);
     break;
     }
 }
@@ -23925,310 +31771,6 @@ void writeTLMethodChannelsDeleteChannel(TelegramStream &stream, QVariant i, void
     }
 }
 
-void readTLMethodUpdatesGetChannelDifference(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 51854712:
-        readTLUpdatesChannelDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUpdatesGetChannelDifference(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 51854712:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["force"].isNull()) | 
-        0), callback);
-        writeTLInputChannel(stream, obj["channel"], callback);
-        writeTLChannelMessagesFilter(stream, obj["filter"], callback);
-        writeInt32(stream, obj["pts"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditChatAdmin(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1470377534:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditChatAdmin(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1470377534:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["chat_id"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeBool(stream, obj["is_admin"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesMigrateChat(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1568189671:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesMigrateChat(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1568189671:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["chat_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSearchGlobal(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1271290010:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSearchGlobal(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1271290010:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["folder_id"].isNull()) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["folder_id"], callback);
-        writeString(stream, obj["q"], callback);
-        writeTLMessagesFilter(stream, obj["filter"], callback);
-        writeInt32(stream, obj["min_date"], callback);
-        writeInt32(stream, obj["max_date"], callback);
-        writeInt32(stream, obj["offset_rate"], callback);
-        writeTLInputPeer(stream, obj["offset_peer"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReorderStickerSets(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2016638777:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReorderStickerSets(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2016638777:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["masks"].isNull()) | 
-            (!obj["emojis"].isNull() << 1) | 
-        0), callback);
-        writeVector(stream, obj["order"], (void*) &writeInt64);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetDocumentByHash(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1309538785:
-        readTLDocument(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetDocumentByHash(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1309538785:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["sha256"], callback);
-        writeInt64(stream, obj["size"], callback);
-        writeString(stream, obj["mime_type"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSavedGifs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1559270965:
-        readTLMessagesSavedGifs(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSavedGifs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1559270965:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSaveGif(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 846868683:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSaveGif(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 846868683:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputDocument(stream, obj["id"], callback);
-        writeBool(stream, obj["unsave"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetInlineBotResults(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1364105629:
-        readTLMessagesBotResults(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetInlineBotResults(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1364105629:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["geo_point"].isNull()) | 
-        0), callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputGeoPoint(stream, obj["geo_point"], callback);
-        writeString(stream, obj["query"], callback);
-        writeString(stream, obj["offset"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetInlineBotResults(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1156406247:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetInlineBotResults(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1156406247:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["gallery"].isNull()) | 
-            (!obj["private"].isNull() << 1) | 
-            (!obj["next_offset"].isNull() << 2) | 
-            (!obj["switch_pm"].isNull() << 3) | 
-            (!obj["switch_webview"].isNull() << 4) | 
-        0), callback);
-        writeInt64(stream, obj["query_id"], callback);
-        writeVector(stream, obj["results"], (void*) &writeTLInputBotInlineResult);
-        writeInt32(stream, obj["cache_time"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["next_offset"], callback);
-        if (obj["flags"].toUInt() & 8l) writeTLInlineBotSwitchPM(stream, obj["switch_pm"], callback);
-        if (obj["flags"].toUInt() & 16l) writeTLInlineBotWebView(stream, obj["switch_webview"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendInlineBotResult(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -738468661:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendInlineBotResult(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -738468661:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["silent"].isNull() << 5) | 
-            (!obj["background"].isNull() << 6) | 
-            (!obj["clear_draft"].isNull() << 7) | 
-            (!obj["hide_via"].isNull() << 11) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
-            (!obj["schedule_date"].isNull() << 10) | 
-            (!obj["send_as"].isNull() << 13) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeInt64(stream, obj["random_id"], callback);
-        writeInt64(stream, obj["query_id"], callback);
-        writeString(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 1024l) writeInt32(stream, obj["schedule_date"], callback);
-        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsExportMessageLink(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -24279,528 +31821,6 @@ void writeTLMethodChannelsToggleSignatures(TelegramStream &stream, QVariant i, v
     }
 }
 
-void readTLMethodAuthResendCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1056025023:
-        readTLAuthSentCode(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthResendCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1056025023:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthCancelCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 520357240:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthCancelCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 520357240:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetMessageEditData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -39416522:
-        readTLMessagesMessageEditData(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetMessageEditData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -39416522:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditMessage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1224152952:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditMessage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1224152952:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["no_webpage"].isNull() << 1) | 
-            (!obj["message"].isNull() << 11) | 
-            (!obj["media"].isNull() << 14) | 
-            (!obj["reply_markup"].isNull() << 2) | 
-            (!obj["entities"].isNull() << 3) | 
-            (!obj["schedule_date"].isNull() << 15) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 2048l) writeString(stream, obj["message"], callback);
-        if (obj["flags"].toUInt() & 16384l) writeTLInputMedia(stream, obj["media"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
-        if (obj["flags"].toUInt() & 32768l) writeInt32(stream, obj["schedule_date"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditInlineBotMessage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2091549254:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditInlineBotMessage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2091549254:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["no_webpage"].isNull() << 1) | 
-            (!obj["message"].isNull() << 11) | 
-            (!obj["media"].isNull() << 14) | 
-            (!obj["reply_markup"].isNull() << 2) | 
-            (!obj["entities"].isNull() << 3) | 
-        0), callback);
-        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 2048l) writeString(stream, obj["message"], callback);
-        if (obj["flags"].toUInt() & 16384l) writeTLInputMedia(stream, obj["media"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLReplyMarkup(stream, obj["reply_markup"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetBotCallbackAnswer(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1824339449:
-        readTLMessagesBotCallbackAnswer(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetBotCallbackAnswer(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1824339449:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["game"].isNull() << 1) | 
-            (!obj["data"].isNull()) | 
-            (!obj["password"].isNull() << 2) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeByteArray(stream, obj["data"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetBotCallbackAnswer(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -712043766:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetBotCallbackAnswer(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -712043766:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["alert"].isNull() << 1) | 
-            (!obj["message"].isNull()) | 
-            (!obj["url"].isNull() << 2) | 
-        0), callback);
-        writeInt64(stream, obj["query_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["message"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
-        writeInt32(stream, obj["cache_time"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsGetTopPeers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1758168906:
-        readTLContactsTopPeers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsGetTopPeers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1758168906:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["correspondents"].isNull()) | 
-            (!obj["bots_pm"].isNull() << 1) | 
-            (!obj["bots_inline"].isNull() << 2) | 
-            (!obj["phone_calls"].isNull() << 3) | 
-            (!obj["forward_users"].isNull() << 4) | 
-            (!obj["forward_chats"].isNull() << 5) | 
-            (!obj["groups"].isNull() << 10) | 
-            (!obj["channels"].isNull() << 15) | 
-        0), callback);
-        writeInt32(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsResetTopPeerRating(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 451113900:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsResetTopPeerRating(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 451113900:
-        writeInt32(stream, obj["_"], callback);
-        writeTLTopPeerCategory(stream, obj["category"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetPeerDialogs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -462373635:
-        readTLMessagesPeerDialogs(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetPeerDialogs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -462373635:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["peers"], (void*) &writeTLInputDialogPeer);
-    break;
-    }
-}
-
-void readTLMethodMessagesSaveDraft(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1271718337:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSaveDraft(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1271718337:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["no_webpage"].isNull() << 1) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 2) | 
-            (!obj["entities"].isNull() << 3) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["message"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAllDrafts(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1782549861:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAllDrafts(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1782549861:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1685588756:
-        readTLMessagesFeaturedStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1685588756:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReadFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1527873830:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReadFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1527873830:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt64);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetRecentStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1649852357:
-        readTLMessagesRecentStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetRecentStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1649852357:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["attached"].isNull()) | 
-        0), callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSaveRecentSticker(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 958863608:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSaveRecentSticker(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 958863608:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["attached"].isNull()) | 
-        0), callback);
-        writeTLInputDocument(stream, obj["id"], callback);
-        writeBool(stream, obj["unsave"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesClearRecentStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1986437075:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesClearRecentStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1986437075:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["attached"].isNull()) | 
-        0), callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetArchivedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1475442322:
-        readTLMessagesArchivedStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetArchivedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1475442322:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["masks"].isNull()) | 
-            (!obj["emojis"].isNull() << 1) | 
-        0), callback);
-        writeInt64(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSendConfirmPhoneCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 457157256:
-        readTLAuthSentCode(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSendConfirmPhoneCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 457157256:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["hash"], callback);
-        writeTLCodeSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountConfirmPhone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1596029123:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountConfirmPhone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1596029123:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-        writeString(stream, obj["phone_code"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsGetAdminedPublicChannels(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -24822,1106 +31842,6 @@ void writeTLMethodChannelsGetAdminedPublicChannels(TelegramStream &stream, QVari
             (!obj["by_location"].isNull()) | 
             (!obj["check_limit"].isNull() << 1) | 
         0), callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetMaskStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1678738104:
-        readTLMessagesAllStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetMaskStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1678738104:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAttachedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -866424884:
-        readVector(stream, i, (void*) &readTLStickerSetCovered);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAttachedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -866424884:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputStickeredMedia(stream, obj["media"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthDropTempAuthKeys(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1907842680:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthDropTempAuthKeys(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1907842680:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["except_auth_keys"], (void*) &writeInt64);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetGameScore(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1896289088:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetGameScore(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1896289088:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["edit_message"].isNull()) | 
-            (!obj["force"].isNull() << 1) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeInt32(stream, obj["score"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetInlineGameScore(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 363700068:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetInlineGameScore(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 363700068:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["edit_message"].isNull()) | 
-            (!obj["force"].isNull() << 1) | 
-        0), callback);
-        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeInt32(stream, obj["score"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetGameHighScores(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -400399203:
-        readTLMessagesHighScores(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetGameHighScores(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -400399203:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetInlineGameHighScores(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 258170395:
-        readTLMessagesHighScores(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetInlineGameHighScores(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 258170395:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputBotInlineMessageID(stream, obj["id"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetCommonChats(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -468934396:
-        readTLMessagesChats(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetCommonChats(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -468934396:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeInt64(stream, obj["max_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpSetBotUpdatesStatus(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -333262899:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpSetBotUpdatesStatus(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -333262899:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["pending_updates_count"], callback);
-        writeString(stream, obj["message"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetWebPage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 852135825:
-        readTLWebPage(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetWebPage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 852135825:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["url"], callback);
-        writeInt32(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesToggleDialogPin(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1489903017:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesToggleDialogPin(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1489903017:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["pinned"].isNull()) | 
-        0), callback);
-        writeTLInputDialogPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReorderPinnedDialogs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 991616823:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReorderPinnedDialogs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 991616823:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["force"].isNull()) | 
-        0), callback);
-        writeInt32(stream, obj["folder_id"], callback);
-        writeVector(stream, obj["order"], (void*) &writeTLInputDialogPeer);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetPinnedDialogs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -692498958:
-        readTLMessagesPeerDialogs(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetPinnedDialogs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -692498958:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["folder_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsSendCustomRequest(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1440257555:
-        readTLDataJSON(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsSendCustomRequest(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1440257555:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["custom_method"], callback);
-        writeTLDataJSON(stream, obj["params"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsAnswerWebhookJSONQuery(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -434028723:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsAnswerWebhookJSONQuery(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -434028723:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["query_id"], callback);
-        writeTLDataJSON(stream, obj["data"], callback);
-    break;
-    }
-}
-
-void readTLMethodUploadGetWebFile(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 619086221:
-        readTLUploadWebFile(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUploadGetWebFile(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 619086221:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputWebFileLocation(stream, obj["location"], callback);
-        writeInt32(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsGetPaymentForm(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 924093883:
-        readTLPaymentsPaymentForm(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsGetPaymentForm(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 924093883:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["theme_params"].isNull()) | 
-        0), callback);
-        writeTLInputInvoice(stream, obj["invoice"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLDataJSON(stream, obj["theme_params"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsGetPaymentReceipt(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 611897804:
-        readTLPaymentsPaymentReceipt(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsGetPaymentReceipt(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 611897804:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsValidateRequestedInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1228345045:
-        readTLPaymentsValidatedRequestedInfo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsValidateRequestedInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1228345045:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["save"].isNull()) | 
-        0), callback);
-        writeTLInputInvoice(stream, obj["invoice"], callback);
-        writeTLPaymentRequestedInfo(stream, obj["info"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsSendPaymentForm(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 755192367:
-        readTLPaymentsPaymentResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsSendPaymentForm(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 755192367:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["requested_info_id"].isNull()) | 
-            (!obj["shipping_option_id"].isNull() << 1) | 
-            (!obj["tip_amount"].isNull() << 2) | 
-        0), callback);
-        writeInt64(stream, obj["form_id"], callback);
-        writeTLInputInvoice(stream, obj["invoice"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["requested_info_id"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["shipping_option_id"], callback);
-        writeTLInputPaymentCredentials(stream, obj["credentials"], callback);
-        if (obj["flags"].toUInt() & 4l) writeInt64(stream, obj["tip_amount"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetTmpPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1151208273:
-        readTLAccountTmpPassword(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetTmpPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1151208273:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-        writeInt32(stream, obj["period"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsGetSavedInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 578650699:
-        readTLPaymentsSavedInfo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsGetSavedInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 578650699:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsClearSavedInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -667062079:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsClearSavedInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -667062079:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["credentials"].isNull()) | 
-            (!obj["info"].isNull() << 1) | 
-        0), callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetBotShippingResults(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -436833542:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetBotShippingResults(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -436833542:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["error"].isNull()) | 
-            (!obj["shipping_options"].isNull() << 1) | 
-        0), callback);
-        writeInt64(stream, obj["query_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["error"], callback);
-        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["shipping_options"], (void*) &writeTLShippingOption);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetBotPrecheckoutResults(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 163765653:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetBotPrecheckoutResults(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 163765653:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["success"].isNull() << 1) | 
-            (!obj["error"].isNull()) | 
-        0), callback);
-        writeInt64(stream, obj["query_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["error"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersCreateStickerSet(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1876841625:
-        readTLMessagesStickerSet(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersCreateStickerSet(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1876841625:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["masks"].isNull()) | 
-            (!obj["animated"].isNull() << 1) | 
-            (!obj["videos"].isNull() << 4) | 
-            (!obj["emojis"].isNull() << 5) | 
-            (!obj["text_color"].isNull() << 6) | 
-            (!obj["thumb"].isNull() << 2) | 
-            (!obj["software"].isNull() << 3) | 
-        0), callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeString(stream, obj["title"], callback);
-        writeString(stream, obj["short_name"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["thumb"], callback);
-        writeVector(stream, obj["stickers"], (void*) &writeTLInputStickerSetItem);
-        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["software"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersRemoveStickerFromSet(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -143257775:
-        readTLMessagesStickerSet(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersRemoveStickerFromSet(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -143257775:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputDocument(stream, obj["sticker"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersChangeStickerPosition(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -4795190:
-        readTLMessagesStickerSet(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersChangeStickerPosition(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -4795190:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputDocument(stream, obj["sticker"], callback);
-        writeInt32(stream, obj["position"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersAddStickerToSet(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2041315650:
-        readTLMessagesStickerSet(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersAddStickerToSet(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2041315650:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputStickerSet(stream, obj["stickerset"], callback);
-        writeTLInputStickerSetItem(stream, obj["sticker"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUploadMedia(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1369162417:
-        readTLMessageMedia(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUploadMedia(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1369162417:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputMedia(stream, obj["media"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetCallConfig(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1430593449:
-        readTLDataJSON(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetCallConfig(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1430593449:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneRequestCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1124046573:
-        readTLPhonePhoneCall(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneRequestCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1124046573:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["video"].isNull()) | 
-        0), callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeInt32(stream, obj["random_id"], callback);
-        writeByteArray(stream, obj["g_a_hash"], callback);
-        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneAcceptCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1003664544:
-        readTLPhonePhoneCall(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneAcceptCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1003664544:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeByteArray(stream, obj["g_b"], callback);
-        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneConfirmCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 788404002:
-        readTLPhonePhoneCall(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneConfirmCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 788404002:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeByteArray(stream, obj["g_a"], callback);
-        writeInt64(stream, obj["key_fingerprint"], callback);
-        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneReceivedCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 399855457:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneReceivedCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 399855457:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneDiscardCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1295269440:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneDiscardCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1295269440:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["video"].isNull()) | 
-        0), callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeInt32(stream, obj["duration"], callback);
-        writeTLPhoneCallDiscardReason(stream, obj["reason"], callback);
-        writeInt64(stream, obj["connection_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneSetCallRating(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1508562471:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneSetCallRating(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1508562471:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["user_initiative"].isNull()) | 
-        0), callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeInt32(stream, obj["rating"], callback);
-        writeString(stream, obj["comment"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneSaveCallDebug(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 662363518:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneSaveCallDebug(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 662363518:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeTLDataJSON(stream, obj["debug"], callback);
-    break;
-    }
-}
-
-void readTLMethodUploadGetCdnFile(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 962554330:
-        readTLUploadCdnFile(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUploadGetCdnFile(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 962554330:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["file_token"], callback);
-        writeInt64(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodUploadReuploadCdnFile(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1691921240:
-        readVector(stream, i, (void*) &readTLFileHash);
-    break;
-    }
-}
-
-void writeTLMethodUploadReuploadCdnFile(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1691921240:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["file_token"], callback);
-        writeByteArray(stream, obj["request_token"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetCdnConfig(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1375900482:
-        readTLCdnConfig(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetCdnConfig(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1375900482:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodLangpackGetLangPack(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -219008246:
-        readTLLangPackDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodLangpackGetLangPack(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -219008246:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_pack"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodLangpackGetStrings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -269862909:
-        readVector(stream, i, (void*) &readTLLangPackString);
-    break;
-    }
-}
-
-void writeTLMethodLangpackGetStrings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -269862909:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_pack"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        writeVector(stream, obj["keys"], (void*) &writeString);
-    break;
-    }
-}
-
-void readTLMethodLangpackGetDifference(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -845657435:
-        readTLLangPackDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodLangpackGetDifference(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -845657435:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_pack"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        writeInt32(stream, obj["from_version"], callback);
-    break;
-    }
-}
-
-void readTLMethodLangpackGetLanguages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1120311183:
-        readVector(stream, i, (void*) &readTLLangPackLanguage);
-    break;
-    }
-}
-
-void writeTLMethodLangpackGetLanguages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1120311183:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_pack"], callback);
     break;
     }
 }
@@ -25982,53 +31902,6 @@ void writeTLMethodChannelsGetAdminLog(TelegramStream &stream, QVariant i, void* 
     }
 }
 
-void readTLMethodUploadGetCdnFileHashes(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1847836879:
-        readVector(stream, i, (void*) &readTLFileHash);
-    break;
-    }
-}
-
-void writeTLMethodUploadGetCdnFileHashes(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1847836879:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["file_token"], callback);
-        writeInt64(stream, obj["offset"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendScreenshotNotification(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -914493408:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendScreenshotNotification(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -914493408:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["reply_to_msg_id"], callback);
-        writeInt64(stream, obj["random_id"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsSetStickers(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -26052,51 +31925,6 @@ void writeTLMethodChannelsSetStickers(TelegramStream &stream, QVariant i, void* 
     }
 }
 
-void readTLMethodMessagesGetFavedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 82946729:
-        readTLMessagesFavedStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetFavedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 82946729:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesFaveSticker(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1174420133:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesFaveSticker(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1174420133:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputDocument(stream, obj["id"], callback);
-        writeBool(stream, obj["unfave"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsReadMessageContents(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -26116,58 +31944,6 @@ void writeTLMethodChannelsReadMessageContents(TelegramStream &stream, QVariant i
         writeInt32(stream, obj["_"], callback);
         writeTLInputChannel(stream, obj["channel"], callback);
         writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodContactsResetSaved(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2020263951:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsResetSaved(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2020263951:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetUnreadMentions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -251140208:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetUnreadMentions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -251140208:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["add_offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt32(stream, obj["max_id"], callback);
-        writeInt32(stream, obj["min_id"], callback);
     break;
     }
 }
@@ -26198,28 +31974,6 @@ void writeTLMethodChannelsDeleteHistory(TelegramStream &stream, QVariant i, void
     }
 }
 
-void readTLMethodHelpGetRecentMeUrls(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1036054804:
-        readTLHelpRecentMeUrls(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetRecentMeUrls(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1036054804:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["referer"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsTogglePreHistoryHidden(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -26243,570 +31997,6 @@ void writeTLMethodChannelsTogglePreHistoryHidden(TelegramStream &stream, QVarian
     }
 }
 
-void readTLMethodMessagesReadMentions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 921026381:
-        readTLMessagesAffectedHistory(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReadMentions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 921026381:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetRecentLocations(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1881817312:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetRecentLocations(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1881817312:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendMultiMedia(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1225713124:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendMultiMedia(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1225713124:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["silent"].isNull() << 5) | 
-            (!obj["background"].isNull() << 6) | 
-            (!obj["clear_draft"].isNull() << 7) | 
-            (!obj["noforwards"].isNull() << 14) | 
-            (!obj["update_stickersets_order"].isNull() << 15) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
-            (!obj["schedule_date"].isNull() << 10) | 
-            (!obj["send_as"].isNull() << 13) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeVector(stream, obj["multi_media"], (void*) &writeTLInputSingleMedia);
-        if (obj["flags"].toUInt() & 1024l) writeInt32(stream, obj["schedule_date"], callback);
-        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUploadEncryptedFile(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1347929239:
-        readTLEncryptedFile(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUploadEncryptedFile(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1347929239:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputEncryptedChat(stream, obj["peer"], callback);
-        writeTLInputEncryptedFile(stream, obj["file"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetWebAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 405695855:
-        readTLAccountWebAuthorizations(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetWebAuthorizations(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 405695855:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResetWebAuthorization(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 755087855:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResetWebAuthorization(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 755087855:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResetWebAuthorizations(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1747789204:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResetWebAuthorizations(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1747789204:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSearchStickerSets(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 896555914:
-        readTLMessagesFoundStickerSets(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSearchStickerSets(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 896555914:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["exclude_featured"].isNull()) | 
-        0), callback);
-        writeString(stream, obj["q"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodUploadGetFileHashes(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1856595926:
-        readVector(stream, i, (void*) &readTLFileHash);
-    break;
-    }
-}
-
-void writeTLMethodUploadGetFileHashes(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1856595926:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputFileLocation(stream, obj["location"], callback);
-        writeInt64(stream, obj["offset"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetTermsOfServiceUpdate(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 749019089:
-        readTLHelpTermsOfServiceUpdate(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetTermsOfServiceUpdate(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 749019089:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpAcceptTermsOfService(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -294455398:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpAcceptTermsOfService(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -294455398:
-        writeInt32(stream, obj["_"], callback);
-        writeTLDataJSON(stream, obj["id"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetAllSecureValues(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1299661699:
-        readVector(stream, i, (void*) &readTLSecureValue);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetAllSecureValues(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1299661699:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetSecureValue(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1936088002:
-        readVector(stream, i, (void*) &readTLSecureValue);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetSecureValue(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1936088002:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["types"], (void*) &writeTLSecureValueType);
-    break;
-    }
-}
-
-void readTLMethodAccountSaveSecureValue(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1986010339:
-        readTLSecureValue(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSaveSecureValue(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1986010339:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputSecureValue(stream, obj["value"], callback);
-        writeInt64(stream, obj["secure_secret_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountDeleteSecureValue(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1199522741:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountDeleteSecureValue(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1199522741:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["types"], (void*) &writeTLSecureValueType);
-    break;
-    }
-}
-
-void readTLMethodUsersSetSecureValueErrors(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1865902923:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodUsersSetSecureValueErrors(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1865902923:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["id"], callback);
-        writeVector(stream, obj["errors"], (void*) &writeTLSecureValueError);
-    break;
-    }
-}
-
-void readTLMethodAccountGetAuthorizationForm(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1456907910:
-        readTLAccountAuthorizationForm(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetAuthorizationForm(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1456907910:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["bot_id"], callback);
-        writeString(stream, obj["scope"], callback);
-        writeString(stream, obj["public_key"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountAcceptAuthorization(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -202552205:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountAcceptAuthorization(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -202552205:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["bot_id"], callback);
-        writeString(stream, obj["scope"], callback);
-        writeString(stream, obj["public_key"], callback);
-        writeVector(stream, obj["value_hashes"], (void*) &writeTLSecureValueHash);
-        writeTLSecureCredentialsEncrypted(stream, obj["credentials"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSendVerifyPhoneCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1516022023:
-        readTLAuthSentCode(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSendVerifyPhoneCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1516022023:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeTLCodeSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountVerifyPhone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1305716726:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountVerifyPhone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1305716726:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-        writeString(stream, obj["phone_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSendVerifyEmailCode(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1730136133:
-        readTLAccountSentEmailCode(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSendVerifyEmailCode(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1730136133:
-        writeInt32(stream, obj["_"], callback);
-        writeTLEmailVerifyPurpose(stream, obj["purpose"], callback);
-        writeString(stream, obj["email"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountVerifyEmail(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 53322959:
-        readTLAccountEmailVerified(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountVerifyEmail(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 53322959:
-        writeInt32(stream, obj["_"], callback);
-        writeTLEmailVerifyPurpose(stream, obj["purpose"], callback);
-        writeTLEmailVerification(stream, obj["verification"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetDeepLinkInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1072547679:
-        readTLHelpDeepLinkInfo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetDeepLinkInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1072547679:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["path"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsGetSaved(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2098076769:
-        readVector(stream, i, (void*) &readTLSavedContact);
-    break;
-    }
-}
-
-void writeTLMethodContactsGetSaved(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2098076769:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsGetLeftChannels(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -26825,905 +32015,6 @@ void writeTLMethodChannelsGetLeftChannels(TelegramStream &stream, QVariant i, vo
     case -2092831552:
         writeInt32(stream, obj["_"], callback);
         writeInt32(stream, obj["offset"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountInitTakeoutSession(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1896617296:
-        readTLAccountTakeout(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountInitTakeoutSession(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1896617296:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["contacts"].isNull()) | 
-            (!obj["message_users"].isNull() << 1) | 
-            (!obj["message_chats"].isNull() << 2) | 
-            (!obj["message_megagroups"].isNull() << 3) | 
-            (!obj["message_channels"].isNull() << 4) | 
-            (!obj["files"].isNull() << 5) | 
-            (!obj["file_max_size"].isNull() << 5) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 32l) writeInt64(stream, obj["file_max_size"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountFinishTakeoutSession(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 489050862:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountFinishTakeoutSession(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 489050862:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["success"].isNull()) | 
-        0), callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSplitRanges(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 486505992:
-        readVector(stream, i, (void*) &readTLMessageRange);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSplitRanges(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 486505992:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesMarkDialogUnread(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1031349873:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesMarkDialogUnread(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1031349873:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["unread"].isNull()) | 
-        0), callback);
-        writeTLInputDialogPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetDialogUnreadMarks(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 585256482:
-        readVector(stream, i, (void*) &readTLDialogPeer);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetDialogUnreadMarks(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 585256482:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsToggleTopPeers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2062238246:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsToggleTopPeers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2062238246:
-        writeInt32(stream, obj["_"], callback);
-        writeBool(stream, obj["enabled"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesClearAllDrafts(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2119757468:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesClearAllDrafts(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2119757468:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetAppConfig(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1642330196:
-        readTLHelpAppConfig(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetAppConfig(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1642330196:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpSaveAppLog(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1862465352:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpSaveAppLog(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1862465352:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["events"], (void*) &writeTLInputAppEvent);
-    break;
-    }
-}
-
-void readTLMethodHelpGetPassportConfig(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -966677240:
-        readTLHelpPassportConfig(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetPassportConfig(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -966677240:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodLangpackGetLanguage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1784243458:
-        readTLLangPackLanguage(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodLangpackGetLanguage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1784243458:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_pack"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUpdatePinnedMessage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -760547348:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUpdatePinnedMessage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -760547348:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["silent"].isNull()) | 
-            (!obj["unpin"].isNull() << 1) | 
-            (!obj["pm_oneside"].isNull() << 2) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountConfirmPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1881204448:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountConfirmPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1881204448:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["code"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResendPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2055154197:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResendPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2055154197:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountCancelPasswordEmail(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1043606090:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountCancelPasswordEmail(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1043606090:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetSupportName(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -748624084:
-        readTLHelpSupportName(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetSupportName(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -748624084:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetUserInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 59377875:
-        readTLHelpUserInfo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetUserInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 59377875:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpEditUserInfo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1723407216:
-        readTLHelpUserInfo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpEditUserInfo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1723407216:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeString(stream, obj["message"], callback);
-        writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
-    break;
-    }
-}
-
-void readTLMethodAccountGetContactSignUpNotification(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1626880216:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetContactSignUpNotification(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1626880216:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetContactSignUpNotification(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -806076575:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetContactSignUpNotification(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -806076575:
-        writeInt32(stream, obj["_"], callback);
-        writeBool(stream, obj["silent"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetNotifyExceptions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1398240377:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetNotifyExceptions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1398240377:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["compare_sound"].isNull() << 1) | 
-            (!obj["peer"].isNull()) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputNotifyPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendVote(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 283795844:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendVote(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 283795844:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        writeVector(stream, obj["options"], (void*) &writeByteArray);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetPollResults(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1941660731:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetPollResults(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1941660731:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetOnlines(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1848369232:
-        readTLChatOnlines(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetOnlines(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1848369232:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditChatAbout(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -554301545:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditChatAbout(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -554301545:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["about"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditChatDefaultBannedRights(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1517917375:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditChatDefaultBannedRights(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1517917375:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLChatBannedRights(stream, obj["banned_rights"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetWallPaper(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -57811990:
-        readTLWallPaper(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetWallPaper(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -57811990:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountUploadWallPaper(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -476410109:
-        readTLWallPaper(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUploadWallPaper(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -476410109:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["for_chat"].isNull()) | 
-        0), callback);
-        writeTLInputFile(stream, obj["file"], callback);
-        writeString(stream, obj["mime_type"], callback);
-        writeTLWallPaperSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSaveWallPaper(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1817860919:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSaveWallPaper(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1817860919:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
-        writeBool(stream, obj["unsave"], callback);
-        writeTLWallPaperSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountInstallWallPaper(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -18000023:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountInstallWallPaper(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -18000023:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputWallPaper(stream, obj["wallpaper"], callback);
-        writeTLWallPaperSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResetWallPapers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1153722364:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResetWallPapers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1153722364:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetAutoDownloadSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1457130303:
-        readTLAccountAutoDownloadSettings(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetAutoDownloadSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1457130303:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSaveAutoDownloadSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1995661875:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSaveAutoDownloadSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1995661875:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["low"].isNull()) | 
-            (!obj["high"].isNull() << 1) | 
-        0), callback);
-        writeTLAutoDownloadSettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetEmojiKeywords(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 899735650:
-        readTLEmojiKeywordsDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetEmojiKeywords(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 899735650:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetEmojiKeywordsDifference(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 352892591:
-        readTLEmojiKeywordsDifference(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetEmojiKeywordsDifference(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 352892591:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        writeInt32(stream, obj["from_version"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetEmojiKeywordsLanguages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1318675378:
-        readVector(stream, i, (void*) &readTLEmojiLanguage);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetEmojiKeywordsLanguages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1318675378:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["lang_codes"], (void*) &writeString);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetEmojiURL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -709817306:
-        readTLEmojiURL(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetEmojiURL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -709817306:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodFoldersEditPeerFolders(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1749536939:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodFoldersEditPeerFolders(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1749536939:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["folder_peers"], (void*) &writeTLInputFolderPeer);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSearchCounters(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 11435201:
-        readVector(stream, i, (void*) &readTLMessagesSearchCounter);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSearchCounters(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 11435201:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeVector(stream, obj["filters"], (void*) &writeTLMessagesFilter);
     break;
     }
 }
@@ -27772,141 +32063,6 @@ void writeTLMethodChannelsSetDiscussionGroup(TelegramStream &stream, QVariant i,
     }
 }
 
-void readTLMethodMessagesRequestUrlAuth(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 428848198:
-        readTLUrlAuthResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesRequestUrlAuth(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 428848198:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["peer"].isNull() << 1) | 
-            (!obj["msg_id"].isNull() << 1) | 
-            (!obj["button_id"].isNull() << 1) | 
-            (!obj["url"].isNull() << 2) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["msg_id"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["button_id"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesAcceptUrlAuth(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1322487515:
-        readTLUrlAuthResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesAcceptUrlAuth(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1322487515:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["write_allowed"].isNull()) | 
-            (!obj["peer"].isNull() << 1) | 
-            (!obj["msg_id"].isNull() << 1) | 
-            (!obj["button_id"].isNull() << 1) | 
-            (!obj["url"].isNull() << 2) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["msg_id"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["button_id"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["url"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesHidePeerSettingsBar(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1336717624:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesHidePeerSettingsBar(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1336717624:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsAddContact(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -386636848:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsAddContact(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -386636848:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["add_phone_privacy_exception"].isNull()) | 
-        0), callback);
-        writeTLInputUser(stream, obj["id"], callback);
-        writeString(stream, obj["first_name"], callback);
-        writeString(stream, obj["last_name"], callback);
-        writeString(stream, obj["phone"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsAcceptContact(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -130964977:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsAcceptContact(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -130964977:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["id"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsEditCreator(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -27927,33 +32083,6 @@ void writeTLMethodChannelsEditCreator(TelegramStream &stream, QVariant i, void* 
         writeTLInputChannel(stream, obj["channel"], callback);
         writeTLInputUser(stream, obj["user_id"], callback);
         writeTLInputCheckPasswordSRP(stream, obj["password"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsGetLocated(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -750207932:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsGetLocated(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -750207932:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["background"].isNull() << 1) | 
-            (!obj["self_expires"].isNull()) | 
-        0), callback);
-        writeTLInputGeoPoint(stream, obj["geo_point"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["self_expires"], callback);
     break;
     }
 }
@@ -28005,400 +32134,6 @@ void writeTLMethodChannelsToggleSlowMode(TelegramStream &stream, QVariant i, voi
     }
 }
 
-void readTLMethodMessagesGetScheduledHistory(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -183077365:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetScheduledHistory(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -183077365:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1111817116:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1111817116:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1120369398:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1120369398:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodMessagesDeleteScheduledMessages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1504586518:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesDeleteScheduledMessages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1504586518:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodAccountUploadTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 473805619:
-        readTLDocument(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUploadTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 473805619:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["thumb"].isNull()) | 
-        0), callback);
-        writeTLInputFile(stream, obj["file"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["thumb"], callback);
-        writeString(stream, obj["file_name"], callback);
-        writeString(stream, obj["mime_type"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountCreateTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1697530880:
-        readTLTheme(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountCreateTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1697530880:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["document"].isNull() << 2) | 
-            (!obj["settings"].isNull() << 3) | 
-        0), callback);
-        writeString(stream, obj["slug"], callback);
-        writeString(stream, obj["title"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["document"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["settings"], (void*) &writeTLInputThemeSettings);
-    break;
-    }
-}
-
-void readTLMethodAccountUpdateTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 737414348:
-        readTLTheme(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUpdateTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 737414348:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["slug"].isNull()) | 
-            (!obj["title"].isNull() << 1) | 
-            (!obj["document"].isNull() << 2) | 
-            (!obj["settings"].isNull() << 3) | 
-        0), callback);
-        writeString(stream, obj["format"], callback);
-        writeTLInputTheme(stream, obj["theme"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["slug"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["title"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["document"], callback);
-        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["settings"], (void*) &writeTLInputThemeSettings);
-    break;
-    }
-}
-
-void readTLMethodAccountSaveTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -229175188:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSaveTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -229175188:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputTheme(stream, obj["theme"], callback);
-        writeBool(stream, obj["unsave"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountInstallTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -953697477:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountInstallTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -953697477:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["dark"].isNull()) | 
-            (!obj["theme"].isNull() << 1) | 
-            (!obj["format"].isNull() << 2) | 
-            (!obj["base_theme"].isNull() << 3) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputTheme(stream, obj["theme"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["format"], callback);
-        if (obj["flags"].toUInt() & 8l) writeTLBaseTheme(stream, obj["base_theme"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 978872812:
-        readTLTheme(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 978872812:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["format"], callback);
-        writeTLInputTheme(stream, obj["theme"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetThemes(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1913054296:
-        readTLAccountThemes(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetThemes(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1913054296:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["format"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthExportLoginToken(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1210022402:
-        readTLAuthLoginToken(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthExportLoginToken(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1210022402:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["api_id"], callback);
-        writeString(stream, obj["api_hash"], callback);
-        writeVector(stream, obj["except_ids"], (void*) &writeInt64);
-    break;
-    }
-}
-
-void readTLMethodAuthImportLoginToken(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1783866140:
-        readTLAuthLoginToken(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthImportLoginToken(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1783866140:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["token"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthAcceptLoginToken(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -392909491:
-        readTLAuthorization(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthAcceptLoginToken(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -392909491:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["token"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetContentSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1250643605:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetContentSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1250643605:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["sensitive_enabled"].isNull()) | 
-        0), callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetContentSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1952756306:
-        readTLAccountContentSettings(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetContentSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1952756306:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsGetInactiveChannels(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -28416,1290 +32151,6 @@ void writeTLMethodChannelsGetInactiveChannels(TelegramStream &stream, QVariant i
     switch (obj["_"].toInt()) {
     case 300429806:
         writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetMultiWallPapers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1705865692:
-        readVector(stream, i, (void*) &readTLWallPaper);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetMultiWallPapers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1705865692:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["wallpapers"], (void*) &writeTLInputWallPaper);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetPollVotes(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1200736242:
-        readTLMessagesVotesList(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetPollVotes(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1200736242:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["option"].isNull()) | 
-            (!obj["offset"].isNull() << 1) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeByteArray(stream, obj["option"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesToggleStickerSets(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1257951254:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesToggleStickerSets(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1257951254:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["uninstall"].isNull()) | 
-            (!obj["archive"].isNull() << 1) | 
-            (!obj["unarchive"].isNull() << 2) | 
-        0), callback);
-        writeVector(stream, obj["stickersets"], (void*) &writeTLInputStickerSet);
-    break;
-    }
-}
-
-void readTLMethodPaymentsGetBankCardData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 779736953:
-        readTLPaymentsBankCardData(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsGetBankCardData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 779736953:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["number"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetDialogFilters(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -241247891:
-        readVector(stream, i, (void*) &readTLDialogFilter);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetDialogFilters(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -241247891:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSuggestedDialogFilters(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1566780372:
-        readVector(stream, i, (void*) &readTLDialogFilterSuggested);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSuggestedDialogFilters(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1566780372:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUpdateDialogFilter(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 450142282:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUpdateDialogFilter(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 450142282:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["filter"].isNull()) | 
-        0), callback);
-        writeInt32(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLDialogFilter(stream, obj["filter"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUpdateDialogFiltersOrder(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -983318044:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUpdateDialogFiltersOrder(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -983318044:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["order"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodStatsGetBroadcastStats(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1421720550:
-        readTLStatsBroadcastStats(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStatsGetBroadcastStats(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1421720550:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["dark"].isNull()) | 
-        0), callback);
-        writeTLInputChannel(stream, obj["channel"], callback);
-    break;
-    }
-}
-
-void readTLMethodStatsLoadAsyncGraph(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1646092192:
-        readTLStatsGraph(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStatsLoadAsyncGraph(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1646092192:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["x"].isNull()) | 
-        0), callback);
-        writeString(stream, obj["token"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["x"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersSetStickerSetThumb(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1486204014:
-        readTLMessagesStickerSet(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersSetStickerSetThumb(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1486204014:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["thumb"].isNull()) | 
-            (!obj["thumb_document_id"].isNull() << 1) | 
-        0), callback);
-        writeTLInputStickerSet(stream, obj["stickerset"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputDocument(stream, obj["thumb"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt64(stream, obj["thumb_document_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsSetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 85399130:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsSetBotCommands(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 85399130:
-        writeInt32(stream, obj["_"], callback);
-        writeTLBotCommandScope(stream, obj["scope"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        writeVector(stream, obj["commands"], (void*) &writeTLBotCommand);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetOldFeaturedStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2127598753:
-        readTLMessagesFeaturedStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetOldFeaturedStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2127598753:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetPromoData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1063816159:
-        readTLHelpPromoData(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetPromoData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1063816159:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpHidePromoData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 505748629:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpHidePromoData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 505748629:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneSendSignalingData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -8744061:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneSendSignalingData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -8744061:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeByteArray(stream, obj["data"], callback);
-    break;
-    }
-}
-
-void readTLMethodStatsGetMegagroupStats(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -589330937:
-        readTLStatsMegagroupStats(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStatsGetMegagroupStats(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -589330937:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["dark"].isNull()) | 
-        0), callback);
-        writeTLInputChannel(stream, obj["channel"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetGlobalPrivacySettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -349483786:
-        readTLGlobalPrivacySettings(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetGlobalPrivacySettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -349483786:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetGlobalPrivacySettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 517647042:
-        readTLGlobalPrivacySettings(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetGlobalPrivacySettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 517647042:
-        writeInt32(stream, obj["_"], callback);
-        writeTLGlobalPrivacySettings(stream, obj["settings"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpDismissSuggestion(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -183649631:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpDismissSuggestion(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -183649631:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["suggestion"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetCountriesList(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1935116200:
-        readTLHelpCountriesList(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetCountriesList(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1935116200:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        writeInt32(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetReplies(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 584962828:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetReplies(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 584962828:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["offset_date"], callback);
-        writeInt32(stream, obj["add_offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt32(stream, obj["max_id"], callback);
-        writeInt32(stream, obj["min_id"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetDiscussionMessage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1147761405:
-        readTLMessagesDiscussionMessage(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetDiscussionMessage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1147761405:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReadDiscussion(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -147740172:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReadDiscussion(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -147740172:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        writeInt32(stream, obj["read_max_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsBlockFromReplies(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 698914348:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsBlockFromReplies(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 698914348:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["delete_message"].isNull()) | 
-            (!obj["delete_history"].isNull() << 1) | 
-            (!obj["report_spam"].isNull() << 2) | 
-        0), callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodStatsGetMessagePublicForwards(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1445996571:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStatsGetMessagePublicForwards(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1445996571:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputChannel(stream, obj["channel"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        writeInt32(stream, obj["offset_rate"], callback);
-        writeTLInputPeer(stream, obj["offset_peer"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodStatsGetMessageStats(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1226791947:
-        readTLStatsMessageStats(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStatsGetMessageStats(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1226791947:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["dark"].isNull()) | 
-        0), callback);
-        writeTLInputChannel(stream, obj["channel"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUnpinAllMessages(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -299714136:
-        readTLMessagesAffectedHistory(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUnpinAllMessages(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -299714136:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneCreateGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1221445336:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneCreateGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1221445336:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["rtmp_stream"].isNull() << 2) | 
-            (!obj["title"].isNull()) | 
-            (!obj["schedule_date"].isNull() << 1) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["random_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["title"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["schedule_date"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneJoinGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1322057861:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneJoinGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1322057861:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["muted"].isNull()) | 
-            (!obj["video_stopped"].isNull() << 2) | 
-            (!obj["invite_hash"].isNull() << 1) | 
-        0), callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeTLInputPeer(stream, obj["join_as"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["invite_hash"], callback);
-        writeTLDataJSON(stream, obj["params"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneLeaveGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1342404601:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneLeaveGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1342404601:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeInt32(stream, obj["source"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneInviteToGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2067345760:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneInviteToGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2067345760:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeVector(stream, obj["users"], (void*) &writeTLInputUser);
-    break;
-    }
-}
-
-void readTLMethodPhoneDiscardGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2054648117:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneDiscardGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2054648117:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneToggleGroupCallSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1958458429:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneToggleGroupCallSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1958458429:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["reset_invite_hash"].isNull() << 1) | 
-            (!obj["join_muted"].isNull()) | 
-        0), callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["join_muted"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 68699611:
-        readTLPhoneGroupCall(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 68699611:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetGroupParticipants(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -984033109:
-        readTLPhoneGroupParticipants(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetGroupParticipants(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -984033109:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeVector(stream, obj["ids"], (void*) &writeTLInputPeer);
-        writeVector(stream, obj["sources"], (void*) &writeInt32);
-        writeString(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneCheckGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1248003721:
-        readVector(stream, i, (void*) &readInt32);
-    break;
-    }
-}
-
-void writeTLMethodPhoneCheckGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1248003721:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeVector(stream, obj["sources"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodMessagesDeleteChat(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1540419152:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesDeleteChat(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1540419152:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["chat_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesDeletePhoneCallHistory(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -104078327:
-        readTLMessagesAffectedFoundMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesDeletePhoneCallHistory(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -104078327:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["revoke"].isNull()) | 
-        0), callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesCheckHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1140726259:
-        readTLMessagesHistoryImportParsed(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesCheckHistoryImport(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1140726259:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["import_head"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesInitHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 873008187:
-        readTLMessagesHistoryImport(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesInitHistoryImport(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 873008187:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputFile(stream, obj["file"], callback);
-        writeInt32(stream, obj["media_count"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesUploadImportedMedia(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 713433234:
-        readTLMessageMedia(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesUploadImportedMedia(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 713433234:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt64(stream, obj["import_id"], callback);
-        writeString(stream, obj["file_name"], callback);
-        writeTLInputMedia(stream, obj["media"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesStartHistoryImport(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1271008444:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesStartHistoryImport(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1271008444:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt64(stream, obj["import_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetExportedChatInvites(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1565154314:
-        readTLMessagesExportedChatInvites(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetExportedChatInvites(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1565154314:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["revoked"].isNull() << 3) | 
-            (!obj["offset_date"].isNull() << 2) | 
-            (!obj["offset_link"].isNull() << 2) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputUser(stream, obj["admin_id"], callback);
-        if (obj["flags"].toUInt() & 4l) writeInt32(stream, obj["offset_date"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["offset_link"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1937010524:
-        readTLMessagesExportedChatInvite(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1937010524:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["link"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesEditExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1110823051:
-        readTLMessagesExportedChatInvite(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesEditExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1110823051:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["revoked"].isNull() << 2) | 
-            (!obj["expire_date"].isNull()) | 
-            (!obj["usage_limit"].isNull() << 1) | 
-            (!obj["request_needed"].isNull() << 3) | 
-            (!obj["title"].isNull() << 4) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["link"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["expire_date"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["usage_limit"], callback);
-        if (obj["flags"].toUInt() & 8l) writeBool(stream, obj["request_needed"], callback);
-        if (obj["flags"].toUInt() & 16l) writeString(stream, obj["title"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesDeleteRevokedExportedChatInvites(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1452833749:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesDeleteRevokedExportedChatInvites(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1452833749:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputUser(stream, obj["admin_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesDeleteExportedChatInvite(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -731601877:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesDeleteExportedChatInvite(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -731601877:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["link"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAdminsWithInvites(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 958457583:
-        readTLMessagesChatAdminsWithInvites(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAdminsWithInvites(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 958457583:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetChatInviteImporters(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -553329330:
-        readTLMessagesChatInviteImporters(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetChatInviteImporters(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -553329330:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["requested"].isNull()) | 
-            (!obj["link"].isNull() << 1) | 
-            (!obj["q"].isNull() << 2) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["link"], callback);
-        if (obj["flags"].toUInt() & 4l) writeString(stream, obj["q"], callback);
-        writeInt32(stream, obj["offset_date"], callback);
-        writeTLInputUser(stream, obj["offset_user"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1207017500:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1207017500:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["period"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountReportProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -91437323:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountReportProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -91437323:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputPhoto(stream, obj["photo_id"], callback);
-        writeTLReportReason(stream, obj["reason"], callback);
-        writeString(stream, obj["message"], callback);
     break;
     }
 }
@@ -29722,477 +32173,6 @@ void writeTLMethodChannelsConvertToGigagroup(TelegramStream &stream, QVariant i,
     case 187239529:
         writeInt32(stream, obj["_"], callback);
         writeTLInputChannel(stream, obj["channel"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesCheckHistoryImportPeer(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1573261059:
-        readTLMessagesCheckedHistoryImportPeer(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesCheckHistoryImportPeer(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1573261059:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneToggleGroupCallRecord(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -248985848:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneToggleGroupCallRecord(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -248985848:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["start"].isNull()) | 
-            (!obj["video"].isNull() << 2) | 
-            (!obj["title"].isNull() << 1) | 
-            (!obj["video_portrait"].isNull() << 2) | 
-        0), callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["title"], callback);
-        if (obj["flags"].toUInt() & 4l) writeBool(stream, obj["video_portrait"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneEditGroupCallParticipant(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1524155713:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneEditGroupCallParticipant(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1524155713:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["muted"].isNull()) | 
-            (!obj["volume"].isNull() << 1) | 
-            (!obj["raise_hand"].isNull() << 2) | 
-            (!obj["video_stopped"].isNull() << 3) | 
-            (!obj["video_paused"].isNull() << 4) | 
-            (!obj["presentation_paused"].isNull() << 5) | 
-        0), callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeTLInputPeer(stream, obj["participant"], callback);
-        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["muted"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["volume"], callback);
-        if (obj["flags"].toUInt() & 4l) writeBool(stream, obj["raise_hand"], callback);
-        if (obj["flags"].toUInt() & 8l) writeBool(stream, obj["video_stopped"], callback);
-        if (obj["flags"].toUInt() & 16l) writeBool(stream, obj["video_paused"], callback);
-        if (obj["flags"].toUInt() & 32l) writeBool(stream, obj["presentation_paused"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneEditGroupCallTitle(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 480685066:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneEditGroupCallTitle(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 480685066:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeString(stream, obj["title"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetGroupCallJoinAs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -277077702:
-        readTLPhoneJoinAsPeers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetGroupCallJoinAs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -277077702:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneExportGroupCallInvite(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -425040769:
-        readTLPhoneExportedGroupCallInvite(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneExportGroupCallInvite(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -425040769:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["can_self_unmute"].isNull()) | 
-        0), callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneToggleGroupCallStartSubscription(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 563885286:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneToggleGroupCallStartSubscription(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 563885286:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeBool(stream, obj["subscribed"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneStartScheduledGroupCall(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1451287362:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneStartScheduledGroupCall(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1451287362:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneSaveDefaultGroupCallJoinAs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1465786252:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneSaveDefaultGroupCallJoinAs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1465786252:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputPeer(stream, obj["join_as"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneJoinGroupCallPresentation(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -873829436:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneJoinGroupCallPresentation(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -873829436:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-        writeTLDataJSON(stream, obj["params"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneLeaveGroupCallPresentation(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 475058500:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneLeaveGroupCallPresentation(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 475058500:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersCheckShortName(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 676017721:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersCheckShortName(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 676017721:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["short_name"], callback);
-    break;
-    }
-}
-
-void readTLMethodStickersSuggestShortName(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1303364867:
-        readTLStickersSuggestedShortName(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodStickersSuggestShortName(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1303364867:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["title"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsResetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1032708345:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsResetBotCommands(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1032708345:
-        writeInt32(stream, obj["_"], callback);
-        writeTLBotCommandScope(stream, obj["scope"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsGetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -481554986:
-        readVector(stream, i, (void*) &readTLBotCommand);
-    break;
-    }
-}
-
-void writeTLMethodBotsGetBotCommands(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -481554986:
-        writeInt32(stream, obj["_"], callback);
-        writeTLBotCommandScope(stream, obj["scope"], callback);
-        writeString(stream, obj["lang_code"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountResetPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1828139493:
-        readTLAccountResetPasswordResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountResetPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1828139493:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountDeclinePasswordReset(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1284770294:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountDeclinePasswordReset(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1284770294:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodAuthCheckRecoveryPassword(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 221691769:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthCheckRecoveryPassword(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 221691769:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["code"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetChatThemes(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -700916087:
-        readTLAccountThemes(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetChatThemes(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -700916087:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetChatTheme(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -432283329:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetChatTheme(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -432283329:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeString(stream, obj["emoticon"], callback);
     break;
     }
 }
@@ -30242,178 +32222,6 @@ void writeTLMethodChannelsGetSponsoredMessages(TelegramStream &stream, QVariant 
     }
 }
 
-void readTLMethodMessagesGetMessageReadParticipants(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 834782287:
-        readVector(stream, i, (void*) &readTLReadParticipantDate);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetMessageReadParticipants(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 834782287:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSearchResultsCalendar(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1240514025:
-        readTLMessagesSearchResultsCalendar(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSearchResultsCalendar(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1240514025:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLMessagesFilter(stream, obj["filter"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["offset_date"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetSearchResultsPositions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1855292323:
-        readTLMessagesSearchResultsPositions(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetSearchResultsPositions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1855292323:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLMessagesFilter(stream, obj["filter"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesHideChatJoinRequest(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2145904661:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesHideChatJoinRequest(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2145904661:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["approved"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesHideAllChatJoinRequests(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -528091926:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesHideAllChatJoinRequests(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -528091926:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["approved"].isNull()) | 
-            (!obj["link"].isNull() << 1) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["link"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesToggleNoForwards(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1323389022:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesToggleNoForwards(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1323389022:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeBool(stream, obj["enabled"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSaveDefaultSendAs(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -855777386:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSaveDefaultSendAs(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -855777386:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputPeer(stream, obj["send_as"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsGetSendAs(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -30432,56 +32240,6 @@ void writeTLMethodChannelsGetSendAs(TelegramStream &stream, QVariant i, void* ca
     case 231174382:
         writeInt32(stream, obj["_"], callback);
         writeTLInputPeer(stream, obj["peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSetAuthorizationTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1081501024:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSetAuthorizationTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1081501024:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["authorization_ttl_days"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountChangeAuthorizationSettings(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1089766498:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountChangeAuthorizationSettings(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1089766498:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["encrypted_requests_disabled"].isNull()) | 
-            (!obj["call_requests_disabled"].isNull() << 1) | 
-        0), callback);
-        writeInt64(stream, obj["hash"], callback);
-        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["encrypted_requests_disabled"], callback);
-        if (obj["flags"].toUInt() & 2l) writeBool(stream, obj["call_requests_disabled"], callback);
     break;
     }
 }
@@ -30505,734 +32263,6 @@ void writeTLMethodChannelsDeleteParticipantHistory(TelegramStream &stream, QVari
         writeInt32(stream, obj["_"], callback);
         writeTLInputChannel(stream, obj["channel"], callback);
         writeTLInputPeer(stream, obj["participant"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendReaction(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -754091820:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendReaction(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -754091820:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["big"].isNull() << 1) | 
-            (!obj["add_to_recent"].isNull() << 2) | 
-            (!obj["reaction"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["reaction"], (void*) &writeTLReaction);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetMessagesReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1950707482:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetMessagesReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1950707482:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetMessageReactionsList(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1176190792:
-        readTLMessagesMessageReactionsList(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetMessageReactionsList(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1176190792:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["reaction"].isNull()) | 
-            (!obj["offset"].isNull() << 1) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLReaction(stream, obj["reaction"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetChatAvailableReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -21928079:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetChatAvailableReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -21928079:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLChatReactions(stream, obj["available_reactions"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAvailableReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 417243308:
-        readTLMessagesAvailableReactions(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAvailableReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 417243308:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetDefaultReaction(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1330094102:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetDefaultReaction(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1330094102:
-        writeInt32(stream, obj["_"], callback);
-        writeTLReaction(stream, obj["reaction"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesTranslateText(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1662529584:
-        readTLMessagesTranslatedText(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesTranslateText(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1662529584:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["peer"].isNull()) | 
-            (!obj["id"].isNull()) | 
-            (!obj["text"].isNull() << 1) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["id"], (void*) &writeInt32);
-        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["text"], (void*) &writeTLTextWithEntities);
-        writeString(stream, obj["to_lang"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetUnreadReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 841173339:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetUnreadReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 841173339:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-        writeInt32(stream, obj["offset_id"], callback);
-        writeInt32(stream, obj["add_offset"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt32(stream, obj["max_id"], callback);
-        writeInt32(stream, obj["min_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReadReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1420459918:
-        readTLMessagesAffectedHistory(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReadReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1420459918:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["top_msg_id"].isNull()) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["top_msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsResolvePhone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1963375804:
-        readTLContactsResolvedPeer(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsResolvePhone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1963375804:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetGroupCallStreamChannels(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 447879488:
-        readTLPhoneGroupCallStreamChannels(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetGroupCallStreamChannels(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 447879488:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputGroupCall(stream, obj["call"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneGetGroupCallStreamRtmpUrl(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -558650433:
-        readTLPhoneGroupCallStreamRtmpUrl(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneGetGroupCallStreamRtmpUrl(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -558650433:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeBool(stream, obj["revoke"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSearchSentMedia(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 276705696:
-        readTLMessagesMessages(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSearchSentMedia(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 276705696:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["q"], callback);
-        writeTLMessagesFilter(stream, obj["filter"], callback);
-        writeInt32(stream, obj["limit"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAttachMenuBots(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 385663691:
-        readTLAttachMenuBots(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAttachMenuBots(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 385663691:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetAttachMenuBot(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1998676370:
-        readTLAttachMenuBotsBot(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetAttachMenuBot(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1998676370:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesToggleBotInAttachMenu(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1777704297:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesToggleBotInAttachMenu(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1777704297:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["write_allowed"].isNull()) | 
-        0), callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeBool(stream, obj["enabled"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesRequestWebView(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 395003915:
-        readTLWebViewResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesRequestWebView(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 395003915:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["from_bot_menu"].isNull() << 4) | 
-            (!obj["silent"].isNull() << 5) | 
-            (!obj["url"].isNull() << 1) | 
-            (!obj["start_param"].isNull() << 3) | 
-            (!obj["theme_params"].isNull() << 2) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
-            (!obj["send_as"].isNull() << 13) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["url"], callback);
-        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["start_param"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLDataJSON(stream, obj["theme_params"], callback);
-        writeString(stream, obj["platform"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
-        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesProlongWebView(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2146648841:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesProlongWebView(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2146648841:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["silent"].isNull() << 5) | 
-            (!obj["reply_to_msg_id"].isNull()) | 
-            (!obj["top_msg_id"].isNull() << 9) | 
-            (!obj["send_as"].isNull() << 13) | 
-        0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeInt64(stream, obj["query_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeInt32(stream, obj["reply_to_msg_id"], callback);
-        if (obj["flags"].toUInt() & 512l) writeInt32(stream, obj["top_msg_id"], callback);
-        if (obj["flags"].toUInt() & 8192l) writeTLInputPeer(stream, obj["send_as"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesRequestSimpleWebView(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 698084494:
-        readTLSimpleWebViewResult(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesRequestSimpleWebView(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 698084494:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["from_switch_webview"].isNull() << 1) | 
-            (!obj["theme_params"].isNull()) | 
-        0), callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeString(stream, obj["url"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLDataJSON(stream, obj["theme_params"], callback);
-        writeString(stream, obj["platform"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendWebViewResultMessage(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 172168437:
-        readTLWebViewMessageSent(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendWebViewResultMessage(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 172168437:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["bot_query_id"], callback);
-        writeTLInputBotInlineResult(stream, obj["result"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSendWebViewData(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -603831608:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSendWebViewData(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -603831608:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeInt64(stream, obj["random_id"], callback);
-        writeString(stream, obj["button_text"], callback);
-        writeString(stream, obj["data"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsSetBotMenuButton(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1157944655:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsSetBotMenuButton(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1157944655:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        writeTLBotMenuButton(stream, obj["button"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsGetBotMenuButton(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1671369944:
-        readTLBotMenuButton(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsGetBotMenuButton(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1671369944:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetSavedRingtones(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -510647672:
-        readTLAccountSavedRingtones(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetSavedRingtones(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -510647672:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountSaveRingtone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1038768899:
-        readTLAccountSavedRingtone(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountSaveRingtone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1038768899:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputDocument(stream, obj["id"], callback);
-        writeBool(stream, obj["unsave"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountUploadRingtone(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2095414366:
-        readTLDocument(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUploadRingtone(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2095414366:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputFile(stream, obj["file"], callback);
-        writeString(stream, obj["file_name"], callback);
-        writeString(stream, obj["mime_type"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsSetBotBroadcastDefaultAdminRights(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2021942497:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsSetBotBroadcastDefaultAdminRights(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2021942497:
-        writeInt32(stream, obj["_"], callback);
-        writeTLChatAdminRights(stream, obj["admin_rights"], callback);
-    break;
-    }
-}
-
-void readTLMethodBotsSetBotGroupDefaultAdminRights(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1839281686:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsSetBotGroupDefaultAdminRights(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1839281686:
-        writeInt32(stream, obj["_"], callback);
-        writeTLChatAdminRights(stream, obj["admin_rights"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhoneSaveCallLog(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1092913030:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhoneSaveCallLog(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1092913030:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPhoneCall(stream, obj["peer"], callback);
-        writeTLInputFile(stream, obj["file"], callback);
     break;
     }
 }
@@ -31279,501 +32309,6 @@ void writeTLMethodChannelsToggleJoinRequest(TelegramStream &stream, QVariant i, 
         writeInt32(stream, obj["_"], callback);
         writeTLInputChannel(stream, obj["channel"], callback);
         writeBool(stream, obj["enabled"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsExportInvoice(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 261206117:
-        readTLPaymentsExportedInvoice(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsExportInvoice(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 261206117:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputMedia(stream, obj["invoice_media"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesTranscribeAudio(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 647928393:
-        readTLMessagesTranscribedAudio(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesTranscribeAudio(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 647928393:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesRateTranscribedAudio(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 2132608815:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesRateTranscribedAudio(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 2132608815:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["msg_id"], callback);
-        writeInt64(stream, obj["transcription_id"], callback);
-        writeBool(stream, obj["good"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsAssignAppStoreTransaction(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2131921795:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsAssignAppStoreTransaction(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2131921795:
-        writeInt32(stream, obj["_"], callback);
-        writeByteArray(stream, obj["receipt"], callback);
-        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsAssignPlayMarketTransaction(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -537046829:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsAssignPlayMarketTransaction(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -537046829:
-        writeInt32(stream, obj["_"], callback);
-        writeTLDataJSON(stream, obj["receipt"], callback);
-        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
-    break;
-    }
-}
-
-void readTLMethodPaymentsCanPurchasePremium(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1614700874:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPaymentsCanPurchasePremium(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1614700874:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
-    break;
-    }
-}
-
-void readTLMethodHelpGetPremiumPromo(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1206152236:
-        readTLHelpPremiumPromo(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodHelpGetPremiumPromo(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1206152236:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetCustomEmojiDocuments(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -643100844:
-        readVector(stream, i, (void*) &readTLDocument);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetCustomEmojiDocuments(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -643100844:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["document_id"], (void*) &writeInt64);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetEmojiStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -67329649:
-        readTLMessagesAllStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetEmojiStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -67329649:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetFeaturedEmojiStickers(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 248473398:
-        readTLMessagesFeaturedStickers(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetFeaturedEmojiStickers(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 248473398:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountUpdateEmojiStatus(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -70001045:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountUpdateEmojiStatus(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -70001045:
-        writeInt32(stream, obj["_"], callback);
-        writeTLEmojiStatus(stream, obj["emoji_status"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetDefaultEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -696962170:
-        readTLAccountEmojiStatuses(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetDefaultEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -696962170:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountGetRecentEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 257392901:
-        readTLAccountEmojiStatuses(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountGetRecentEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 257392901:
-        writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountClearRecentEmojiStatuses(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 404757166:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountClearRecentEmojiStatuses(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 404757166:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesReportReaction(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1063567478:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesReportReaction(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1063567478:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeInt32(stream, obj["id"], callback);
-        writeTLInputPeer(stream, obj["reaction_peer"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetTopReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1149164102:
-        readTLMessagesReactions(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetTopReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1149164102:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetRecentReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 960896434:
-        readTLMessagesReactions(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetRecentReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 960896434:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["limit"], callback);
-        writeInt64(stream, obj["hash"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesClearRecentReactions(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1644236876:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesClearRecentReactions(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1644236876:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetExtendedMedia(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -2064119788:
-        readTLUpdates(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetExtendedMedia(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -2064119788:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeVector(stream, obj["id"], (void*) &writeInt32);
-    break;
-    }
-}
-
-void readTLMethodAuthImportWebTokenAuthorization(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 767062953:
-        readTLAuthAuthorization(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAuthImportWebTokenAuthorization(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 767062953:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["api_id"], callback);
-        writeString(stream, obj["api_hash"], callback);
-        writeString(stream, obj["web_auth_token"], callback);
-    break;
-    }
-}
-
-void readTLMethodAccountReorderUsernames(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -279966037:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountReorderUsernames(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -279966037:
-        writeInt32(stream, obj["_"], callback);
-        writeVector(stream, obj["order"], (void*) &writeString);
-    break;
-    }
-}
-
-void readTLMethodAccountToggleUsername(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1490465654:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodAccountToggleUsername(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1490465654:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["username"], callback);
-        writeBool(stream, obj["active"], callback);
     break;
     }
 }
@@ -32107,126 +32642,6 @@ void writeTLMethodChannelsReportAntiSpamFalsePositive(TelegramStream &stream, QV
     }
 }
 
-void readTLMethodMessagesSetDefaultHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1632299963:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesSetDefaultHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -1632299963:
-        writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["period"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesGetDefaultHistoryTTL(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 1703637384:
-        readTLDefaultHistoryTTL(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodMessagesGetDefaultHistoryTTL(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 1703637384:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsExportContactToken(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -127582169:
-        readTLExportedContactToken(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsExportContactToken(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -127582169:
-        writeInt32(stream, obj["_"], callback);
-    break;
-    }
-}
-
-void readTLMethodContactsImportContactToken(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case 318789512:
-        readTLUser(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodContactsImportContactToken(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 318789512:
-        writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["token"], callback);
-    break;
-    }
-}
-
-void readTLMethodPhotosUploadContactProfilePhoto(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -515093903:
-        readTLPhotosPhoto(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodPhotosUploadContactProfilePhoto(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case -515093903:
-        writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["suggest"].isNull() << 3) | 
-            (!obj["save"].isNull() << 4) | 
-            (!obj["file"].isNull()) | 
-            (!obj["video"].isNull() << 1) | 
-            (!obj["video_start_ts"].isNull() << 2) | 
-            (!obj["video_emoji_markup"].isNull() << 5) | 
-        0), callback);
-        writeTLInputUser(stream, obj["user_id"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputFile(stream, obj["file"], callback);
-        if (obj["flags"].toUInt() & 2l) writeTLInputFile(stream, obj["video"], callback);
-        if (obj["flags"].toUInt() & 4l) writeDouble(stream, obj["video_start_ts"], callback);
-        if (obj["flags"].toUInt() & 32l) writeTLVideoSize(stream, obj["video_emoji_markup"], callback);
-    break;
-    }
-}
-
 void readTLMethodChannelsToggleParticipantsHidden(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
@@ -32250,285 +32665,987 @@ void writeTLMethodChannelsToggleParticipantsHidden(TelegramStream &stream, QVari
     }
 }
 
-void readTLMethodMessagesSendBotRequestedPeer(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodChannelsClickSponsoredMessage(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -29831141:
+    case 414170259:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodChannelsClickSponsoredMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 414170259:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+        writeByteArray(stream, obj["random_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodChannelsUpdateColor(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1645879327:
         readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesSendBotRequestedPeer(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodChannelsUpdateColor(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -29831141:
+    case 1645879327:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["background_emoji_id"].isNull()) | 
+        0), callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+        writeInt32(stream, obj["color"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["background_emoji_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSendCustomRequest(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1440257555:
+        readTLDataJSON(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSendCustomRequest(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1440257555:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["custom_method"], callback);
+        writeTLDataJSON(stream, obj["params"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsAnswerWebhookJSONQuery(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -434028723:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsAnswerWebhookJSONQuery(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -434028723:
+        writeInt32(stream, obj["_"], callback);
+        writeInt64(stream, obj["query_id"], callback);
+        writeTLDataJSON(stream, obj["data"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 85399130:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSetBotCommands(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 85399130:
+        writeInt32(stream, obj["_"], callback);
+        writeTLBotCommandScope(stream, obj["scope"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        writeVector(stream, obj["commands"], (void*) &writeTLBotCommand);
+    break;
+    }
+}
+
+void readTLMethodBotsResetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1032708345:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsResetBotCommands(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1032708345:
+        writeInt32(stream, obj["_"], callback);
+        writeTLBotCommandScope(stream, obj["scope"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsGetBotCommands(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -481554986:
+        readVector(stream, i, (void*) &readTLBotCommand);
+    break;
+    }
+}
+
+void writeTLMethodBotsGetBotCommands(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -481554986:
+        writeInt32(stream, obj["_"], callback);
+        writeTLBotCommandScope(stream, obj["scope"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSetBotMenuButton(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1157944655:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSetBotMenuButton(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1157944655:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeTLBotMenuButton(stream, obj["button"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsGetBotMenuButton(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1671369944:
+        readTLBotMenuButton(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsGetBotMenuButton(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1671369944:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSetBotBroadcastDefaultAdminRights(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2021942497:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSetBotBroadcastDefaultAdminRights(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2021942497:
+        writeInt32(stream, obj["_"], callback);
+        writeTLChatAdminRights(stream, obj["admin_rights"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSetBotGroupDefaultAdminRights(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1839281686:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSetBotGroupDefaultAdminRights(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1839281686:
+        writeInt32(stream, obj["_"], callback);
+        writeTLChatAdminRights(stream, obj["admin_rights"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 282013987:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 282013987:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["bot"].isNull() << 2) | 
+            (!obj["name"].isNull() << 3) | 
+            (!obj["about"].isNull()) | 
+            (!obj["description"].isNull() << 1) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 4l) writeTLInputUser(stream, obj["bot"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["name"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["about"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["description"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -589753091:
+        readTLBotsBotInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -589753091:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["bot"].isNull()) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputUser(stream, obj["bot"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1760972350:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1760972350:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeVector(stream, obj["order"], (void*) &writeString);
+    break;
+    }
+}
+
+void readTLMethodBotsToggleUsername(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 87861619:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsToggleUsername(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 87861619:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeString(stream, obj["username"], callback);
+        writeBool(stream, obj["active"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsCanSendMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 324662502:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsCanSendMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 324662502:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsAllowSendMessage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -248323089:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsAllowSendMessage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -248323089:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+    break;
+    }
+}
+
+void readTLMethodBotsInvokeWebViewCustomMethod(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 142591463:
+        readTLDataJSON(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodBotsInvokeWebViewCustomMethod(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 142591463:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputUser(stream, obj["bot"], callback);
+        writeString(stream, obj["custom_method"], callback);
+        writeTLDataJSON(stream, obj["params"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsGetPaymentForm(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 924093883:
+        readTLPaymentsPaymentForm(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsGetPaymentForm(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 924093883:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["theme_params"].isNull()) | 
+        0), callback);
+        writeTLInputInvoice(stream, obj["invoice"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLDataJSON(stream, obj["theme_params"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsGetPaymentReceipt(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 611897804:
+        readTLPaymentsPaymentReceipt(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsGetPaymentReceipt(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 611897804:
         writeInt32(stream, obj["_"], callback);
         writeTLInputPeer(stream, obj["peer"], callback);
         writeInt32(stream, obj["msg_id"], callback);
-        writeInt32(stream, obj["button_id"], callback);
-        writeTLInputPeer(stream, obj["requested_peer"], callback);
     break;
     }
 }
 
-void readTLMethodAccountGetDefaultProfilePhotoEmojis(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsValidateRequestedInfo(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -495647960:
-        readTLEmojiList(stream, i, callback);
+    case -1228345045:
+        readTLPaymentsValidatedRequestedInfo(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAccountGetDefaultProfilePhotoEmojis(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsValidateRequestedInfo(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -495647960:
+    case -1228345045:
         writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["save"].isNull()) | 
+        0), callback);
+        writeTLInputInvoice(stream, obj["invoice"], callback);
+        writeTLPaymentRequestedInfo(stream, obj["info"], callback);
     break;
     }
 }
 
-void readTLMethodAccountGetDefaultGroupPhotoEmojis(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsSendPaymentForm(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1856479058:
-        readTLEmojiList(stream, i, callback);
+    case 755192367:
+        readTLPaymentsPaymentResult(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAccountGetDefaultGroupPhotoEmojis(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsSendPaymentForm(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1856479058:
+    case 755192367:
         writeInt32(stream, obj["_"], callback);
-        writeInt64(stream, obj["hash"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["requested_info_id"].isNull()) | 
+            (!obj["shipping_option_id"].isNull() << 1) | 
+            (!obj["tip_amount"].isNull() << 2) | 
+        0), callback);
+        writeInt64(stream, obj["form_id"], callback);
+        writeTLInputInvoice(stream, obj["invoice"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["requested_info_id"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["shipping_option_id"], callback);
+        writeTLInputPaymentCredentials(stream, obj["credentials"], callback);
+        if (obj["flags"].toUInt() & 4l) writeInt64(stream, obj["tip_amount"], callback);
     break;
     }
 }
 
-void readTLMethodAuthRequestFirebaseSms(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsGetSavedInfo(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1991881904:
+    case 578650699:
+        readTLPaymentsSavedInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsGetSavedInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 578650699:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsClearSavedInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -667062079:
         readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAuthRequestFirebaseSms(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsClearSavedInfo(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1991881904:
+    case -667062079:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["safety_net_token"].isNull()) | 
-            (!obj["ios_push_secret"].isNull() << 1) | 
+            (!obj["credentials"].isNull()) | 
+            (!obj["info"].isNull() << 1) | 
         0), callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["safety_net_token"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["ios_push_secret"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesGetEmojiGroups(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsGetBankCardData(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1955122779:
-        readTLMessagesEmojiGroups(stream, i, callback);
+    case 779736953:
+        readTLPaymentsBankCardData(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesGetEmojiGroups(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsGetBankCardData(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1955122779:
+    case 779736953:
         writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
+        writeString(stream, obj["number"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesGetEmojiStatusGroups(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsExportInvoice(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 785209037:
-        readTLMessagesEmojiGroups(stream, i, callback);
+    case 261206117:
+        readTLPaymentsExportedInvoice(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesGetEmojiStatusGroups(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsExportInvoice(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 785209037:
+    case 261206117:
         writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
+        writeTLInputMedia(stream, obj["invoice_media"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesGetEmojiProfilePhotoGroups(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsAssignAppStoreTransaction(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 564480243:
-        readTLMessagesEmojiGroups(stream, i, callback);
+    case -2131921795:
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesGetEmojiProfilePhotoGroups(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsAssignAppStoreTransaction(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 564480243:
+    case -2131921795:
         writeInt32(stream, obj["_"], callback);
-        writeInt32(stream, obj["hash"], callback);
+        writeByteArray(stream, obj["receipt"], callback);
+        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesSearchCustomEmoji(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsAssignPlayMarketTransaction(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 739360983:
-        readTLEmojiList(stream, i, callback);
+    case -537046829:
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesSearchCustomEmoji(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsAssignPlayMarketTransaction(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 739360983:
+    case -537046829:
         writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["emoticon"], callback);
-        writeInt64(stream, obj["hash"], callback);
+        writeTLDataJSON(stream, obj["receipt"], callback);
+        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesTogglePeerTranslations(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsCanPurchasePremium(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -461589127:
+    case -1614700874:
         readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesTogglePeerTranslations(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsCanPurchasePremium(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -461589127:
+    case -1614700874:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsGetPremiumGiftCodeOptions(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 660060756:
+        readVector(stream, i, (void*) &readTLPremiumGiftCodeOption);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsGetPremiumGiftCodeOptions(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 660060756:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["disabled"].isNull()) | 
+            (!obj["boost_peer"].isNull()) | 
         0), callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputPeer(stream, obj["boost_peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsCheckGiftCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1907247935:
+        readTLPaymentsCheckedGiftCode(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsCheckGiftCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1907247935:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["slug"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsApplyGiftCode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -152934316:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsApplyGiftCode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -152934316:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["slug"], callback);
+    break;
+    }
+}
+
+void readTLMethodPaymentsGetGiveawayInfo(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -198994907:
+        readTLPaymentsGiveawayInfo(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPaymentsGetGiveawayInfo(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -198994907:
+        writeInt32(stream, obj["_"], callback);
         writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
     break;
     }
 }
 
-void readTLMethodAccountGetAutoSaveSettings(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPaymentsLaunchPrepaidGiveaway(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1379156774:
-        readTLAccountAutoSaveSettings(stream, i, callback);
+    case 1609928480:
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAccountGetAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPaymentsLaunchPrepaidGiveaway(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1379156774:
+    case 1609928480:
         writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt64(stream, obj["giveaway_id"], callback);
+        writeTLInputStorePaymentPurpose(stream, obj["purpose"], callback);
     break;
     }
 }
 
-void readTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodStickersCreateStickerSet(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -694451359:
-        readBool(stream, i, callback);
+    case -1876841625:
+        readTLMessagesStickerSet(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAccountSaveAutoSaveSettings(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodStickersCreateStickerSet(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -694451359:
+    case -1876841625:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["users"].isNull()) | 
-            (!obj["chats"].isNull() << 1) | 
-            (!obj["broadcasts"].isNull() << 2) | 
-            (!obj["peer"].isNull() << 3) | 
+            (!obj["masks"].isNull()) | 
+            (!obj["animated"].isNull() << 1) | 
+            (!obj["videos"].isNull() << 4) | 
+            (!obj["emojis"].isNull() << 5) | 
+            (!obj["text_color"].isNull() << 6) | 
+            (!obj["thumb"].isNull() << 2) | 
+            (!obj["software"].isNull() << 3) | 
         0), callback);
-        if (obj["flags"].toUInt() & 8l) writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLAutoSaveSettings(stream, obj["settings"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeString(stream, obj["title"], callback);
+        writeString(stream, obj["short_name"], callback);
+        if (obj["flags"].toUInt() & 4l) writeTLInputDocument(stream, obj["thumb"], callback);
+        writeVector(stream, obj["stickers"], (void*) &writeTLInputStickerSetItem);
+        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["software"], callback);
     break;
     }
 }
 
-void readTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodStickersRemoveStickerFromSet(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 1404829728:
+    case -143257775:
+        readTLMessagesStickerSet(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStickersRemoveStickerFromSet(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -143257775:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputDocument(stream, obj["sticker"], callback);
+    break;
+    }
+}
+
+void readTLMethodStickersChangeStickerPosition(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -4795190:
+        readTLMessagesStickerSet(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStickersChangeStickerPosition(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -4795190:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputDocument(stream, obj["sticker"], callback);
+        writeInt32(stream, obj["position"], callback);
+    break;
+    }
+}
+
+void readTLMethodStickersAddStickerToSet(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -2041315650:
+        readTLMessagesStickerSet(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStickersAddStickerToSet(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -2041315650:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputStickerSet(stream, obj["stickerset"], callback);
+        writeTLInputStickerSetItem(stream, obj["sticker"], callback);
+    break;
+    }
+}
+
+void readTLMethodStickersSetStickerSetThumb(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1486204014:
+        readTLMessagesStickerSet(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStickersSetStickerSetThumb(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1486204014:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["thumb"].isNull()) | 
+            (!obj["thumb_document_id"].isNull() << 1) | 
+        0), callback);
+        writeTLInputStickerSet(stream, obj["stickerset"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputDocument(stream, obj["thumb"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt64(stream, obj["thumb_document_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodStickersCheckShortName(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 676017721:
         readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodAccountDeleteAutoSaveExceptions(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodStickersCheckShortName(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 1404829728:
+    case 676017721:
         writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["short_name"], callback);
+    break;
+    }
+}
+
+void readTLMethodStickersSuggestShortName(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1303364867:
+        readTLStickersSuggestedShortName(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStickersSuggestShortName(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1303364867:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["title"], callback);
     break;
     }
 }
@@ -32608,137 +33725,1035 @@ void writeTLMethodStickersDeleteStickerSet(TelegramStream &stream, QVariant i, v
     }
 }
 
-void readTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPhoneGetCallConfig(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 889046467:
-        readTLMessagesBotApp(stream, i, callback);
+    case 1430593449:
+        readTLDataJSON(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesGetBotApp(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPhoneGetCallConfig(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 889046467:
+    case 1430593449:
         writeInt32(stream, obj["_"], callback);
-        writeTLInputBotApp(stream, obj["app"], callback);
-        writeInt64(stream, obj["hash"], callback);
     break;
     }
 }
 
-void readTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPhoneRequestCall(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1940243652:
-        readTLAppWebViewResult(stream, i, callback);
+    case 1124046573:
+        readTLPhonePhoneCall(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesRequestAppWebView(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPhoneRequestCall(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1940243652:
+    case 1124046573:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["write_allowed"].isNull()) | 
-            (!obj["start_param"].isNull() << 1) | 
-            (!obj["theme_params"].isNull() << 2) | 
+            (!obj["video"].isNull()) | 
         0), callback);
-        writeTLInputPeer(stream, obj["peer"], callback);
-        writeTLInputBotApp(stream, obj["app"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["start_param"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLDataJSON(stream, obj["theme_params"], callback);
-        writeString(stream, obj["platform"], callback);
+        writeTLInputUser(stream, obj["user_id"], callback);
+        writeInt32(stream, obj["random_id"], callback);
+        writeByteArray(stream, obj["g_a_hash"], callback);
+        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
     break;
     }
 }
 
-void readTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPhoneAcceptCall(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 282013987:
+    case 1003664544:
+        readTLPhonePhoneCall(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneAcceptCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1003664544:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeByteArray(stream, obj["g_b"], callback);
+        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneConfirmCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 788404002:
+        readTLPhonePhoneCall(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneConfirmCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 788404002:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeByteArray(stream, obj["g_a"], callback);
+        writeInt64(stream, obj["key_fingerprint"], callback);
+        writeTLPhoneCallProtocol(stream, obj["protocol"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneReceivedCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 399855457:
         readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodBotsSetBotInfo(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPhoneReceivedCall(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 282013987:
+    case 399855457:
         writeInt32(stream, obj["_"], callback);
-        writeUInt32(stream, obj["flags"] = (
-            (!obj["bot"].isNull() << 2) | 
-            (!obj["name"].isNull() << 3) | 
-            (!obj["about"].isNull()) | 
-            (!obj["description"].isNull() << 1) | 
-        0), callback);
-        if (obj["flags"].toUInt() & 4l) writeTLInputUser(stream, obj["bot"], callback);
-        writeString(stream, obj["lang_code"], callback);
-        if (obj["flags"].toUInt() & 8l) writeString(stream, obj["name"], callback);
-        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["about"], callback);
-        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["description"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
     break;
     }
 }
 
-void readTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodPhoneDiscardCall(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -589753091:
-        readTLBotsBotInfo(stream, i, callback);
+    case -1295269440:
+        readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodBotsGetBotInfo(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodPhoneDiscardCall(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -589753091:
+    case -1295269440:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["bot"].isNull()) | 
+            (!obj["video"].isNull()) | 
         0), callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputUser(stream, obj["bot"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeInt32(stream, obj["duration"], callback);
+        writeTLPhoneCallDiscardReason(stream, obj["reason"], callback);
+        writeInt64(stream, obj["connection_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneSetCallRating(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1508562471:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneSetCallRating(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1508562471:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["user_initiative"].isNull()) | 
+        0), callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeInt32(stream, obj["rating"], callback);
+        writeString(stream, obj["comment"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneSaveCallDebug(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 662363518:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneSaveCallDebug(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 662363518:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeTLDataJSON(stream, obj["debug"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneSendSignalingData(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -8744061:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneSendSignalingData(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -8744061:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeByteArray(stream, obj["data"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneCreateGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1221445336:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneCreateGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1221445336:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["rtmp_stream"].isNull() << 2) | 
+            (!obj["title"].isNull()) | 
+            (!obj["schedule_date"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["random_id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["title"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["schedule_date"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneJoinGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1322057861:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneJoinGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1322057861:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["muted"].isNull()) | 
+            (!obj["video_stopped"].isNull() << 2) | 
+            (!obj["invite_hash"].isNull() << 1) | 
+        0), callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeTLInputPeer(stream, obj["join_as"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["invite_hash"], callback);
+        writeTLDataJSON(stream, obj["params"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneLeaveGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1342404601:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneLeaveGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1342404601:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeInt32(stream, obj["source"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneInviteToGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2067345760:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneInviteToGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2067345760:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeVector(stream, obj["users"], (void*) &writeTLInputUser);
+    break;
+    }
+}
+
+void readTLMethodPhoneDiscardGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2054648117:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneDiscardGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2054648117:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneToggleGroupCallSettings(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1958458429:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneToggleGroupCallSettings(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1958458429:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["reset_invite_hash"].isNull() << 1) | 
+            (!obj["join_muted"].isNull()) | 
+        0), callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["join_muted"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneGetGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 68699611:
+        readTLPhoneGroupCall(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneGetGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 68699611:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneGetGroupParticipants(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -984033109:
+        readTLPhoneGroupParticipants(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneGetGroupParticipants(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -984033109:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeVector(stream, obj["ids"], (void*) &writeTLInputPeer);
+        writeVector(stream, obj["sources"], (void*) &writeInt32);
+        writeString(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneCheckGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1248003721:
+        readVector(stream, i, (void*) &readInt32);
+    break;
+    }
+}
+
+void writeTLMethodPhoneCheckGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1248003721:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeVector(stream, obj["sources"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodPhoneToggleGroupCallRecord(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -248985848:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneToggleGroupCallRecord(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -248985848:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["start"].isNull()) | 
+            (!obj["video"].isNull() << 2) | 
+            (!obj["title"].isNull() << 1) | 
+            (!obj["video_portrait"].isNull() << 2) | 
+        0), callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["title"], callback);
+        if (obj["flags"].toUInt() & 4l) writeBool(stream, obj["video_portrait"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneEditGroupCallParticipant(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1524155713:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneEditGroupCallParticipant(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1524155713:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["muted"].isNull()) | 
+            (!obj["volume"].isNull() << 1) | 
+            (!obj["raise_hand"].isNull() << 2) | 
+            (!obj["video_stopped"].isNull() << 3) | 
+            (!obj["video_paused"].isNull() << 4) | 
+            (!obj["presentation_paused"].isNull() << 5) | 
+        0), callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeTLInputPeer(stream, obj["participant"], callback);
+        if (obj["flags"].toUInt() & 1l) writeBool(stream, obj["muted"], callback);
+        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["volume"], callback);
+        if (obj["flags"].toUInt() & 4l) writeBool(stream, obj["raise_hand"], callback);
+        if (obj["flags"].toUInt() & 8l) writeBool(stream, obj["video_stopped"], callback);
+        if (obj["flags"].toUInt() & 16l) writeBool(stream, obj["video_paused"], callback);
+        if (obj["flags"].toUInt() & 32l) writeBool(stream, obj["presentation_paused"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneEditGroupCallTitle(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 480685066:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneEditGroupCallTitle(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 480685066:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeString(stream, obj["title"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneGetGroupCallJoinAs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -277077702:
+        readTLPhoneJoinAsPeers(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneGetGroupCallJoinAs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -277077702:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneExportGroupCallInvite(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -425040769:
+        readTLPhoneExportedGroupCallInvite(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneExportGroupCallInvite(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -425040769:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["can_self_unmute"].isNull()) | 
+        0), callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneToggleGroupCallStartSubscription(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 563885286:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneToggleGroupCallStartSubscription(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 563885286:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeBool(stream, obj["subscribed"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneStartScheduledGroupCall(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1451287362:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneStartScheduledGroupCall(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1451287362:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneSaveDefaultGroupCallJoinAs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1465786252:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneSaveDefaultGroupCallJoinAs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1465786252:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeTLInputPeer(stream, obj["join_as"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneJoinGroupCallPresentation(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -873829436:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneJoinGroupCallPresentation(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -873829436:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+        writeTLDataJSON(stream, obj["params"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneLeaveGroupCallPresentation(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 475058500:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneLeaveGroupCallPresentation(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 475058500:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneGetGroupCallStreamChannels(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 447879488:
+        readTLPhoneGroupCallStreamChannels(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneGetGroupCallStreamChannels(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 447879488:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputGroupCall(stream, obj["call"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneGetGroupCallStreamRtmpUrl(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -558650433:
+        readTLPhoneGroupCallStreamRtmpUrl(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneGetGroupCallStreamRtmpUrl(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -558650433:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeBool(stream, obj["revoke"], callback);
+    break;
+    }
+}
+
+void readTLMethodPhoneSaveCallLog(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1092913030:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPhoneSaveCallLog(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1092913030:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPhoneCall(stream, obj["peer"], callback);
+        writeTLInputFile(stream, obj["file"], callback);
+    break;
+    }
+}
+
+void readTLMethodLangpackGetLangPack(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -219008246:
+        readTLLangPackDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodLangpackGetLangPack(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -219008246:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_pack"], callback);
         writeString(stream, obj["lang_code"], callback);
     break;
     }
 }
 
-void readTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodLangpackGetStrings(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 2123760019:
-        readTLAuthSentCode(stream, i, callback);
+    case -269862909:
+        readVector(stream, i, (void*) &readTLLangPackString);
     break;
     }
 }
 
-void writeTLMethodAuthResetLoginEmail(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodLangpackGetStrings(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case 2123760019:
+    case -269862909:
         writeInt32(stream, obj["_"], callback);
-        writeString(stream, obj["phone_number"], callback);
-        writeString(stream, obj["phone_code_hash"], callback);
+        writeString(stream, obj["lang_pack"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        writeVector(stream, obj["keys"], (void*) &writeString);
+    break;
+    }
+}
+
+void readTLMethodLangpackGetDifference(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -845657435:
+        readTLLangPackDifference(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodLangpackGetDifference(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -845657435:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_pack"], callback);
+        writeString(stream, obj["lang_code"], callback);
+        writeInt32(stream, obj["from_version"], callback);
+    break;
+    }
+}
+
+void readTLMethodLangpackGetLanguages(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1120311183:
+        readVector(stream, i, (void*) &readTLLangPackLanguage);
+    break;
+    }
+}
+
+void writeTLMethodLangpackGetLanguages(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1120311183:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_pack"], callback);
+    break;
+    }
+}
+
+void readTLMethodLangpackGetLanguage(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1784243458:
+        readTLLangPackLanguage(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodLangpackGetLanguage(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1784243458:
+        writeInt32(stream, obj["_"], callback);
+        writeString(stream, obj["lang_pack"], callback);
+        writeString(stream, obj["lang_code"], callback);
+    break;
+    }
+}
+
+void readTLMethodFoldersEditPeerFolders(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1749536939:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodFoldersEditPeerFolders(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1749536939:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["folder_peers"], (void*) &writeTLInputFolderPeer);
+    break;
+    }
+}
+
+void readTLMethodStatsGetBroadcastStats(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1421720550:
+        readTLStatsBroadcastStats(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStatsGetBroadcastStats(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1421720550:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["dark"].isNull()) | 
+        0), callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+    break;
+    }
+}
+
+void readTLMethodStatsLoadAsyncGraph(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1646092192:
+        readTLStatsGraph(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStatsLoadAsyncGraph(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1646092192:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["x"].isNull()) | 
+        0), callback);
+        writeString(stream, obj["token"], callback);
+        if (obj["flags"].toUInt() & 1l) writeInt64(stream, obj["x"], callback);
+    break;
+    }
+}
+
+void readTLMethodStatsGetMegagroupStats(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -589330937:
+        readTLStatsMegagroupStats(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStatsGetMegagroupStats(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -589330937:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["dark"].isNull()) | 
+        0), callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+    break;
+    }
+}
+
+void readTLMethodStatsGetMessagePublicForwards(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1445996571:
+        readTLMessagesMessages(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStatsGetMessagePublicForwards(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1445996571:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
+        writeInt32(stream, obj["offset_rate"], callback);
+        writeTLInputPeer(stream, obj["offset_peer"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodStatsGetMessageStats(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1226791947:
+        readTLStatsMessageStats(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStatsGetMessageStats(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1226791947:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["dark"].isNull()) | 
+        0), callback);
+        writeTLInputChannel(stream, obj["channel"], callback);
+        writeInt32(stream, obj["msg_id"], callback);
     break;
     }
 }
@@ -32998,79 +35013,668 @@ void writeTLMethodChatlistsLeaveChatlist(TelegramStream &stream, QVariant i, voi
     }
 }
 
-void readTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodStoriesCanSendStory(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case -1760972350:
+    case -941629475:
         readBool(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodBotsReorderUsernames(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodStoriesCanSendStory(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1760972350:
+    case -941629475:
         writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeVector(stream, obj["order"], (void*) &writeString);
+        writeTLInputPeer(stream, obj["peer"], callback);
     break;
     }
 }
 
-void readTLMethodBotsToggleUsername(TelegramStream &stream, QVariant &i, void* callback)
+void readTLMethodStoriesSendStory(TelegramStream &stream, QVariant &i, void* callback)
 {
     QVariant conId;
     readInt32(stream, conId, callback);
     switch (conId.toInt()) {
-    case 87861619:
-        readBool(stream, i, callback);
-    break;
-    }
-}
-
-void writeTLMethodBotsToggleUsername(TelegramStream &stream, QVariant i, void* callback)
-{
-    TelegramObject obj = i.toMap();
-    switch (obj["_"].toInt()) {
-    case 87861619:
-        writeInt32(stream, obj["_"], callback);
-        writeTLInputUser(stream, obj["bot"], callback);
-        writeString(stream, obj["username"], callback);
-        writeBool(stream, obj["active"], callback);
-    break;
-    }
-}
-
-void readTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant &i, void* callback)
-{
-    QVariant conId;
-    readInt32(stream, conId, callback);
-    switch (conId.toInt()) {
-    case -1879389471:
+    case -1128843708:
         readTLUpdates(stream, i, callback);
     break;
     }
 }
 
-void writeTLMethodMessagesSetChatWallPaper(TelegramStream &stream, QVariant i, void* callback)
+void writeTLMethodStoriesSendStory(TelegramStream &stream, QVariant i, void* callback)
 {
     TelegramObject obj = i.toMap();
     switch (obj["_"].toInt()) {
-    case -1879389471:
+    case -1128843708:
         writeInt32(stream, obj["_"], callback);
         writeUInt32(stream, obj["flags"] = (
-            (!obj["wallpaper"].isNull()) | 
-            (!obj["settings"].isNull() << 2) | 
-            (!obj["id"].isNull() << 1) | 
+            (!obj["pinned"].isNull() << 2) | 
+            (!obj["noforwards"].isNull() << 4) | 
+            (!obj["media_areas"].isNull() << 5) | 
+            (!obj["caption"].isNull()) | 
+            (!obj["entities"].isNull() << 1) | 
+            (!obj["period"].isNull() << 3) | 
         0), callback);
         writeTLInputPeer(stream, obj["peer"], callback);
-        if (obj["flags"].toUInt() & 1l) writeTLInputWallPaper(stream, obj["wallpaper"], callback);
-        if (obj["flags"].toUInt() & 4l) writeTLWallPaperSettings(stream, obj["settings"], callback);
-        if (obj["flags"].toUInt() & 2l) writeInt32(stream, obj["id"], callback);
+        writeTLInputMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 32l) writeVector(stream, obj["media_areas"], (void*) &writeTLMediaArea);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["caption"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        writeVector(stream, obj["privacy_rules"], (void*) &writeTLInputPrivacyRule);
+        writeInt64(stream, obj["random_id"], callback);
+        if (obj["flags"].toUInt() & 8l) writeInt32(stream, obj["period"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesEditStory(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1249658298:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesEditStory(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1249658298:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["media"].isNull()) | 
+            (!obj["media_areas"].isNull() << 3) | 
+            (!obj["caption"].isNull() << 1) | 
+            (!obj["entities"].isNull() << 1) | 
+            (!obj["privacy_rules"].isNull() << 2) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+        if (obj["flags"].toUInt() & 1l) writeTLInputMedia(stream, obj["media"], callback);
+        if (obj["flags"].toUInt() & 8l) writeVector(stream, obj["media_areas"], (void*) &writeTLMediaArea);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["caption"], callback);
+        if (obj["flags"].toUInt() & 2l) writeVector(stream, obj["entities"], (void*) &writeTLMessageEntity);
+        if (obj["flags"].toUInt() & 4l) writeVector(stream, obj["privacy_rules"], (void*) &writeTLInputPrivacyRule);
+    break;
+    }
+}
+
+void readTLMethodStoriesDeleteStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1369842849:
+        readVector(stream, i, (void*) &readInt32);
+    break;
+    }
+}
+
+void writeTLMethodStoriesDeleteStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1369842849:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodStoriesTogglePinned(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1703566865:
+        readVector(stream, i, (void*) &readInt32);
+    break;
+    }
+}
+
+void writeTLMethodStoriesTogglePinned(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1703566865:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+        writeBool(stream, obj["pinned"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetAllStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -290400731:
+        readTLStoriesAllStories(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetAllStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -290400731:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["next"].isNull() << 1) | 
+            (!obj["hidden"].isNull() << 2) | 
+            (!obj["state"].isNull()) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeString(stream, obj["state"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetPinnedStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1478600156:
+        readTLStoriesStories(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetPinnedStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1478600156:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetStoriesArchive(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1271586794:
+        readTLStoriesStories(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetStoriesArchive(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1271586794:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["offset_id"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetStoriesByID(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1467271796:
+        readTLStoriesStories(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetStoriesByID(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1467271796:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodStoriesToggleAllStoriesHidden(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2082822084:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesToggleAllStoriesHidden(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2082822084:
+        writeInt32(stream, obj["_"], callback);
+        writeBool(stream, obj["hidden"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesReadStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1521034552:
+        readVector(stream, i, (void*) &readInt32);
+    break;
+    }
+}
+
+void writeTLMethodStoriesReadStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1521034552:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["max_id"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesIncrementStoryViews(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1308456197:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesIncrementStoryViews(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1308456197:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetStoryViewsList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2127707223:
+        readTLStoriesStoryViewsList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetStoryViewsList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2127707223:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["just_contacts"].isNull()) | 
+            (!obj["reactions_first"].isNull() << 2) | 
+            (!obj["q"].isNull() << 1) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        if (obj["flags"].toUInt() & 2l) writeString(stream, obj["q"], callback);
+        writeInt32(stream, obj["id"], callback);
+        writeString(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetStoriesViews(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 685862088:
+        readTLStoriesStoryViews(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetStoriesViews(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 685862088:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+    break;
+    }
+}
+
+void readTLMethodStoriesExportStoryLink(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2072899360:
+        readTLExportedStoryLink(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesExportStoryLink(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2072899360:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["id"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesReport(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 421788300:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesReport(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 421788300:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeVector(stream, obj["id"], (void*) &writeInt32);
+        writeTLReportReason(stream, obj["reason"], callback);
+        writeString(stream, obj["message"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesActivateStealthMode(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1471926630:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesActivateStealthMode(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1471926630:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["past"].isNull()) | 
+            (!obj["future"].isNull() << 1) | 
+        0), callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesSendReaction(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 2144810674:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesSendReaction(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 2144810674:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["add_to_recent"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeInt32(stream, obj["story_id"], callback);
+        writeTLReaction(stream, obj["reaction"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetPeerStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 743103056:
+        readTLStoriesPeerStories(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetPeerStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 743103056:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetAllReadPeerStories(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1688541191:
+        readTLUpdates(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetAllReadPeerStories(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1688541191:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetPeerMaxIDs(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1398375363:
+        readVector(stream, i, (void*) &readInt32);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetPeerMaxIDs(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1398375363:
+        writeInt32(stream, obj["_"], callback);
+        writeVector(stream, obj["id"], (void*) &writeTLInputPeer);
+    break;
+    }
+}
+
+void readTLMethodStoriesGetChatsToSend(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1519744160:
+        readTLMessagesChats(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesGetChatsToSend(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1519744160:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodStoriesTogglePeerStoriesHidden(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case -1123805756:
+        readBool(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodStoriesTogglePeerStoriesHidden(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case -1123805756:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeBool(stream, obj["hidden"], callback);
+    break;
+    }
+}
+
+void readTLMethodPremiumGetBoostsList(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1626764896:
+        readTLPremiumBoostsList(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPremiumGetBoostsList(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1626764896:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["gifts"].isNull()) | 
+        0), callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
+        writeString(stream, obj["offset"], callback);
+        writeInt32(stream, obj["limit"], callback);
+    break;
+    }
+}
+
+void readTLMethodPremiumGetMyBoosts(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 199719754:
+        readTLPremiumMyBoosts(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPremiumGetMyBoosts(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 199719754:
+        writeInt32(stream, obj["_"], callback);
+    break;
+    }
+}
+
+void readTLMethodPremiumApplyBoost(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 1803396934:
+        readTLPremiumMyBoosts(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPremiumApplyBoost(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 1803396934:
+        writeInt32(stream, obj["_"], callback);
+        writeUInt32(stream, obj["flags"] = (
+            (!obj["slots"].isNull()) | 
+        0), callback);
+        if (obj["flags"].toUInt() & 1l) writeVector(stream, obj["slots"], (void*) &writeInt32);
+        writeTLInputPeer(stream, obj["peer"], callback);
+    break;
+    }
+}
+
+void readTLMethodPremiumGetBoostsStatus(TelegramStream &stream, QVariant &i, void* callback)
+{
+    QVariant conId;
+    readInt32(stream, conId, callback);
+    switch (conId.toInt()) {
+    case 70197089:
+        readTLPremiumBoostsStatus(stream, i, callback);
+    break;
+    }
+}
+
+void writeTLMethodPremiumGetBoostsStatus(TelegramStream &stream, QVariant i, void* callback)
+{
+    TelegramObject obj = i.toMap();
+    switch (obj["_"].toInt()) {
+    case 70197089:
+        writeInt32(stream, obj["_"], callback);
+        writeTLInputPeer(stream, obj["peer"], callback);
     break;
     }
 }
