@@ -232,7 +232,7 @@ void TgTransport::migrateTo(qint32 dcId)
     TgList dcOptions = tgConfig["dc_options"].toList();
 
     QString targetHost;
-    quint16 targetPort;
+    quint16 targetPort = 0;
 
     for (qint32 i = 0; i < dcOptions.size(); ++i) {
         TgObject option = dcOptions[i].toMap();

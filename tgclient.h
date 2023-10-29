@@ -149,18 +149,21 @@ signals:
 
     void messageChanged(TgLongVariant oldMsg, TgLongVariant newMsg);
 
-    //TODO: rename to objects types
-    void helpGetCountriesListResponse(TgObject data, TgLongVariant messageId);
-    void authSendCodeResponse(TgObject data, TgLongVariant messageId);
-    void authSignInResponse(TgObject data, TgLongVariant messageId);
-    void messagesGetDialogsResponse(TgObject data, TgLongVariant messageId);
-    void messagesGetHistoryResponse(TgObject data, TgLongVariant messageId);
+    void helpCountriesListResponse(TgObject data, TgLongVariant messageId);
+    void authSentCodeResponse(TgObject data, TgLongVariant messageId);
+    //emits for auth.Authorizations that are visible to end user only
+    void authAuthorizationResponse(TgObject data, TgLongVariant messageId);
+    void messagesDialogsResponse(TgObject data, TgLongVariant messageId);
+    void messagesMessagesResponse(TgObject data, TgLongVariant messageId);
 
-    void messagesGetDialogFiltersResponse(TgVector data, TgLongVariant messageId);
-    void usersGetUsersResponse(TgVector data, TgLongVariant messageId);
+    void vectorDialogFilterResponse(TgVector data, TgLongVariant messageId);
+    void vectorUserResponse(TgVector data, TgLongVariant messageId);
 
     void boolResponse(bool response, TgLongVariant messageId);
     void unknownResponse(qint32 conId, QByteArray data, TgLongVariant messageId);
+
+    void gotUpdate(TgObject update, TgList users, TgList chats, qint32 date, qint32 seq, qint32 seqStart);
+    void gotMessageUpdate(TgObject messageUpdate);
 };
 
 template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)

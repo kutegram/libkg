@@ -357,28 +357,57 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         break;
     case TLType::HelpCountriesList:
     case TLType::HelpCountriesListNotModified:
-        emit helpGetCountriesListResponse(tlDeserialize<&readTLHelpCountriesList>(data).toMap(), messageId);
+        emit helpCountriesListResponse(tlDeserialize<&readTLHelpCountriesList>(data).toMap(), messageId);
         break;
     case TLType::AuthSentCode:
     case TLType::AuthSentCodeSuccess:
-        emit authSendCodeResponse(tlDeserialize<&readTLAuthSentCode>(data).toMap(), messageId);
+        emit authSentCodeResponse(tlDeserialize<&readTLAuthSentCode>(data).toMap(), messageId);
         break;
     case TLType::AuthAuthorization:
     case TLType::AuthAuthorizationSignUpRequired:
-        emit authSignInResponse(tlDeserialize<&readTLAuthAuthorization>(data).toMap(), messageId);
+        emit authAuthorizationResponse(tlDeserialize<&readTLAuthAuthorization>(data).toMap(), messageId);
         break;
     case TLType::MessagesDialogs:
     case TLType::MessagesDialogsNotModified:
     case TLType::MessagesDialogsSlice:
-        emit messagesGetDialogsResponse(tlDeserialize<&readTLMessagesDialogs>(data).toMap(), messageId);
+        emit messagesDialogsResponse(tlDeserialize<&readTLMessagesDialogs>(data).toMap(), messageId);
         break;
     case TLType::UploadFile:
     case TLType::UploadFileCdnRedirect:
         handleDownloadingFile(tlDeserialize<&readTLUploadFile>(data).toMap(), messageId);
         break;
     case TLType::UpdateShort:
+    {
+        TgObject update = tlDeserialize<&readTLUpdates>(data).toMap();
+        emit gotUpdate(update["update"].toMap(), TgList(), TgList(), update["date"].toInt(), 0, 0);
+        break;
+    }
     case TLType::Updates:
-        //TODO: handle all types of updates
+    case TLType::UpdatesCombined:
+    {
+        TgObject update = tlDeserialize<&readTLUpdates>(data).toMap();
+
+        TgList users    = update["users"].toList();
+        TgList chats    = update["chats"].toList();
+        qint32 date     = update["date"].toInt();
+        qint32 seq      = update["seq"].toInt();
+        qint32 seqStart = update["seq_start"].toInt();
+
+        TgList updates = update["updates"].toList();
+        foreach (TgVariant u, updates) {
+            emit gotUpdate(u.toMap(),
+                           users,
+                           chats,
+                           date,
+                           seq,
+                           seqStart);
+        }
+        break;
+    }
+    case TLType::UpdateShortMessage:
+    case TLType::UpdateShortChatMessage:
+    case TLType::UpdateShortSentMessage:
+        emit gotMessageUpdate(tlDeserialize<&readTLUpdates>(data).toMap());
         break;
     case TLType::AuthExportedAuthorization:
     {
@@ -394,7 +423,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::MessagesMessages:
     case TLType::MessagesMessagesSlice:
     case TLType::MessagesMessagesNotModified:
-        emit messagesGetHistoryResponse(tlDeserialize<&readTLMessagesMessages>(data).toMap(), messageId);
+        emit messagesMessagesResponse(tlDeserialize<&readTLMessagesMessages>(data).toMap(), messageId);
         break;
     default:
         kgDebug() << "UNHANDLED object:" << conId;
@@ -423,11 +452,11 @@ void TgClient::handleVector(QByteArray data, qint64 messageId)
     case TLType::DialogFilter:
     case TLType::DialogFilterDefault:
     case TLType::DialogFilterChatlist:
-        emit messagesGetDialogFiltersResponse(tlVDeserialize<&readTLDialogFilter>(data), messageId);
+        emit vectorDialogFilterResponse(tlVDeserialize<&readTLDialogFilter>(data), messageId);
         break;
     case TLType::User:
     case TLType::UserEmpty:
-        emit usersGetUsersResponse(tlVDeserialize<&readTLUser>(data), messageId);
+        emit vectorUserResponse(tlVDeserialize<&readTLUser>(data), messageId);
         break;
     default:
         kgDebug() << "UNHANDLED vector of objects:" << conId;
