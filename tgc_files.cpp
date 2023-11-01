@@ -76,6 +76,14 @@ TgLongVariant TgClient::downloadFile(QString filePath, TgObject inputFile, TgLon
 
         for (qint32 i = 0; i < sizes.size(); ++i) {
             TgObject obj = sizes[i].toMap();
+            if (ID(thumbSize) != 0 && (
+                           obj["type"].toString() == "a"
+                        || obj["type"].toString() == "b"
+                        || obj["type"].toString() == "c"
+                        || obj["type"].toString() == "d"
+                        || obj["type"].toString() == "w"
+                        ))
+                continue;
             if (obj["w"].toInt() > thumbSize["w"].toInt() || obj["h"].toInt() > thumbSize["h"].toInt())
                 thumbSize = obj;
         }
