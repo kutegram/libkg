@@ -47,6 +47,7 @@ private:
     bool _authorized;
     TgObject importMethod;
     QDir _cacheDirectory;
+    QDir _sessionDirectory;
 
 public:
     explicit TgClient(QObject *parent = 0, qint32 dcId = 0, QString sessionName = "");
@@ -59,8 +60,10 @@ public slots:
 
     void start();
     void stop();
-    QDir cacheDirectory();
 
+    QDir cacheDirectory();
+    QDir sessionDirectory();
+    QString sessionName();
     void resetSession();
     void migrateTo(TgObject config, qint32 dcId);
     TgClient* getClientForDc(qint32 dcId);

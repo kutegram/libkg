@@ -58,6 +58,7 @@ TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
     , _authorized()
     , importMethod()
     , _cacheDirectory()
+    , _sessionDirectory()
 {
     _main = dcId == 0;
     clientSessionName = sessionName;
@@ -65,15 +66,25 @@ TgClient::TgClient(QObject *parent, qint32 dcId, QString sessionName)
         clientSessionName = "user_session";
     }
 
-    _cacheDirectory = QDir(QDir::cleanPath(QSettings(
+    _sessionDirectory = QDir(QDir::cleanPath(QSettings(
                                            QSettings::IniFormat,
                                            QSettings::UserScope,
                                            QCoreApplication::organizationName(),
-                                           QCoreApplication::applicationName() + "_" + clientSessionName)
-                                       .fileName()+"/../" + QCoreApplication::applicationName() + "_" + clientSessionName));
+                                           QCoreApplication::applicationName() + "_" + clientSessionName).fileName() + "/.."));
+    _cacheDirectory = QDir(_sessionDirectory.absoluteFilePath(QCoreApplication::applicationName() + "_" + clientSessionName));
     _cacheDirectory.mkpath(".");
 
     _transport = new TgTransport(this, clientSessionName, dcId);
+}
+
+QString TgClient::sessionName()
+{
+    return clientSessionName;
+}
+
+QDir TgClient::sessionDirectory()
+{
+    return _sessionDirectory;
 }
 
 qint32 TgClient::getObjectId(TgObject var)
