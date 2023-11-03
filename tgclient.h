@@ -165,8 +165,8 @@ signals:
     void boolResponse(bool response, TgLongVariant messageId);
     void unknownResponse(qint32 conId, QByteArray data, TgLongVariant messageId);
 
-    void gotUpdate(TgObject update, TgList users, TgList chats, qint32 date, qint32 seq, qint32 seqStart);
-    void gotMessageUpdate(TgObject messageUpdate);
+    void gotUpdate(TgObject update, TgLongVariant messageId, TgList users, TgList chats, qint32 date, qint32 seq, qint32 seqStart);
+    void gotMessageUpdate(TgObject messageUpdate, TgLongVariant messageId);
 };
 
 template <WRITE_METHOD W> TgLong TgClient::sendObject(TgObject i)

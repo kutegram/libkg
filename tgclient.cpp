@@ -390,7 +390,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::UpdateShort:
     {
         TgObject update = tlDeserialize<&readTLUpdates>(data).toMap();
-        emit gotUpdate(update["update"].toMap(), TgList(), TgList(), update["date"].toInt(), 0, 0);
+        emit gotUpdate(update["update"].toMap(), messageId, TgList(), TgList(), update["date"].toInt(), 0, 0);
         break;
     }
     case TLType::Updates:
@@ -407,6 +407,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
         TgList updates = update["updates"].toList();
         foreach (TgVariant u, updates) {
             emit gotUpdate(u.toMap(),
+                           messageId,
                            users,
                            chats,
                            date,
@@ -418,7 +419,7 @@ void TgClient::handleObject(QByteArray data, qint64 messageId)
     case TLType::UpdateShortMessage:
     case TLType::UpdateShortChatMessage:
     case TLType::UpdateShortSentMessage:
-        emit gotMessageUpdate(tlDeserialize<&readTLUpdates>(data).toMap());
+        emit gotMessageUpdate(tlDeserialize<&readTLUpdates>(data).toMap(), messageId);
         break;
     case TLType::AuthExportedAuthorization:
     {
