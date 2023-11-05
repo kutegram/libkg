@@ -1023,6 +1023,7 @@ void TgTransport::handleRpcError(QByteArray data, qint64 messageId)
 
     if (errorMessage.contains("FLOOD_WAIT_")) {
         floodMessages.insert(messageId, pendingMessages.take(messageId));
+        _client->handleRpcError(errorCode, errorMessage, messageId);
         return;
     }
 
