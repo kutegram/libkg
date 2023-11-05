@@ -35,12 +35,12 @@ class TgClient : public QObject
 private:
     QString clientSessionName;
     TgTransport *_transport;
-    QMap<TgLong, TgFileCtx*> processedFiles;
-    QMap<TgLong, TgFileCtx*> processedDownloadFiles;
+    QHash<TgLong, TgFileCtx*> processedFiles;
+    QHash<TgLong, TgFileCtx*> processedDownloadFiles;
     TgLong currentDownloading;
-    QMap<TgLong, TgLong> filePackets;
-    QMap<qint32, TgClient*> clientForDc;
-    QMap<TgLong, TgInt> migrationForDc;
+    QHash<TgLong, TgLong> filePackets;
+    QHash<qint32, TgClient*> clientForDc;
+    QHash<TgLong, TgInt> migrationForDc;
     bool _main;
     bool _connected;
     bool _initialized;

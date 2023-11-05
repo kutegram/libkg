@@ -43,6 +43,7 @@ typedef QByteArray TgInt256;
 typedef qint32 TgInt;
 typedef qint32 TgInteger;
 typedef qint64 TgLong;
+typedef qint64 TgLongLong;
 typedef TgVariant TgLongVariant;
 typedef long double TgDouble;
 typedef QString TgString;

@@ -40,9 +40,9 @@ private:
     qint64 pingId;
     qint64 userId;
 
-    QMap<qint64, QByteArray> pendingMessages;
-    QMap<qint64, QByteArray> migrationMessages;
-    QMap<qint64, QByteArray> floodMessages;
+    QHash<qint64, QByteArray> pendingMessages;
+    QHash<qint64, QByteArray> migrationMessages;
+    QHash<qint64, QByteArray> floodMessages;
 
     QString _sessionName;
 
