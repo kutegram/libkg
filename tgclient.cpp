@@ -29,6 +29,7 @@ void TgClient::registerQML()
     qRegisterMetaType<TgInt>("TgInt");
     qRegisterMetaType<TgInteger>("TgInteger");
     qRegisterMetaType<TgLong>("TgLong");
+    qRegisterMetaType<TgLongLong>("TgLongLong");
     qRegisterMetaType<TgLongVariant>("TgLongVariant");
     qRegisterMetaType<TgDouble>("TgDouble");
     qRegisterMetaType<TgString>("TgString");
