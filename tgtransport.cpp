@@ -90,7 +90,7 @@ void TgTransport::resetSession()
     sessionId = 0;
     userId = 0;
 
-    saveSession();
+    saveSession(true);
 
     pendingMessages.clear();
     migrationMessages.clear();
@@ -121,7 +121,7 @@ qint32 TgTransport::dcId()
     return currentDc;
 }
 
-void TgTransport::saveSession()
+void TgTransport::saveSession(bool reset)
 {
     if (currentDc == 0) {
         return;
@@ -131,6 +131,10 @@ void TgTransport::saveSession()
 
     //TODO: password encryption
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::organizationName(), QCoreApplication::applicationName() + "_" + _sessionName);
+
+    if (reset) {
+        settings.clear();
+    }
 
     if (isMain) {
         settings.beginGroup("Transport");

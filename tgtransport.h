@@ -65,7 +65,7 @@ public slots:
     void timerEvent(QTimerEvent *event);
 
     void resetSession();
-    void saveSession();
+    void saveSession(bool reset = false);
     void loadSession();
 
     bool hasSession();
