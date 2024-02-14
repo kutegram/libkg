@@ -30,6 +30,10 @@ QString systemName()
 #elif defined(Q_OS_MACOS)
     //TODO: QSysInfo version
     return "Mac OS X";
+#elif defined(Q_OS_WINPHONE)
+    return "Windows Phone";
+#elif defined(Q_OS_WINRT)
+    return "Windows RT";
 #elif defined(Q_OS_WIN)
     switch (QSysInfo::windowsVersion()) {
     case QSysInfo::WV_32s:

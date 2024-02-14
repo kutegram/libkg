@@ -9,8 +9,12 @@
 #include <QSettings>
 #include <QCoreApplication>
 
-#ifdef QT_DECLARATIVE_LIB
+#if defined(QT_QML_LIB) || defined(QT_DECLARATIVE_LIB)
+#if QT_VERSION < 0x050000
 #include <QtDeclarative>
+#else
+#include <QtQml>
+#endif
 
 void TgClient::registerQML()
 {
