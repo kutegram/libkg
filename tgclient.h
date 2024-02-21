@@ -5,7 +5,7 @@
 #include "tgtransport.h"
 #include <QFile>
 #include "crypto.h"
-#include <QLinkedList>
+#include <QList>
 #include <QDir>
 
 class TgFileCtx
@@ -21,7 +21,7 @@ public:
     qint32 fileParts;
     qint32 currentPart;
     bool isBig;
-    QLinkedList<qint64> queue;
+    QList<qint64> queue;
     TgObject download;
 };
 
